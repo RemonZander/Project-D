@@ -1,0 +1,9 @@
+@startuml activity diagram downloaden grafisch product
+start
+->//Customer has image on disk he wants to buy at bol.com//;
+    :Go to bol.com;
+    :Select "Search from image";
+    :Upload image from PC to bol.com;
+    :View catalog on bol.com;
+stop
+@enduml

@@ -1,0 +1,32 @@
+@startuml activity diagram downloaden grafisch product
+start
+->//Customer wants to buy a product at bol.com//;
+'repeat
+#palegreen:if (Customer knows exactly what to buy?) then (Yes)
+    :Enter search-key in search bar;
+    :View catalog of products;
+    stop
+endif
+->No;
+#palegreen:if (Hover over "Categorien")
+    :Choose category;
+    :Choose sub-category;
+    ':View catalog of products;
+    'stop
+#palegreen:elseif (Hover over "Cadeaus & Inspiratie")
+    :Choose collection;
+    ':View catalog of products;
+    'stop
+#palegreen:elseif (Hover over "Aanbiedingen")
+    :Choose category;
+    ':View catalog of products;
+    'stop
+else (nothing)
+    stop
+endif
+:View catalog of products;
+stop
+
+'stop
+'repeat while ()
+@enduml
