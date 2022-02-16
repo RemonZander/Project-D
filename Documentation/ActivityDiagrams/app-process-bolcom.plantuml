@@ -1,0 +1,21 @@
+@startuml activity diagram downloaden grafisch product
+start
+->//Customer wants to buy at bol.com//;
+#palegreen:if (Customer has phone app installed?) then (Yes)
+
+else (no)
+    :Install phone app;
+endif
+
+#palegreen:if (Customer has image of product\nhe wants to buy on phone?) then (Yes)
+else (no)
+    #palegreen:if(Customer has physical representation of product) then (Yes)
+    :Create picture of image using camera;
+    else(no)
+    :Download image from internet;
+    endif
+endif
+    :Upload image on phone app;
+    :View catalog on bol.com;
+stop
+@enduml

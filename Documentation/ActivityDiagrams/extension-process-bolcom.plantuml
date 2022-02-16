@@ -1,0 +1,13 @@
+@startuml activity diagram downloaden grafisch product
+start
+->//Customer found image on browser he wants to buy at bol.com//;
+#palegreen:if (Customer has extension installed?) then (Yes)
+
+else (no)
+    :Install extension;
+endif
+    :Right mouse button on image;
+    :Select "Search on bol.com";
+    :View catalog on bol.com;
+stop
+@enduml
