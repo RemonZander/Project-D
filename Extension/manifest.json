@@ -1,0 +1,15 @@
+{
+    "manifest_version": 2,
+    "name":    "bol.com image search",
+    "version": "0.1",
+
+    "background": {
+        "persistent": false,   
+        "scripts": ["searchImage.js"]
+    },
+
+    "permissions": [
+        "contextMenus",
+        "activeTab"
+    ]
+}
