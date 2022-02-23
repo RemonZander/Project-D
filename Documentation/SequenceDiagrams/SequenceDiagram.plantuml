@@ -1,0 +1,46 @@
+@startuml
+
+title **Search System Sequence Diagram**
+
+actor user as usr
+participant "Chrome extension" as ext
+control "C# Server" as csh
+database "Product database" as db
+participant "Object identifier NN (Python)" as obj
+participant "Image Comparer NN (Python)" as img
+
+usr -> ext: Submit image
+activate usr
+activate ext
+ext -> csh: Send image
+activate csh
+csh -> obj: Send image
+activate obj
+
+obj --> csh: Return identified object name
+deactivate obj
+
+alt#Gold #LightBlue Simple case
+    csh --> ext: Return object name
+    deactivate csh
+    ext --> usr: Return URL link to bol.com
+
+else #Pink Complex case
+    csh -> db: Send object name
+    activate csh
+    activate db
+    db --> csh: Return catagory products
+    deactivate db
+    csh -> img: Send image + catagory products
+    activate img
+    
+    img --> csh: Return product list
+    deactivate img
+
+    csh --> ext: Return search results
+    deactivate csh
+    ext --> usr: Return search results
+    deactivate ext
+    deactivate usr
+end
+@enduml
