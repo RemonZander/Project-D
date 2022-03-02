@@ -1,0 +1,13 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/Server/.vs
+/Server/Exif test project/obj
+/Server/Webscraper/Python 3.9
+/Server/Exif test project/bin/Debug/net6.0-windows
+/Server/Python server/env
+
+/WebExtension/bin
+/WebExtension/obj/Debug
