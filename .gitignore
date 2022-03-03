@@ -11,3 +11,6 @@
 
 /WebExtension/bin
 /WebExtension/obj/Debug
+/Server/Python server/env1
+/Server/Webscraper/env/Lib/site-packages
+/Server/Webscraper/env
