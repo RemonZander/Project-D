@@ -14,7 +14,7 @@ namespace Exif_test_project
         private void button1_Click(object sender, EventArgs e)
         {
             openFileDialog1.ShowDialog();
-            if (string.IsNullOrEmpty(openFileDialog1.SafeFileName) && openFileDialog1.SafeFileName.Contains("openFi")) return;
+            if (string.IsNullOrEmpty(openFileDialog1.SafeFileName) || openFileDialog1.SafeFileName.Contains("openFi")) return;
 
             textBox1.Text = openFileDialog1.SafeFileName;
             textBox2.Enabled = true;
