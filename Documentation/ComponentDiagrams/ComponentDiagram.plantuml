@@ -1,0 +1,43 @@
+@startuml
+
+title **Search System Component Diagram**
+
+ skinparam linetype polyline
+interface "Image" as Image
+interface "Image" as Image2
+interface "Identified object" as Obj
+interface "Identified object" as Obj2
+interface "Product list" as pro
+interface "Compare results" as res
+interface "Compare results" as res2
+database "Product database" as db
+
+[Chrome extension] -right- Image
+[Chrome extension] -[#DarkBlue]right-( Obj2
+[Chrome extension] --( res2
+
+[Python server] -left-( Image
+[Python server] -right- Image2
+[Python server] -up- pro
+
+[Python server] --( Obj
+[Python server] -- Obj2
+[Python server] -down- db
+[Python server] -[#Green]down-( res
+[Python server] -up- res2
+
+[Object identifier NN] -left-( Image2
+[Object identifier NN] -- Obj
+
+[Image comparer NN] -left-( pro
+[Image comparer NN] -left-( Image2
+[Image comparer NN] -down- res
+    legend
+     NN = Neural Network
+     | Color | Case |
+     | <#Crimson> | All|
+     | <#DarkBlue> | Simple |
+     | <#Green> | Complex |
+
+endlegend
+@enduml
