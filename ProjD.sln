@@ -11,6 +11,8 @@ Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Python server", "Server\Pyt
 EndProject
 Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "WebExtension", "WebExtension\WebExtension.njsproj", "{BE350F21-40D7-49D7-B173-FA4456F084D2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Image comparer test project", "Server\Image comparer test project\Image comparer test project.csproj", "{D92ECE98-5F30-46FF-98F4-29B3B89BD250}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +31,10 @@ Global
 		{BE350F21-40D7-49D7-B173-FA4456F084D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE350F21-40D7-49D7-B173-FA4456F084D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE350F21-40D7-49D7-B173-FA4456F084D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D92ECE98-5F30-46FF-98F4-29B3B89BD250}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D92ECE98-5F30-46FF-98F4-29B3B89BD250}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D92ECE98-5F30-46FF-98F4-29B3B89BD250}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D92ECE98-5F30-46FF-98F4-29B3B89BD250}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
