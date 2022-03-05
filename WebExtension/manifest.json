@@ -1,16 +1,22 @@
 {
-    "manifest_version": 2,
+    "manifest_version": 3,
     "name":    "bol.com image search",
     "version": "0.1",
 
     "background": {
-        "persistent": false,   
-        "scripts": ["searchImage.js"]
+        "service_worker": "searchImage.js"
     },
 
     "permissions": [
         "contextMenus",
-        "activeTab",
-        "http://127.0.0.1:5000/*"
-    ]
+        "activeTab"
+    ],
+
+    "host_permissions": [
+        "https://*/",
+        "http://*/"
+    ],
+    "content_security_policy": {
+        "extension_pages": "script-src http://127.0.0.1:5000;  object-src http://127.0.0.1:5000;"
+    }
 }
