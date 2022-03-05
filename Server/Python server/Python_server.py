@@ -2,7 +2,7 @@ from flask import Flask, request
 
 app = Flask(__name__)
 
-@app.route("/image", methods=["POST"])
+@app.route("/image", methods=["POST", "GET"])
 def image():
     if request.method == "POST":
         uploaded_image = request.files["image"]
@@ -14,10 +14,13 @@ def image():
 
         # Change errorCode to > 200 and change message to > Image successfully uploaded
         return {"errorCode": 202, "message": "The request has been received but not yet acted upon. It is noncommittal, since there is no way in HTTP to later send an asynchronous response indicating the outcome of the request. It is intended for cases where another process or server handles the request, or for batch processing."}, 202
-
+        
 def check_file_type(filename):
     accepted_file_types = [".png", ".jpg", ".jpeg"]
     for type in accepted_file_types:
         if filename.endswith(type):
             return True
     return False
+
+if __name__ == '__main__':
+    app.run()
