@@ -1,48 +1,40 @@
-/* Create a context-menu */
+// Create a context-menu
 chrome.contextMenus.create({
-    id: "bolImageSearch",   // <-- mandatory with event-pages
+    id: "bolImageSearch",
     title: "Search on bol.com",
     contexts: ["image"]
 });
 
 
-/* Register a listener for the `onClicked` event */
+// Register a listener for the `onClicked` event
 chrome.contextMenus.onClicked.addListener((clickedData, tab) => {
     if (tab && clickedData.mediaType === "image" && clickedData.menuItemId === "bolImageSearch") {
 
-        const data = new FormData();
-        data.append("image", clickedData.srcUrl);
+        // Fetch request to get the image from the image src url
+        fetch(clickedData.srcUrl)
+        .then(async res => {
 
-        chrome.runtime.sendMessage(
-            {
-                query: "POST",
-                data: data,
-                url: "http://127.0.0.1:5000/image"
-            }, 
-            (res) => {
-                if (res !== undefined && res !== "") {
-                    console.log(res);
-                }
-                else {
-                    console.log(`empty res: ${res}`);
-                }
-            }
-        );
-    }
-});
+            // Convert the image to a blob
+            const contentType = res.headers.get('content-type')
+            const blob = await res.blob()
+            
+            // Making the blob into an file object
+            const imgFile = new File([blob], "image.jpg", { contentType });
 
-
-
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => { 
-    if (request.query == "POST") {
-        fetch(request.url, {
-            method: 'POST',
-            body: request.data
-        })
-        .then(res => res.json())
-        .then(res => sendResponse(res))
-        .catch(err => console.error(`Error: ${err}`));
-
-        return true
+            // Adding the imgFile to the formData with the key "image" for the post request
+            const data = new FormData();
+            data.append("image", imgFile);
+    
+            // Post request to the server sending the formdata as the data.
+            fetch(`http://127.0.0.1:5000/image`, {
+                method: 'POST',
+                body: data,
+            })
+            .then(res => {
+                res.json();
+                console.log(res);
+            })
+            .catch(error => console.log('Authorization failed : ' + error.message));
+        });
     }
 });
