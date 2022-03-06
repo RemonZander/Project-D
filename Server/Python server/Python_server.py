@@ -2,7 +2,7 @@ from flask import Flask, request
 
 app = Flask(__name__)
 
-@app.route("/image", methods=["POST", "GET"])
+@app.route("/image", methods=["POST"])
 def image():
     if request.method == "POST":
         uploaded_image = request.files["image"]
