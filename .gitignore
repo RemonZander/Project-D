@@ -16,3 +16,6 @@
 /Server/Webscraper/env
 /Server/Image comparer test project/bin/Debug/net6.0-windows
 /Server/Image comparer test project/obj
+/Server/Image comparer test project (.net framework)/bin/Debug
+/Server/Image comparer test project (.net framework)/obj/Debug
+/Server/Image comparer test project (.net framework)/Properties
