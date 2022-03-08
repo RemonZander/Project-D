@@ -14,8 +14,8 @@ namespace Image_comparer_test_project__.net_framework_
     public partial class Form1 : Form
     {
         private Bitmap firstImg, secondimage;
-        private int[,] firstImgSectorsHue = new int[WidthSectors, HeightSectors];
-        private int[][,] SecondimgListSectorsHue = new int[1][,];
+        private (int, int)[,] firstImgSectorsHue = new (int, int)[WidthSectors, HeightSectors];
+        private (int, int)[][,] SecondimgListSectorsHue = new (int, int)[1][,];
 
         //only square supported for now
         private const int WidthSectors = 41;
@@ -23,9 +23,6 @@ namespace Image_comparer_test_project__.net_framework_
 
         private Bitmap image = new Bitmap(600, 450);
         private Graphics g;
-
-        private double sensitivity = 360.0;
-        private int maxValue;
 
         public Form1()
         {
@@ -79,8 +76,7 @@ namespace Image_comparer_test_project__.net_framework_
         {
             Result result = new Result();
             //result.Show();
-
-            int simularity = CompareImg(firstImgSectorsHue, SecondimgListSectorsHue[0]);
+            (int, int) results = CompareImg(firstImgSectorsHue, SecondimgListSectorsHue[0]);
 
             g.DrawImage(secondimage, new Point(0, 0));
             result.Image = image;
@@ -99,7 +95,8 @@ namespace Image_comparer_test_project__.net_framework_
 
             
             result.Image = image;
-            textBox1.Text = simularity.ToString();
+            textBox1.Text = results.Item1.ToString();
+            textBox2.Text = results.Item2.ToString();
 
         }
 
@@ -121,7 +118,7 @@ namespace Image_comparer_test_project__.net_framework_
         {
             Bitmap nb = new Bitmap(image.Width, image.Height);
             Graphics g = Graphics.FromImage(nb);
-            int[,] sectorAverages = new int[WidthSectors, HeightSectors];
+            (int, int)[,] sectorAverages = new (int, int)[WidthSectors, HeightSectors];
             int sectorWidth = image.Width / WidthSectors;
             int sectorheight = image.Height / HeightSectors;
             int totalPixelsPerSector = sectorWidth * sectorheight;
@@ -131,7 +128,8 @@ namespace Image_comparer_test_project__.net_framework_
             {
                 for (int b = 0; b < HeightSectors; b++)
                 {
-                    int TotalColorValues = 0;
+                    int TotalHueValues = 0;
+                    int totalBrightnessValues = 0;
                     var red = 0;
                     var green = 0;
                     var blue = 0;
@@ -166,14 +164,14 @@ namespace Image_comparer_test_project__.net_framework_
                     }
                     else if (comboBox1.SelectedIndex == 1 || comboBox1.SelectedIndex == -1)
                     {
-                        if (a < b)
+                        if ((WidthSectors / 2 - ToUInt16(WidthSectors / 2 - a)) < (WidthSectors / 2 - ToUInt16(WidthSectors / 2 - b)))
                         {
-                            weight = 0.04 * a + 1;
+                            weight = 0.08 * (WidthSectors / 2 - ToUInt16(WidthSectors / 2 - a)) + 1;
 
                         }
                         else
                         {
-                            weight = 0.04 * b + 1;
+                            weight = 0.08 * (WidthSectors / 2 - ToUInt16(WidthSectors / 2 - b)) + 1;
                         }
                     }
                     else if (comboBox1.SelectedIndex == 2)
@@ -211,7 +209,8 @@ namespace Image_comparer_test_project__.net_framework_
                             var hue = pixelColor.GetHue();
 
                             //TotalColorValues += (int)(pixelColor.GetHue() + (pixelColor.GetSaturation() * 100.0) + (pixelColor.GetBrightness() * 100.0));
-                            TotalColorValues += (int)pixelColor.GetHue();
+                            TotalHueValues += (int)pixelColor.GetHue();
+                            totalBrightnessValues += (int)(pixelColor.GetBrightness() * 100);
                             red += pixelColor.R;
                             green += pixelColor.G;
                             blue += pixelColor.B;
@@ -225,9 +224,9 @@ namespace Image_comparer_test_project__.net_framework_
                     g.FillRectangle(new SolidBrush(Color.FromArgb(alpha, red, green, blue)), 
                         new Rectangle(sectorWidth * a, sectorheight * b, sectorWidth, sectorheight));
 
-                    g.DrawString((TotalColorValues / totalPixelsPerSector * weight).ToString(), new Font("Arial", 6), new SolidBrush(Color.Black), sectorWidth * a, sectorheight * b);
+                    g.DrawString((totalBrightnessValues / totalPixelsPerSector * weight).ToString(), new Font("Arial", 6), new SolidBrush(Color.Black), sectorWidth * a, sectorheight * b);
 
-                    sectorAverages[a, b] = (int)(TotalColorValues / totalPixelsPerSector * weight);
+                    sectorAverages[a, b] = ((int)(TotalHueValues / totalPixelsPerSector * weight), (int)(totalBrightnessValues / totalPixelsPerSector * weight));
                 }
             }
 
@@ -247,21 +246,24 @@ namespace Image_comparer_test_project__.net_framework_
         {
             Prepimage(firstImg, false);
             Prepimage(secondimage, false);
+            (int, int) results = CompareImg(firstImgSectorsHue, SecondimgListSectorsHue[0]);
 
-            int simularity = CompareImg(firstImgSectorsHue, SecondimgListSectorsHue[0]);
-            textBox1.Text = simularity.ToString();
+            textBox1.Text = results.Item1.ToString();
+            textBox1.Text = results.Item2.ToString();
         }
 
-        private int CompareImg(int[,] firstImgSectorsCompare, int[,] secondImgSectorsCompare)
+        private (int, int) CompareImg((int, int)[,] firstImgSectorsCompare, (int, int)[,] secondImgSectorsCompare)
         {
-            List<int> diff = new List<int>();
+            List<int> diffHue = new List<int>();
+            List<int> diffBrightness = new List<int>();
             for (int a = 0; a < firstImgSectorsCompare.Length; a++)
             {
-                diff.Add(ToUInt16(firstImgSectorsCompare[a % WidthSectors, a / HeightSectors] - secondImgSectorsCompare[a % WidthSectors, a / HeightSectors]));
+                diffHue.Add(ToUInt16(firstImgSectorsCompare[a % WidthSectors, a / HeightSectors].Item1 - secondImgSectorsCompare[a % WidthSectors, a / HeightSectors].Item1));
+                diffBrightness.Add(ToUInt16(firstImgSectorsCompare[a % WidthSectors, a / HeightSectors].Item2 - secondImgSectorsCompare[a % WidthSectors, a / HeightSectors].Item2));
             }
 
             List<int> xAxis = new List<int>();
-            for (int b = 0; b <= diff.Max() / 2; b++)
+            for (int b = 0; b <= diffHue.Max() / 2; b++)
             {
                 if (b * 2 > 200) break;
                 xAxis.Add(b * 2);
@@ -272,10 +274,10 @@ namespace Image_comparer_test_project__.net_framework_
             {
                 if (a == xAxis.Count - 1)
                 {
-                    yAxis.Add(diff.Where(x => x >= xAxis[a] && x < xAxis[a] + 2).ToList().Count);
+                    yAxis.Add(diffHue.Where(x => x >= xAxis[a] && x < xAxis[a] + 2).ToList().Count);
                     break;
                 }
-                yAxis.Add(diff.Where(x => x >= xAxis[a] && x < xAxis[a + 1]).ToList().Count);
+                yAxis.Add(diffHue.Where(x => x >= xAxis[a] && x < xAxis[a + 1]).ToList().Count);
             }
 
             DataSet ds = new DataSet();
@@ -299,8 +301,8 @@ namespace Image_comparer_test_project__.net_framework_
             chart1.Series[0].IsVisibleInLegend = true;
             chart1.DataBind();
 
-            maxValue = diff.Max();
-            return (int)diff.Average();
+            maxValue = diffHue.Max();
+            return ((int)diffHue.Average(), (int)diffBrightness.Average());
         }
 
     }
