@@ -21,8 +21,8 @@ namespace Image_comparer_test_project__.net_framework_
         private const int WidthSectors = 41;
         private const int HeightSectors = 41;
 
-        private Bitmap image = new Bitmap(600, 450);
-        private Graphics g;
+        private readonly Bitmap image = new Bitmap(600, 450);
+        private readonly Graphics g;
 
         public Form1()
         {
@@ -301,7 +301,6 @@ namespace Image_comparer_test_project__.net_framework_
             chart1.Series[0].IsVisibleInLegend = true;
             chart1.DataBind();
 
-            maxValue = diffHue.Max();
             return ((int)diffHue.Average(), (int)diffBrightness.Average());
         }
 
