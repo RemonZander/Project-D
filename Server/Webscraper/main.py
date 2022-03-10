@@ -60,27 +60,41 @@ def get_one():
 def get_categories(url):
     driver.get(url)
 
-def find_lowest_categories(start_url):
+def find_lowest_categories(start_url, path=""):
     #Locate elements
     driver.get(start_url)
     sub_categories = driver.find_elements(By.CSS_SELECTOR, ".facet-control__filter.facet-control__filter--no-padding > a")
     #If elements that indicate more sub-categories cant be found, return append url to lowest_categories_list
     #print("type" + str(type(sub_categories)))
+    
     if len(sub_categories) == 0:
         #TODO: Add category URL to list
-        print("url:" + start_url)
-        #driver.implicitly_wait(3)
+        print("url: " + start_url)
+        print("path: "+ path)
         return
 
     #Extract hrefs from categories
     extracted_url_list = []
+    #LIMITED CATEGORIES
+    #i = 0
+    #while i < max_category:
+        #extracted_url_list.append()
+
+    #FOR LIMITED CATEGORIES RANGE
+    #limit = 1
+    #for i in range(limit):
+        #try: #We arent checking the raneg of the actual list, so if its shorter than the limit we just break out of the loop
+            #extracted_url_list.append(sub_categories[i].get_attribute("href"))
+        #except:
+            #break
+    #ALL CATEGORIES
     for sub_cat in sub_categories:
-        extracted_url_list.append(sub_cat.get_attribute("href")) 
+        extracted_url_list.append(sub_cat.get_attribute("href"))
 
     #Else call function with next sub-category url
         #For each sub-category -> find_lowest_categories(sub_category.url)
     for url in extracted_url_list:
-        find_lowest_categories(url)
+        find_lowest_categories(url, start_url + path) #TODO: ADD DELIMER FOR PATH HIERARCHY
 
 
 if __name__ == '__main__':
