@@ -45,11 +45,7 @@ namespace Image_comparer_test_project__.net_framework_
             double ratio = firstImg.Height * 1.0 / firstImg.Width;
             firstImg = CropAtRect(firstImg, new Rectangle(0, 0, 600, (int)(600 * ratio)));
 
-            
-            //Thread makeSectors = new Thread(() => Prepimage(firstImg, true));
-            // makeSectors = new Thread(() => Prepimage(firstImg, true));
             Prepimage(firstImg, true);
-            //makeSectors.Start();
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -66,10 +62,7 @@ namespace Image_comparer_test_project__.net_framework_
             double ratio = secondimage.Height * 1.0 / secondimage.Width;
             secondimage = CropAtRect(secondimage, new Rectangle(0, 0, 600, (int)(600 * ratio)));
 
-            //Thread makeSectors = new Thread(() => Prepimage(firstImg, false));
-            //Thread makeSectors = new Thread(() => Prepimage(secondimage, false));
             Prepimage(secondimage, false);
-            //makeSectors.Start();
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -92,12 +85,10 @@ namespace Image_comparer_test_project__.net_framework_
                 Pen p = new Pen(Color.Black);
                 g.DrawLine(p, new Point(0, b * (firstImg.Height / HeightSectors)), new Point(firstImg.Width, b * (firstImg.Height / HeightSectors)));
             }
-
-            
+           
             result.Image = image;
             textBox1.Text = results.Item1.ToString();
             textBox2.Text = results.Item2.ToString();
-
         }
 
         private static Bitmap CropAtRect(Bitmap b, Rectangle r)
@@ -130,73 +121,76 @@ namespace Image_comparer_test_project__.net_framework_
                 {
                     int TotalHueValues = 0;
                     int totalBrightnessValues = 0;
-                    var red = 0;
-                    var green = 0;
-                    var blue = 0;
-                    var alpha = 0;
+                    int red = 0;
+                    int green = 0;
+                    int blue = 0;
+                    int alpha = 0;
 
                     double weight = 1;
-                    if (comboBox1.SelectedIndex == 0)
+
+                    switch (comboBox1.SelectedIndex)
                     {
-                        if (a < b)
-                        {
-                            if (a == 0)
+                        case 0:
+                            if (a < b)
                             {
-                                weight = 1;
+                                if (a == 0)
+                                {
+                                    weight = 1;
+                                }
+                                else
+                                {
+                                    weight = Math.Log(a) * a + 1.0;
+                                }
+
                             }
                             else
                             {
-                                weight = Math.Log(a) * a + 1.0;
+                                if (b == 0)
+                                {
+                                    weight = 1;
+                                }
+                                else
+                                {
+                                    weight = Math.Log(b) * a + 1.0;
+                                }
                             }
-
-                        }
-                        else
-                        {
-                            if (b == 0)
+                            break;
+                        case -1:
+                        case 1:
+                            if ((WidthSectors / 2 - ToUInt16(WidthSectors / 2 - a)) < (WidthSectors / 2 - ToUInt16(WidthSectors / 2 - b)))
                             {
-                                weight = 1;
+                                weight = 0.08 * (WidthSectors / 2 - ToUInt16(WidthSectors / 2 - a)) + 1;
+
                             }
                             else
                             {
-                                weight = Math.Log(b) * a + 1.0;
+                                weight = 0.08 * (WidthSectors / 2 - ToUInt16(WidthSectors / 2 - b)) + 1;
                             }
-                        }
-                    }
-                    else if (comboBox1.SelectedIndex == 1 || comboBox1.SelectedIndex == -1)
-                    {
-                        if ((WidthSectors / 2 - ToUInt16(WidthSectors / 2 - a)) < (WidthSectors / 2 - ToUInt16(WidthSectors / 2 - b)))
-                        {
-                            weight = 0.08 * (WidthSectors / 2 - ToUInt16(WidthSectors / 2 - a)) + 1;
+                            break;
+                        case 2:
+                            if ((WidthSectors / 2 - ToUInt16(WidthSectors / 2 - a)) < (WidthSectors / 2 - ToUInt16(WidthSectors / 2 - b)))
+                            {
+                                weight = 2.0 * (WidthSectors / 2 - ToUInt16(WidthSectors / 2 - a)) + 1;
 
-                        }
-                        else
-                        {
-                            weight = 0.08 * (WidthSectors / 2 - ToUInt16(WidthSectors / 2 - b)) + 1;
-                        }
-                    }
-                    else if (comboBox1.SelectedIndex == 2)
-                    {
-                        if (a < b)
-                        {
-                            weight = 2.0 * a + 1;
+                            }
+                            else
+                            {
+                                weight = 2.0 * (WidthSectors / 2 - ToUInt16(WidthSectors / 2 - b)) + 1;
+                            }
+                            break;
+                        case 3:
+                            if ((WidthSectors / 2 - ToUInt16(WidthSectors / 2 - a)) < (WidthSectors / 2 - ToUInt16(WidthSectors / 2 - b)))
+                            {
+                                weight = a * (WidthSectors / 2 - ToUInt16(WidthSectors / 2 - a)) + 1;
 
-                        }
-                        else
-                        {
-                            weight = 2.0 * b + 1;
-                        }
-                    }
-                    else if (comboBox1.SelectedIndex == 3)
-                    {
-                        if (a < b)
-                        {
-                            weight = a * a + 1.0;
-
-                        }
-                        else
-                        {
-                            weight = b * b + 1.0;
-                        }
+                            }
+                            else
+                            {
+                                weight = b * (WidthSectors / 2 - ToUInt16(WidthSectors / 2 - b)) + 1;
+                            }
+                            break;
+                        default:
+                            break;
                     }
 
                     for (int c = 0; c < sectorWidth; c++)
@@ -204,11 +198,7 @@ namespace Image_comparer_test_project__.net_framework_
                         for (int d = 0; d < sectorheight; d++)
                         {
                             Color pixelColor = image.GetPixel(a * sectorWidth + c, b * sectorheight + d);
-                            var saturation = pixelColor.GetSaturation() * 100.0;
-                            var brightness = pixelColor.GetBrightness() * 100.0;
-                            var hue = pixelColor.GetHue();
 
-                            //TotalColorValues += (int)(pixelColor.GetHue() + (pixelColor.GetSaturation() * 100.0) + (pixelColor.GetBrightness() * 100.0));
                             TotalHueValues += (int)pixelColor.GetHue();
                             totalBrightnessValues += (int)(pixelColor.GetBrightness() * 100);
                             red += pixelColor.R;
@@ -228,9 +218,7 @@ namespace Image_comparer_test_project__.net_framework_
 
                     sectorAverages[a, b] = ((int)(TotalHueValues / totalPixelsPerSector * weight), (int)(totalBrightnessValues / totalPixelsPerSector * weight));
                 }
-            }
-
-           
+            }          
 
             if (firstImg)
             {
