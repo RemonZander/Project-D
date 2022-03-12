@@ -223,11 +223,12 @@ namespace Image_comparer_test_project__.net_framework_
             if (firstImg)
             {
                 firstImgSectorsHue = sectorAverages;
-                nb.Save(@"C:\Users\remon\Desktop\resultaten\values 1.jpeg");
+
+                nb.Save(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\values 1.jpeg");
                 return;
             }
             SecondimgListSectorsHue[0] = sectorAverages;
-            nb.Save(@"C:\Users\remon\Desktop\resultaten\values 2.jpeg");
+            nb.Save(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\values 2.jpeg");
         }
 
         private void button4_Click(object sender, EventArgs e)
@@ -244,16 +245,28 @@ namespace Image_comparer_test_project__.net_framework_
         {
             List<int> diffHue = new List<int>();
             List<int> diffBrightness = new List<int>();
-            for (int a = 0; a < firstImgSectorsCompare.Length; a++)
+            List<(int, int)> firstImgSectorsCompareList = new List<(int, int)>();
+            List<(int, int)> secondImgSectorsCompareList = new List<(int, int)>();
+
+            for (int b = 0; b < firstImgSectorsCompare.Length; b++)
             {
-                diffHue.Add(ToUInt16(firstImgSectorsCompare[a % WidthSectors, a / HeightSectors].Item1 - secondImgSectorsCompare[a % WidthSectors, a / HeightSectors].Item1));
-                diffBrightness.Add(ToUInt16(firstImgSectorsCompare[a % WidthSectors, a / HeightSectors].Item2 - secondImgSectorsCompare[a % WidthSectors, a / HeightSectors].Item2));
+                firstImgSectorsCompareList.Add((firstImgSectorsCompare[b % WidthSectors, b / HeightSectors].Item1, firstImgSectorsCompare[b % WidthSectors, b / HeightSectors].Item2));
+                secondImgSectorsCompareList.Add((secondImgSectorsCompare[b % WidthSectors, b / HeightSectors].Item1, secondImgSectorsCompare[b % WidthSectors, b / HeightSectors].Item2));
+            }
+
+            firstImgSectorsCompareList = firstImgSectorsCompareList.OrderBy(x => x).ToList();
+            secondImgSectorsCompareList = secondImgSectorsCompareList.OrderBy(x => x).ToList();
+
+            for (int a = 0; a < firstImgSectorsCompareList.Count; a++)
+            {
+                diffHue.Add(ToUInt16(firstImgSectorsCompareList[a].Item1 - secondImgSectorsCompareList[a].Item1));
+                diffBrightness.Add(ToUInt16(firstImgSectorsCompareList[a].Item2 - secondImgSectorsCompareList[a].Item2));
             }
 
             List<int> xAxis = new List<int>();
             for (int b = 0; b <= diffHue.Max() / 2; b++)
             {
-                if (b * 2 > 200) break;
+                if (b * 2 > 300) break;
                 xAxis.Add(b * 2);
             }
 
