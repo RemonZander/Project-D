@@ -5,6 +5,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 import requests
 
+
 def get_list():
     categories = driver.find_elements(By.CSS_SELECTOR, "wsp-main-nav-category-ab > ul > li > a")
     #SPECIFIC
@@ -147,7 +148,7 @@ if __name__ == '__main__':
 
 
     #MAIN-CATEGORIES WE WANT TO SCRAPE (HARD CODED TO EXLUDE SPECIFIC CATEGORIES)
-    categories = [
+    categories_urls = [
         "https://www.bol.com/nl/nl/menu/categories/subMenu/3",  #Computer en Elekronica
         "https://www.bol.com/nl/nl/menu/categories/subMenu/4",  #Speelgoed, Hobby en Feest
         "https://www.bol.com/nl/nl/menu/categories/subMenu/5",  #Zwanger, Baby & Peuter
@@ -160,6 +161,15 @@ if __name__ == '__main__':
         "https://www.bol.com/nl/nl/menu/categories/subMenu/13"  #Auto & Motor
     ]
     
+    #TODO: MAKE SEPARATE FUNCTION
+    for cat_url in categories_urls:
+        driver.get(cat_url)
+        main_sub_cat_list = driver.find_elements(By.CSS_SELECTOR, "main > div > div > ul > li > a")
 
-    for cat in categories:
-        pass
+        for main_sub_cat in main_sub_cat_list:
+            title = main_sub_cat.text
+            #FILER ALLE AND ALLES (CATEGORIES CONTAINING ALL CATEGORIES)
+            if "alles" in title.lower() or "alle" in title.lower():
+                pass
+            else:
+                pass
