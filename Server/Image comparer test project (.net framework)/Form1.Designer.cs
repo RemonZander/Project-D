@@ -74,9 +74,11 @@
             this.label8 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.label6 = new System.Windows.Forms.Label();
             this.textBox9 = new System.Windows.Forms.TextBox();
             this.label12 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
+            this.textBox10 = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -444,7 +446,7 @@
             // 
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.Location = new System.Drawing.Point(73, 91);
+            this.label8.Location = new System.Drawing.Point(69, 91);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(188, 24);
             this.label8.TabIndex = 21;
@@ -461,6 +463,8 @@
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.textBox10);
+            this.panel2.Controls.Add(this.label13);
             this.panel2.Controls.Add(this.textBox9);
             this.panel2.Controls.Add(this.label12);
             this.panel2.Controls.Add(this.label6);
@@ -474,16 +478,6 @@
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(326, 229);
             this.panel2.TabIndex = 21;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(106, 9);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(108, 24);
-            this.label6.TabIndex = 20;
-            this.label6.Text = "Resultaten";
             // 
             // textBox9
             // 
@@ -501,6 +495,33 @@
             this.label12.Size = new System.Drawing.Size(98, 13);
             this.label12.TabIndex = 21;
             this.label12.Text = "Verschil Saturation:";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label6.Location = new System.Drawing.Point(106, 9);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(108, 24);
+            this.label6.TabIndex = 20;
+            this.label6.Text = "Resultaten";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(3, 175);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(79, 13);
+            this.label13.TabIndex = 23;
+            this.label13.Text = "Totaal verschil:";
+            // 
+            // textBox10
+            // 
+            this.textBox10.Location = new System.Drawing.Point(88, 172);
+            this.textBox10.Name = "textBox10";
+            this.textBox10.ReadOnly = true;
+            this.textBox10.Size = new System.Drawing.Size(235, 20);
+            this.textBox10.TabIndex = 24;
             // 
             // Form1
             // 
@@ -571,6 +592,8 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.TextBox textBox9;
         private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.TextBox textBox10;
+        private System.Windows.Forms.Label label13;
     }
 }
 

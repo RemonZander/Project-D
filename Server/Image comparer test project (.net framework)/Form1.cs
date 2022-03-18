@@ -56,6 +56,7 @@ namespace Image_comparer_test_project__.net_framework_
             textBox1.Text = results.Item1.ToString();
             textBox2.Text = results.Item2.ToString();
             textBox9.Text = results.Item3.ToString();
+            textBox10.Text = ((results.Item1 + results.Item2 + results.Item3) / 3).ToString();
         }
 
         private static Bitmap CropAtRect(Bitmap b, Rectangle r)
@@ -172,7 +173,7 @@ namespace Image_comparer_test_project__.net_framework_
                     g.FillRectangle(new SolidBrush(Color.FromArgb(alpha, red, green, blue)), 
                         new Rectangle(sectorWidth * a, sectorheight * b, sectorWidth, sectorheight));
 
-                    g.DrawString((totalBrightnessValues / totalPixelsPerSector * weight).ToString(), new Font("Arial", 6), new SolidBrush(Color.Black), sectorWidth * a, sectorheight * b);
+                    g.DrawString((TotalHueValues / totalPixelsPerSector * weight).ToString(), new Font("Arial", 6), new SolidBrush(Color.Black), sectorWidth * a, sectorheight * b);
 
                     sectorAverages[a, b] = ((int)(TotalHueValues / totalPixelsPerSector * weight), (int)(totalBrightnessValues / totalPixelsPerSector * weight), (int)(totalSaturationValues / totalPixelsPerSector * weight));
                 }
