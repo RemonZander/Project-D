@@ -84,7 +84,7 @@ def find_lowest_categories(start_url, path=""):
         #GET LIST OF ALL ITEMS
         #SET MAXIMUM OF PAGES TO LOAD (EACH PAGE HAS MAXIMUM OF 24 PRODUCTS)
         
-        for n in range(1,5):
+        for n in range(1):
             #TRY INCASE PAGE DOES NOT EXIST (OUT OF RANGE), OR PAGE SETUP IS DIFFERENT (CLOTHING FOR EXAMPLE HAS DIFFERENT SETUP)
             try:
                 items = driver.find_elements(By.CSS_SELECTOR, ".js_item_root:not(.js_sponsored_product)")
@@ -132,16 +132,15 @@ def find_lowest_categories(start_url, path=""):
     extracted_url_list = []
 
     ##FOR LIMITED CATEGORIES RANGE
-    #limit = 1
-    #for i in range(limit):
-        #try: #We arent checking the range of the actual list, so if its shorter than the limit we just break out of the loop
-            #extracted_url_list.append(sub_categories[i].get_attribute("href"))
-       # except:
-            #break
+    for i in range(1):
+        try: #We arent checking the range of the actual list, so if its shorter than the limit we just break out of the loop
+            extracted_url_list.append(sub_categories[i].get_attribute("href"))
+        except:
+           break
 
     ##ALL CATEGORIES
-    for sub_cat in sub_categories:
-        extracted_url_list.append(sub_cat.get_attribute("href"))
+    #for sub_cat in sub_categories:
+        #extracted_url_list.append(sub_cat.get_attribute("href"))
 
     #Else call function with next sub-category url
         #For each sub-category -> find_lowest_categories(sub_category.url)
@@ -185,13 +184,17 @@ if __name__ == '__main__':
     for cat_url in categories_urls:
         driver.get(cat_url)
         main_sub_cat_list = driver.find_elements(By.CSS_SELECTOR, "main > div > div > ul > li > a")
-
+        sub_cats = []
         for main_sub_cat in main_sub_cat_list:
             title = main_sub_cat.text
             #FILER ALLE AND ALLES (CATEGORIES CONTAINING ALL CATEGORIES)
             if "alles" in title.lower() or "alle" in title.lower():
                 pass
             else:
-                #print(title)
-                #print(main_sub_cat.get_attribute("href"))
-                find_lowest_categories(main_sub_cat.get_attribute("href"))
+                sub_cats.append(main_sub_cat.get_attribute("href"))
+
+        for main_sub_cat in sub_cats:
+            #print(title)
+            #print(main_sub_cat.get_attribute("href"))
+            #TODO: ADD THREADS
+            find_lowest_categories(main_sub_cat)
