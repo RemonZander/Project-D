@@ -87,7 +87,6 @@ def find_lowest_categories(start_url, path=""):
         for n in range(1,5):
             #TRY INCASE PAGE DOES NOT EXIST (OUT OF RANGE), OR PAGE SETUP IS DIFFERENT (CLOTHING FOR EXAMPLE HAS DIFFERENT SETUP)
             try:
-                #n = n +1
                 items = driver.find_elements(By.CSS_SELECTOR, ".js_item_root:not(.js_sponsored_product)")
                 print(f"length: {len(items)}")
                 print(f"page: {n}")
@@ -103,21 +102,29 @@ def find_lowest_categories(start_url, path=""):
                     #TODO: BOTH LINK AND NAME CAN BE FOUND IN SAME CLASSES, CAN IMPROVE THIS FOR CLARITY
                     product_link = item.find_element(By.CSS_SELECTOR, ".product-item__content > .product-item__info > .product-title--inline > a").get_attribute("href")
                     print(name, image_link, product_link)
-                    
+                     
             except:
                 print("ERROR!")
                 #TRY INCASE PAGE DOES NOT EXIST (OUT OF RANGE)
-                try:
+                #try:
                 items = driver.find_elements(By.CSS_SELECTOR, ".js_item_root:not(.js_sponsored_product)")
-                    print(f"length: {len(items)}")
-                    print(f"page: {n}")
-                    for item in items:
-                        #RETRIEVE NAME
-                        name = item.find_element(By.CSS_SELECTOR, ".product-item__content > a > span").text
-                        print(name)
-                except:
-                    print("NOPE")
-                    break
+                print(f"length: {len(items)}")
+                print(f"page: {n}")
+                for item in items:
+                    #RETRIEVE NAME
+                    name = item.find_element(By.CSS_SELECTOR, ".product-item__content > a > span").text
+                    #TRY-BLOCK FOR INCONSISTENCY PRODUCT IMAGES PLACEMENT IN WEBELEMENT
+                    try:
+                        image_link = item.find_element(By.CSS_SELECTOR, ".product-item__image > a > img").get_attribute("src")
+                    except:
+                        image_link = item.find_element(By.CSS_SELECTOR, ".product-item__image > a > .skeleton-image > div > img").get_attribute("src")
+                    product_link = item.find_element(By.CSS_SELECTOR, ".product-item__content > a").get_attribute("href")
+
+
+                    print(name, image_link, product_link)
+                #except:
+                    #print("NOPE")
+                    #break
             driver.get(start_url + f"?page={n}")
         return
 
