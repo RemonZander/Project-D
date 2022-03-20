@@ -4,6 +4,7 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 import requests
+import concurrent.futures
 
 
 def get_list():
@@ -84,7 +85,7 @@ def find_lowest_categories(start_url, path=""):
         #GET LIST OF ALL ITEMS
         #SET MAXIMUM OF PAGES TO LOAD (EACH PAGE HAS MAXIMUM OF 24 PRODUCTS)
         
-        for n in range(1):
+        for n in range(50):
             #TRY INCASE PAGE DOES NOT EXIST (OUT OF RANGE), OR PAGE SETUP IS DIFFERENT (CLOTHING FOR EXAMPLE HAS DIFFERENT SETUP)
             try:
                 items = driver.find_elements(By.CSS_SELECTOR, ".js_item_root:not(.js_sponsored_product)")
@@ -101,30 +102,36 @@ def find_lowest_categories(start_url, path=""):
 
                     #TODO: BOTH LINK AND NAME CAN BE FOUND IN SAME CLASSES, CAN IMPROVE THIS FOR CLARITY
                     product_link = item.find_element(By.CSS_SELECTOR, ".product-item__content > .product-item__info > .product-title--inline > a").get_attribute("href")
-                    print(name, image_link, product_link)
+                    print(f"NAME: {name}\nIMAGE: {image_link}\nPRODUCT: {product_link}\n")
                      
             except:
                 print("ERROR!")
                 #TRY INCASE PAGE DOES NOT EXIST (OUT OF RANGE)
-                #try:
-                items = driver.find_elements(By.CSS_SELECTOR, ".js_item_root:not(.js_sponsored_product)")
-                print(f"length: {len(items)}")
-                print(f"page: {n}")
-                for item in items:
-                    #RETRIEVE NAME
-                    name = item.find_element(By.CSS_SELECTOR, ".product-item__content > a > span").text
-                    #TRY-BLOCK FOR INCONSISTENCY PRODUCT IMAGES PLACEMENT IN WEBELEMENT
-                    try:
-                        image_link = item.find_element(By.CSS_SELECTOR, ".product-item__image > a > img").get_attribute("src")
-                    except:
-                        image_link = item.find_element(By.CSS_SELECTOR, ".product-item__image > a > .skeleton-image > div > img").get_attribute("src")
-                    product_link = item.find_element(By.CSS_SELECTOR, ".product-item__content > a").get_attribute("href")
+                try:
+                    items = driver.find_elements(By.CSS_SELECTOR, ".js_item_root:not(.js_sponsored_product)")
+                    print(f"length: {len(items)}")
+                    print(f"page: {n}")
+                    for item in items:
+                        #RETRIEVE NAME
+                        name = item.find_element(By.CSS_SELECTOR, ".product-item__content > a > span").text
+                        #TRY-BLOCK FOR INCONSISTENCY PRODUCT IMAGES PLACEMENT IN WEBELEMENT
+                        try:
+                            image_link = item.find_element(By.CSS_SELECTOR, ".product-item__image > a > img").get_attribute("src")
+                        except:
+                            image_link = item.find_element(By.CSS_SELECTOR, ".product-item__image > a > .skeleton-image > .skeleton-image__container > img")
+                            if image_link.get_attribute("src") is None:
+                                print("CANNOT FIND SRC IN ELEMENT, TRYING ALTERNATIVE")
+                                #for attr in range(len(image_link.get_property("attributes"))):
+                                    #print(f"INDEX: {attr},\n {image_link.get_property('attributes')[attr]}\n\n")
+                                image_link = image_link.get_property("attributes")[1]["value"]
+                                print("FOUND IMAGE LINK" + image_link)
+                        product_link = item.find_element(By.CSS_SELECTOR, ".product-item__content > a").get_attribute("href")
 
 
-                    print(name, image_link, product_link)
-                #except:
-                    #print("NOPE")
-                    #break
+                        print(f"NAME: {name}\nIMAGE: {image_link}\nPRODUCT: {product_link}\n")
+                except:
+                    print("NOPE")
+                    break
             driver.get(start_url + f"?page={n}")
         return
 
@@ -132,15 +139,15 @@ def find_lowest_categories(start_url, path=""):
     extracted_url_list = []
 
     ##FOR LIMITED CATEGORIES RANGE
-    for i in range(1):
-        try: #We arent checking the range of the actual list, so if its shorter than the limit we just break out of the loop
-            extracted_url_list.append(sub_categories[i].get_attribute("href"))
-        except:
-           break
+    #for i in range(1):
+        #try: #We arent checking the range of the actual list, so if its shorter than the limit we just break out of the loop
+            #extracted_url_list.append(sub_categories[i].get_attribute("href"))
+        #except:
+           #break
 
     ##ALL CATEGORIES
-    #for sub_cat in sub_categories:
-        #extracted_url_list.append(sub_cat.get_attribute("href"))
+    for sub_cat in sub_categories:
+        extracted_url_list.append(sub_cat.get_attribute("href"))
 
     #Else call function with next sub-category url
         #For each sub-category -> find_lowest_categories(sub_category.url)
@@ -153,7 +160,7 @@ if __name__ == '__main__':
 
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
 
-    #driver.implicitly_wait(5)
+    #driver.implicitly_wait(20)
     driver.maximize_window()
     driver.get(base_url)
 
@@ -193,8 +200,11 @@ if __name__ == '__main__':
             else:
                 sub_cats.append(main_sub_cat.get_attribute("href"))
 
+        #with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            #{executor.submit(find_lowest_categories, sc): sc for sc in sub_cats}
+
+
         for main_sub_cat in sub_cats:
             #print(title)
             #print(main_sub_cat.get_attribute("href"))
-            #TODO: ADD THREADS
             find_lowest_categories(main_sub_cat)
