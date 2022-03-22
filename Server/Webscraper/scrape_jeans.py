@@ -5,7 +5,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 import requests
 
-def scrape_page_layout_one(n):
+def scrape_page_layout_one(n, maxItems):
     #GET LIST OF ALL ITEMS
     items = driver.find_elements(By.CSS_SELECTOR, ".js_item_root:not(.js_sponsored_product)")
     #print(f"length: {len(items)}")
@@ -13,8 +13,9 @@ def scrape_page_layout_one(n):
 
     page = driver.find_element(By.CSS_SELECTOR, ".is-active > span").text
     
-
     for item in items:
+        if n > maxItems:
+            return n
         #RETRIEVE NAME
         #name = item.find_element(By.CSS_SELECTOR, ".product-item__content > .product-item__info > .product-title--inline").text
         #TRY-BLOCK FOR INCONSISTENCY PRODUCT IMAGES PLACEMENT IN WEBELEMENT
@@ -43,13 +44,13 @@ def scrape_page_layout_one(n):
 def iterate_lowest_category(start_url):
     #SET MAXIMUM OF PAGES TO LOAD (EACH PAGE HAS MAXIMUM OF 24 PRODUCTS)
     counter = 1
-    for n in range(1,3):
-        driver.implicitly_wait(10)
-        driver.get(start_url + f"?page={n}&view=list")
-        driver.implicitly_wait(0)
+    pageNum = 1
+    maxItems = 50
+    while counter < maxItems:
+        driver.get(start_url + f"?page={pageNum}&view=list")
         #TRY INCASE PAGE DOES NOT EXIST (OUT OF RANGE), OR PAGE SETUP IS DIFFERENT (CLOTHING FOR EXAMPLE HAS DIFFERENT SETUP)
-        counter = scrape_page_layout_one(counter) #TODO: REMOVE N FROM FUNCTION (ONLY NEEDED FOR DEBUGGING)
-        continue
+        counter = scrape_page_layout_one(counter, maxItems) #TODO: REMOVE N FROM FUNCTION (ONLY NEEDED FOR DEBUGGING)
+        pageNum += 1
 
 if __name__ == '__main__':
     base_url = "https://www.bol.com"
@@ -67,7 +68,6 @@ if __name__ == '__main__':
     #get_one()
     #print("GETTING ALL SUB-CATEGORY URLS")
     #find_lowest_categories("https://www.bol.com/nl/nl/l/boeken/8299/")
-
 
 
 iterate_lowest_category("https://www.bol.com/nl/nl/l/heren-jeans/47416/")
