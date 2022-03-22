@@ -7,7 +7,7 @@ participant "Chrome extension" as ext
 control "Python Server" as csh
 database "Product database" as db
 participant "Object identifier NN (Python)" as obj
-participant "Image Comparer NN (Python)" as img
+participant "Image Comparer (C# -> Python)" as img
 
 usr -> ext: Submit image
 activate usr
