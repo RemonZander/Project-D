@@ -4,7 +4,7 @@ title **Search System Sequence Diagram**
 
 actor user as usr
 participant "Chrome extension" as ext
-control "C# Server" as csh
+control "Python Server" as csh
 database "Product database" as db
 participant "Object identifier NN (Python)" as obj
 participant "Image Comparer (C# -> Python)" as img
@@ -42,5 +42,9 @@ else #Pink Complex case
     ext --> usr: Return search results
     deactivate ext
     deactivate usr
+
+    legend
+     NN = Neural Network
+endlegend
 end
 @enduml

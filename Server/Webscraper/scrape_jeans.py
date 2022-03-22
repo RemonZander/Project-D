@@ -29,26 +29,29 @@ def scrape_page_layout_one(n):
 
         #TODO: BOTH LINK AND NAME CAN BE FOUND IN SAME CLASSES, CAN IMPROVE THIS FOR CLARITY
         #product_link = item.find_element(By.CSS_SELECTOR, ".product-item__content > .product-item__info > .product-title--inline > a").get_attribute("href")
-        print(f"IMAGE: {image_link}\n")
-        with open (f"{n}.jpg", "wb") as file:
+        #print(f"IMAGE: {image_link}\n")
+        with open (f"scraped_jeans/{n}.jpg", "wb") as file:
             r = requests.get(image_link, allow_redirects=True)
             file.write(r.content)
         n = n + 1
+    return n
 
 def iterate_lowest_category(start_url):
     #SET MAXIMUM OF PAGES TO LOAD (EACH PAGE HAS MAXIMUM OF 24 PRODUCTS)
-    for n in range(1,199):
-        driver.get(start_url + f"?page={n}")
+    counter = 1
+    for n in range(1,3):
+        driver.get(start_url + f"?page={n}&view=list")
         #TRY INCASE PAGE DOES NOT EXIST (OUT OF RANGE), OR PAGE SETUP IS DIFFERENT (CLOTHING FOR EXAMPLE HAS DIFFERENT SETUP)
-        scrape_page_layout_one(n) #TODO: REMOVE N FROM FUNCTION (ONLY NEEDED FOR DEBUGGING)
+        counter = scrape_page_layout_one(n) #TODO: REMOVE N FROM FUNCTION (ONLY NEEDED FOR DEBUGGING)
+        continue
 
 if __name__ == '__main__':
     base_url = "https://www.bol.com"
 
 
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument('headless')
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), chrome_options=chrome_options)
+    #chrome_options = webdriver.ChromeOptions()
+    #chrome_options.add_argument('headless')
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
     
     #driver.implicitly_wait(20)
     driver.maximize_window()
@@ -62,4 +65,4 @@ if __name__ == '__main__':
 
 
 
-iterate_lowest_category("https://www.bol.com/nl/nl/l/heren-jeans/47416/?view=list")
+iterate_lowest_category("https://www.bol.com/nl/nl/l/heren-jeans/47416/")
