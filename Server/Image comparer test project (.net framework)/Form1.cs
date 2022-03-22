@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
+using System.IO;
 
 namespace Image_comparer_test_project__.net_framework_
 {
@@ -73,7 +74,7 @@ namespace Image_comparer_test_project__.net_framework_
             return (UInt16)number;
         }
 
-        private void Prepimage(Bitmap image, bool firstImg)
+        private void Prepimage(Bitmap image, bool firstImg, int count)
         {
             Bitmap nb = new Bitmap(image.Width, image.Height);
             Graphics g = Graphics.FromImage(nb);
@@ -186,7 +187,7 @@ namespace Image_comparer_test_project__.net_framework_
                 nb.Save(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\values 1.jpeg");
                 return;
             }
-            SecondimgListSectorsHue[0] = sectorAverages;
+            SecondimgListSectorsHue[count] = sectorAverages;
             nb.Save(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\values 2.jpeg");
         }
 
@@ -217,7 +218,7 @@ namespace Image_comparer_test_project__.net_framework_
             double ratio = firstImg.Height * 1.0 / firstImg.Width;
             firstImg = CropAtRect(firstImg, new Rectangle(0, 0, 600, (int)(600 * ratio)));
 
-            Prepimage(firstImg, true);
+            Prepimage(firstImg, true, 0);
         }
 
         private void openAfbeelding2ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -234,7 +235,7 @@ namespace Image_comparer_test_project__.net_framework_
             double ratio = secondimage.Height * 1.0 / secondimage.Width;
             secondimage = CropAtRect(secondimage, new Rectangle(0, 0, 600, (int)(600 * ratio)));
 
-            Prepimage(secondimage, false);
+            Prepimage(secondimage, false, 0);
         }
 
         private void geenToolStripMenuItem_Click(object sender, EventArgs e)
@@ -269,7 +270,25 @@ namespace Image_comparer_test_project__.net_framework_
 
         private void openFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (mode == Modes.Single) return;
 
+            folderBrowserDialog1.ShowDialog();
+
+            if (string.IsNullOrEmpty(folderBrowserDialog1.SelectedPath)) return;
+            
+            string folder = folderBrowserDialog1.SelectedPath;
+
+            string[] files = Directory.GetFiles(folder);
+
+            for (int a = 0; a < files.Length; a++)
+            {
+                secondimage = (Bitmap)Bitmap.FromFile(files[a]);
+
+                double ratio = secondimage.Height * 1.0 / secondimage.Width;
+                secondimage = CropAtRect(secondimage, new Rectangle(0, 0, 600, (int)(600 * ratio)));
+
+                Prepimage(secondimage, false, a);
+            }
         }
 
         private void singleModeToolStripMenuItem_Click(object sender, EventArgs e)

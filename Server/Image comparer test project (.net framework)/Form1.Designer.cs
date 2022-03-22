@@ -79,6 +79,7 @@
             this.textBox9 = new System.Windows.Forms.TextBox();
             this.label12 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
+            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -128,12 +129,15 @@
             this.chart1.Location = new System.Drawing.Point(344, 27);
             this.chart1.Name = "chart1";
             series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             series1.Legend = "Legend1";
             series1.Name = "Series1";
             series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             series2.Legend = "Legend1";
             series2.Name = "Series2";
             series3.ChartArea = "ChartArea1";
+            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             series3.Legend = "Legend1";
             series3.Name = "Series3";
             this.chart1.Series.Add(series1);
@@ -240,14 +244,14 @@
             // singleModeToolStripMenuItem
             // 
             this.singleModeToolStripMenuItem.Name = "singleModeToolStripMenuItem";
-            this.singleModeToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
+            this.singleModeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.singleModeToolStripMenuItem.Text = "Single mode";
             this.singleModeToolStripMenuItem.Click += new System.EventHandler(this.singleModeToolStripMenuItem_Click);
             // 
             // folderModeToolStripMenuItem
             // 
             this.folderModeToolStripMenuItem.Name = "folderModeToolStripMenuItem";
-            this.folderModeToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
+            this.folderModeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.folderModeToolStripMenuItem.Text = "Folder mode";
             this.folderModeToolStripMenuItem.Click += new System.EventHandler(this.folderModeToolStripMenuItem_Click);
             // 
@@ -594,6 +598,7 @@
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.TextBox textBox10;
         private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
     }
 }
 
