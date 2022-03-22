@@ -28,11 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.button3 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
@@ -74,11 +74,11 @@
             this.label8 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.textBox10 = new System.Windows.Forms.TextBox();
+            this.label13 = new System.Windows.Forms.Label();
             this.textBox9 = new System.Windows.Forms.TextBox();
             this.label12 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
-            this.label13 = new System.Windows.Forms.Label();
-            this.textBox10 = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -115,30 +115,30 @@
             // 
             // chart1
             // 
-            chartArea2.AxisX.IsMarginVisible = false;
-            chartArea2.AxisX.Title = "Verschil tussen sectoren";
-            chartArea2.AxisX.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            chartArea2.AxisY.IsMarginVisible = false;
-            chartArea2.AxisY.Title = "Aantal sectoren";
-            chartArea2.AxisY.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            chartArea2.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea2);
-            legend2.Name = "Legend1";
-            this.chart1.Legends.Add(legend2);
+            chartArea1.AxisX.IsMarginVisible = false;
+            chartArea1.AxisX.Title = "Verschil tussen sectoren";
+            chartArea1.AxisX.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            chartArea1.AxisY.IsMarginVisible = false;
+            chartArea1.AxisY.Title = "Aantal sectoren";
+            chartArea1.AxisY.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            chartArea1.Name = "ChartArea1";
+            this.chart1.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.chart1.Legends.Add(legend1);
             this.chart1.Location = new System.Drawing.Point(344, 27);
             this.chart1.Name = "chart1";
-            series4.ChartArea = "ChartArea1";
-            series4.Legend = "Legend1";
-            series4.Name = "Series1";
-            series5.ChartArea = "ChartArea1";
-            series5.Legend = "Legend1";
-            series5.Name = "Series2";
-            series6.ChartArea = "ChartArea1";
-            series6.Legend = "Legend1";
-            series6.Name = "Series3";
-            this.chart1.Series.Add(series4);
-            this.chart1.Series.Add(series5);
-            this.chart1.Series.Add(series6);
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            series2.ChartArea = "ChartArea1";
+            series2.Legend = "Legend1";
+            series2.Name = "Series2";
+            series3.ChartArea = "ChartArea1";
+            series3.Legend = "Legend1";
+            series3.Name = "Series3";
+            this.chart1.Series.Add(series1);
+            this.chart1.Series.Add(series2);
+            this.chart1.Series.Add(series3);
             this.chart1.Size = new System.Drawing.Size(845, 426);
             this.chart1.TabIndex = 6;
             this.chart1.Text = "chart1";
@@ -201,21 +201,21 @@
             // openAfbeelding1ToolStripMenuItem
             // 
             this.openAfbeelding1ToolStripMenuItem.Name = "openAfbeelding1ToolStripMenuItem";
-            this.openAfbeelding1ToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
+            this.openAfbeelding1ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.openAfbeelding1ToolStripMenuItem.Text = "Open afbeelding 1";
             this.openAfbeelding1ToolStripMenuItem.Click += new System.EventHandler(this.openAfbeelding1ToolStripMenuItem_Click);
             // 
             // openAfbeelding2ToolStripMenuItem
             // 
             this.openAfbeelding2ToolStripMenuItem.Name = "openAfbeelding2ToolStripMenuItem";
-            this.openAfbeelding2ToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
+            this.openAfbeelding2ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.openAfbeelding2ToolStripMenuItem.Text = "Open afbeelding 2";
             this.openAfbeelding2ToolStripMenuItem.Click += new System.EventHandler(this.openAfbeelding2ToolStripMenuItem_Click);
             // 
             // openFolderToolStripMenuItem
             // 
             this.openFolderToolStripMenuItem.Name = "openFolderToolStripMenuItem";
-            this.openFolderToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
+            this.openFolderToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.openFolderToolStripMenuItem.Text = "Open folder";
             this.openFolderToolStripMenuItem.Click += new System.EventHandler(this.openFolderToolStripMenuItem_Click);
             // 
@@ -234,7 +234,7 @@
             this.singleModeToolStripMenuItem,
             this.folderModeToolStripMenuItem});
             this.modusToolStripMenuItem.Name = "modusToolStripMenuItem";
-            this.modusToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+            this.modusToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.modusToolStripMenuItem.Text = "Modus";
             // 
             // singleModeToolStripMenuItem
@@ -260,41 +260,41 @@
             this.vierakantToolStripMenuItem,
             this.exponentieelToolStripMenuItem});
             this.pixelGewichtenToolStripMenuItem.Name = "pixelGewichtenToolStripMenuItem";
-            this.pixelGewichtenToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+            this.pixelGewichtenToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.pixelGewichtenToolStripMenuItem.Text = "Pixel gewichten";
             // 
             // geenToolStripMenuItem
             // 
             this.geenToolStripMenuItem.Name = "geenToolStripMenuItem";
-            this.geenToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
+            this.geenToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.geenToolStripMenuItem.Text = "Geen";
             this.geenToolStripMenuItem.Click += new System.EventHandler(this.geenToolStripMenuItem_Click);
             // 
             // logaritmischToolStripMenuItem
             // 
             this.logaritmischToolStripMenuItem.Name = "logaritmischToolStripMenuItem";
-            this.logaritmischToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
+            this.logaritmischToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.logaritmischToolStripMenuItem.Text = "Logaritmisch";
             this.logaritmischToolStripMenuItem.Click += new System.EventHandler(this.logaritmischToolStripMenuItem_Click);
             // 
             // linearToolStripMenuItem
             // 
             this.linearToolStripMenuItem.Name = "linearToolStripMenuItem";
-            this.linearToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
+            this.linearToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.linearToolStripMenuItem.Text = "Linear";
             this.linearToolStripMenuItem.Click += new System.EventHandler(this.linearToolStripMenuItem_Click);
             // 
             // vierakantToolStripMenuItem
             // 
             this.vierakantToolStripMenuItem.Name = "vierakantToolStripMenuItem";
-            this.vierakantToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
-            this.vierakantToolStripMenuItem.Text = "Vierakant";
+            this.vierakantToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.vierakantToolStripMenuItem.Text = "Vierkant";
             this.vierakantToolStripMenuItem.Click += new System.EventHandler(this.vierakantToolStripMenuItem_Click);
             // 
             // exponentieelToolStripMenuItem
             // 
             this.exponentieelToolStripMenuItem.Name = "exponentieelToolStripMenuItem";
-            this.exponentieelToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
+            this.exponentieelToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exponentieelToolStripMenuItem.Text = "Exponentieel";
             this.exponentieelToolStripMenuItem.Click += new System.EventHandler(this.exponentieelToolStripMenuItem_Click);
             // 
@@ -479,6 +479,23 @@
             this.panel2.Size = new System.Drawing.Size(326, 229);
             this.panel2.TabIndex = 21;
             // 
+            // textBox10
+            // 
+            this.textBox10.Location = new System.Drawing.Point(88, 172);
+            this.textBox10.Name = "textBox10";
+            this.textBox10.ReadOnly = true;
+            this.textBox10.Size = new System.Drawing.Size(235, 20);
+            this.textBox10.TabIndex = 24;
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(3, 175);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(79, 13);
+            this.label13.TabIndex = 23;
+            this.label13.Text = "Totaal verschil:";
+            // 
             // textBox9
             // 
             this.textBox9.Location = new System.Drawing.Point(107, 146);
@@ -505,23 +522,6 @@
             this.label6.Size = new System.Drawing.Size(108, 24);
             this.label6.TabIndex = 20;
             this.label6.Text = "Resultaten";
-            // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(3, 175);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(79, 13);
-            this.label13.TabIndex = 23;
-            this.label13.Text = "Totaal verschil:";
-            // 
-            // textBox10
-            // 
-            this.textBox10.Location = new System.Drawing.Point(88, 172);
-            this.textBox10.Name = "textBox10";
-            this.textBox10.ReadOnly = true;
-            this.textBox10.Size = new System.Drawing.Size(235, 20);
-            this.textBox10.TabIndex = 24;
             // 
             // Form1
             // 
