@@ -35,17 +35,20 @@ def scrape_page_layout_one(n, maxItems):
         #TODO: BOTH LINK AND NAME CAN BE FOUND IN SAME CLASSES, CAN IMPROVE THIS FOR CLARITY
         #product_link = item.find_element(By.CSS_SELECTOR, ".product-item__content > .product-item__info > .product-title--inline > a").get_attribute("href")
         #print(f"IMAGE: {image_link}\n")
-        with open (f"scraped_jeans/{n} {page}.jpg", "wb") as file:
-            r = requests.get(image_link, allow_redirects=True)
-            file.write(r.content)
-        n = n + 1
+        try:
+            with open (f"scraped_jeans/{n}.jpg", "wb") as file:
+                r = requests.get(image_link, allow_redirects=True)
+                file.write(r.content)
+            n = n + 1
+        except:
+            pass
     return n
 
 def iterate_lowest_category(start_url):
     #SET MAXIMUM OF PAGES TO LOAD (EACH PAGE HAS MAXIMUM OF 24 PRODUCTS)
     counter = 1
     pageNum = 1
-    maxItems = 50
+    maxItems = 1000
     while counter < maxItems:
         driver.get(start_url + f"?page={pageNum}&view=list")
         #TRY INCASE PAGE DOES NOT EXIST (OUT OF RANGE), OR PAGE SETUP IS DIFFERENT (CLOTHING FOR EXAMPLE HAS DIFFERENT SETUP)
