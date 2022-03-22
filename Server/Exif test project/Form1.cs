@@ -42,9 +42,9 @@ namespace Exif_test_project
             }
 
             //Convert textboxes to bytearray and add 0 where needed
-            byte[] titleTemp = ASCIIEncoding.ASCII.GetBytes(textBox2.Text);     //max supported title length is 127 min supported length is 2
-            byte[] mainCategoryTemp = ASCIIEncoding.ASCII.GetBytes(textBox3.Text);      //max supported maincategory length is 127    min supported length is 2
-            byte[] subCategories = ASCIIEncoding.ASCII.GetBytes(textBox4.Text);         //max supported length is 255 min supported length is 2
+            byte[] titleTemp = ASCIIEncoding.ASCII.GetBytes(textBox2.Text);     //max supported title length is 32.768 min supported length is 2
+            byte[] mainCategoryTemp = ASCIIEncoding.ASCII.GetBytes(textBox3.Text);      //max supported maincategory length is 32.768    min supported length is 2
+            byte[] subCategories = ASCIIEncoding.ASCII.GetBytes(textBox4.Text);         //max supported length is 65.536 min supported length is 2
             Array.Resize(ref subCategories, subCategories.Length + 1);
 
             byte[] title = new byte[titleTemp.Length * 2];      
@@ -53,7 +53,7 @@ namespace Exif_test_project
                 title[a] = titleTemp[a / 2];
                 title[a + 1] = 0;
             }
-            Array.Resize(ref title, title.Length + 2);              //add 2 because the title has 2 trailing 00 00 at the end
+            Array.Resize(ref title, title.Length + 2);                              //add 2 because the title has 2 trailing 00 at the end
 
             byte[] mainCategory = new byte[mainCategoryTemp.Length * 2];       
             for (int a = 0; a < mainCategory.Length; a += 2)
@@ -61,7 +61,7 @@ namespace Exif_test_project
                 mainCategory[a] = mainCategoryTemp[a / 2];
                 mainCategory[a + 1] = 0;
             }
-            Array.Resize(ref mainCategory, mainCategory.Length + 3);              //add 3 because the maincategory has 3 trailing 00 00 at the end
+            Array.Resize(ref mainCategory, mainCategory.Length + 3);                //add 3 because the maincategory has 3 trailing 00 at the end
 
             //Find end of exif data and copy image data into new byte array
             byteArray = File.ReadAllBytes(openFileDialog1.FileName);
@@ -70,23 +70,32 @@ namespace Exif_test_project
             Array.Copy(byteArray, exifEnd, image, 0, byteArray.Length - exifEnd);
 
             //build new exif data
-            string mainCategoryPos = ToHex(62 + title.Length - 3 - 9, "");
-            string exifPointer = ToHex(60 + title.Length + mainCategory.Length + 1 - 12, "");
-            string subCategoryPos = ToHex(62 + title.Length + mainCategory.Length + 29 - 12, "");
-            string totalLength = ToHex(58 + title.Length + mainCategory.Length + 37 + subCategories.Length, "");
+            string mainCategoryPos = ToHex(62 + title.Length - 3 - 9, "");                                              //hex position of the subject exif tag
+            string Titlepos = ToHex(60 + title.Length + mainCategory.Length + 1 - 12, "");                              //hex position of the title exif tag
+            string subCategoryPos = ToHex(62 + title.Length + mainCategory.Length + 29 - 12, "");                       //hex position of the usercomments exif tag  
+            string totalLength = ToHex(58 + title.Length + mainCategory.Length + 37 + subCategories.Length, "");        //total length of exif tag in hex
+            string mainCategoryLength = ToHex(mainCategory.Length - 1, "");                                             //total length in hex of data for the subject exif tag
+            string titleLength = ToHex(title.Length, "");                                                               //total length in hex of data for the title exif tag
+            string subCategoriesLength = ToHex(subCategories.Length + 7, "");                                           //total length in hex of data for the usercomments exif tag
             byte[] newByteArray = new byte[62] {255, 216, 255, 225,
                 Convert.ToByte(totalLength.Length > 2 ? ToInt(totalLength[..(totalLength.Length / 2)], 0, 0) : 0),
                 Convert.ToByte(totalLength.Length > 2 ? ToInt(totalLength[(totalLength.Length / 2)..], 0, 0) : ToInt(totalLength, 0, 0)),
                 69, 120, 105, 102, 0, 0, 77, 77, 0, 42, 0, 0, 0, 8, 0, 7, 135, 105, 0, 4, 0, 0, 0, 1, 0, 0,
-                Convert.ToByte(exifPointer.Length > 2 ? ToInt(exifPointer[..(exifPointer.Length / 2)], 0, 0) : 0),
-                Convert.ToByte(exifPointer.Length > 2 ? ToInt(exifPointer[(exifPointer.Length / 2)..], 0, 0) : ToInt(exifPointer, 0, 0)), 
-                156, 155, 0, 1, 0, 0, 0, 
-                Convert.ToByte(title.Length), 0, 0, 0, 50, 156, 159, 0, 1, 0, 0, 0, Convert.ToByte(mainCategory.Length - 1), 0, 0,
-                Convert.ToByte(mainCategoryPos.Length > 2 ? ToInt(mainCategoryPos[..(mainCategoryPos.Length / 2)], 0, 0) : 0),    //if position of maincategory is more than 255 or FF in hex then calculate the value for the second byte.
-                Convert.ToByte(mainCategoryPos.Length > 2 ? ToInt(mainCategoryPos[(mainCategoryPos.Length / 2)..], 0, 0) : ToInt(mainCategoryPos, 0, 0)), 0, 0,   //first byte of maincategory data position. If 2 byte's is needed only calculate the byte value for the first 2 hex values
+                Convert.ToByte(Titlepos.Length > 2 ? ToInt(Titlepos[..(Titlepos.Length / 2)], 0, 0) : 0),
+                Convert.ToByte(Titlepos.Length > 2 ? ToInt(Titlepos[(Titlepos.Length / 2)..], 0, 0) : ToInt(Titlepos, 0, 0)), 
+                156, 155, 0, 1, 0, 0, 
+                Convert.ToByte(titleLength.Length > 2 ? ToInt(titleLength[..(titleLength.Length / 2)], 0, 0) : 0),
+                Convert.ToByte(titleLength.Length > 2 ? ToInt(titleLength[(titleLength.Length / 2)..], 0, 0) : ToInt(titleLength, 0, 0)),
+                0, 0, 0, 50, 156, 159, 0, 1, 0, 0,
+                Convert.ToByte(mainCategoryLength.Length > 2 ? ToInt(mainCategoryLength[..(mainCategoryLength.Length / 2)], 0, 0) : 0),
+                Convert.ToByte(mainCategoryLength.Length > 2 ? ToInt(mainCategoryLength[(mainCategoryLength.Length / 2)..], 0, 0) : ToInt(mainCategoryLength, 0, 0)), 0, 0,
+                Convert.ToByte(mainCategoryPos.Length > 2 ? ToInt(mainCategoryPos[..(mainCategoryPos.Length / 2)], 0, 0) : 0),                                                          //if position of maincategory is more than 255 or FF in hex then calculate the value for the second byte.
+                Convert.ToByte(mainCategoryPos.Length > 2 ? ToInt(mainCategoryPos[(mainCategoryPos.Length / 2)..], 0, 0) : ToInt(mainCategoryPos, 0, 0)), 0, 0,                         //first byte of maincategory data position. If 2 byte's is needed only calculate the byte value for the first 2 hex values
             0, 1}.Concat(title).ToArray();
             newByteArray = newByteArray.Concat(mainCategory).ToArray();
-            newByteArray = newByteArray.Concat(new byte[37] {3, 146, 134, 0, 7, 0, 0, 0, Convert.ToByte(subCategories.Length + 7), 0, 0,
+            newByteArray = newByteArray.Concat(new byte[37] {3, 146, 134, 0, 7, 0, 0,
+                Convert.ToByte(subCategoriesLength.Length > 2 ? ToInt(subCategoriesLength[..(subCategoriesLength.Length / 2)], 0, 0) : 0),
+                Convert.ToByte(subCategoriesLength.Length > 2 ? ToInt(subCategoriesLength[(subCategoriesLength.Length / 2)..], 0, 0) : ToInt(subCategoriesLength, 0, 0)), 0, 0,
                 Convert.ToByte(subCategoryPos.Length > 2 ? ToInt(subCategoryPos[..(subCategoryPos.Length / 2)], 0, 0) : 0),
                 Convert.ToByte(subCategoryPos.Length > 2 ? ToInt(subCategoryPos[(subCategoryPos.Length / 2)..], 0, 0) : ToInt(subCategoryPos, 0, 0)), 
                 160, 0, 0, 7, 0, 0, 0, 4, 48, 49, 48, 48, 0, 0, 0, 0, 65, 83, 67, 73, 73, 0, 0, 0}).ToArray();
@@ -100,7 +109,7 @@ namespace Exif_test_project
         /// This iterative  function finds the first occurrence of FF DB wich is the end of exif identifier in jpeg files
         /// </summary>
         /// <param name="startIndex">This should be 2 when you call the function</param>
-        /// <returns></returns>
+        /// <returns>This returns in base 10 the end position of the exif data</returns>
         private int EndExifIndex(int startIndex)
         {
             return byteArray[startIndex] == 255 && byteArray[startIndex + 1] == 219 ? startIndex : 
@@ -134,7 +143,7 @@ namespace Exif_test_project
         /// </summary>
         /// <param name="value">This should be the base 10 number</param>
         /// <param name="hex">This should be ampty on function call. This is used to build the hex value</param>
-        /// <returns></returns>
+        /// <returns>returns hex value in string format</returns>
         private string ToHex(int value, string hex)
         {
             if (value == 0) return hex;
