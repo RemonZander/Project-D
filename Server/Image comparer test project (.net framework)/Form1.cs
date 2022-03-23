@@ -17,13 +17,15 @@ namespace Image_comparer_test_project__.net_framework_
         private Bitmap firstImg, secondimage;
         private (int, int, int)[,] firstImgSectorsHue = new (int, int, int)[WidthSectors, HeightSectors];
         private (int, int, int)[][,] SecondimgListSectorsHue = new (int, int, int)[1][,];
+        private DataSet ds = new DataSet();
+        private List<(int, int, int, string)> results;
+        private string[] fileNames = new string[1];
 
         //only square supported for now
         private const int WidthSectors = 41;
         private const int HeightSectors = 41;
 
-        private readonly Bitmap image = new Bitmap(600, 450);
-        private readonly Graphics g;
+        private readonly Bitmap image = new Bitmap(600, 450);       
 
         private PixelWeights PixelWeights = PixelWeights.Geen;
 
@@ -31,33 +33,38 @@ namespace Image_comparer_test_project__.net_framework_
 
         public Form1()
         {
-            InitializeComponent();
-
-            g = Graphics.FromImage(image);        
+            InitializeComponent();       
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            (int, int, int) results = CompareImg(firstImgSectorsHue, SecondimgListSectorsHue[0]);
+            ds = new DataSet();
+            results = new List<(int, int, int, string)>();
+            comboBox1.Items.Clear();
+            comboBox1.SelectedIndex = -1;
 
-            g.DrawImage(secondimage, new Point(0, 0));
-
-            for (int a = 0; a < WidthSectors; a++)
+            if (mode == Modes.Single)
             {
-                Pen p = new Pen(Color.Black);
-                g.DrawLine(p, new Point(a * (firstImg.Width / WidthSectors), 0), new Point(a * (firstImg.Width / WidthSectors), firstImg.Height));
+                results.Add(CompareImg(firstImgSectorsHue, SecondimgListSectorsHue[0], 0));
             }
-
-            for (int b = 0; b < HeightSectors; b++)
+            else
             {
-                Pen p = new Pen(Color.Black);
-                g.DrawLine(p, new Point(0, b * (firstImg.Height / HeightSectors)), new Point(firstImg.Width, b * (firstImg.Height / HeightSectors)));
+                for (int a = 0; a < SecondimgListSectorsHue.Length; a++)
+                {
+                    results.Add(CompareImg(firstImgSectorsHue, SecondimgListSectorsHue[a], a));
+                }
             }
            
-            textBox1.Text = results.Item1.ToString();
-            textBox2.Text = results.Item2.ToString();
-            textBox9.Text = results.Item3.ToString();
-            textBox10.Text = ((results.Item1 + results.Item2 + results.Item3) / 3).ToString();
+            if (mode == Modes.Single)
+            {
+                textBox1.Text = results[0].Item1.ToString();
+                textBox2.Text = results[0].Item2.ToString();
+                textBox9.Text = results[0].Item3.ToString();
+                textBox10.Text = ((results[0].Item1 + results[0].Item2 + results[0].Item3) / 3).ToString();
+            }
+
+            comboBox1.Enabled = true;
+            textBox14.Enabled = true;
         }
 
         private static Bitmap CropAtRect(Bitmap b, Rectangle r)
@@ -76,13 +83,10 @@ namespace Image_comparer_test_project__.net_framework_
 
         private void Prepimage(Bitmap image, bool firstImg, int count)
         {
-            Bitmap nb = new Bitmap(image.Width, image.Height);
-            Graphics g = Graphics.FromImage(nb);
             (int, int, int)[,] sectorAverages = new (int, int, int)[WidthSectors, HeightSectors];
             int sectorWidth = image.Width / WidthSectors;
             int sectorheight = image.Height / HeightSectors;
             int totalPixelsPerSector = sectorWidth * sectorheight;
-
 
             for (int a = 0; a < WidthSectors; a++)
             {
@@ -91,10 +95,6 @@ namespace Image_comparer_test_project__.net_framework_
                     int TotalHueValues = 0;
                     int totalBrightnessValues = 0;
                     int totalSaturationValues = 0;
-                    int red = 0;
-                    int green = 0;
-                    int blue = 0;
-                    int alpha = 0;
 
                     double weight = 1;
 
@@ -161,20 +161,8 @@ namespace Image_comparer_test_project__.net_framework_
                             TotalHueValues += (int)pixelColor.GetHue();
                             totalBrightnessValues += (int)(pixelColor.GetBrightness() * 100);
                             totalSaturationValues += (int)(pixelColor.GetSaturation() * 100);
-                            red += pixelColor.R;
-                            green += pixelColor.G;
-                            blue += pixelColor.B;
-                            alpha += pixelColor.A;
                         }
                     }
-                    alpha = alpha / totalPixelsPerSector;
-                    red = red / totalPixelsPerSector;
-                    green = green / totalPixelsPerSector;
-                    blue = blue / totalPixelsPerSector;
-                    g.FillRectangle(new SolidBrush(Color.FromArgb(alpha, red, green, blue)), 
-                        new Rectangle(sectorWidth * a, sectorheight * b, sectorWidth, sectorheight));
-
-                    g.DrawString((TotalHueValues / totalPixelsPerSector * weight).ToString(), new Font("Arial", 6), new SolidBrush(Color.Black), sectorWidth * a, sectorheight * b);
 
                     sectorAverages[a, b] = ((int)(TotalHueValues / totalPixelsPerSector * weight), (int)(totalBrightnessValues / totalPixelsPerSector * weight), (int)(totalSaturationValues / totalPixelsPerSector * weight));
                 }
@@ -183,23 +171,27 @@ namespace Image_comparer_test_project__.net_framework_
             if (firstImg)
             {
                 firstImgSectorsHue = sectorAverages;
-
-                nb.Save(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\values 1.jpeg");
                 return;
             }
             SecondimgListSectorsHue[count] = sectorAverages;
-            nb.Save(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\values 2.jpeg");
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-            Prepimage(firstImg, false);
-            Prepimage(secondimage, false);
-            (int, int, int) results = CompareImg(firstImgSectorsHue, SecondimgListSectorsHue[0]);
+            throw new NotImplementedException();
 
-            textBox1.Text = results.Item1.ToString();
-            textBox2.Text = results.Item2.ToString();
-            textBox9.Text = results.Item3.ToString();
+            ds = new DataSet();
+            comboBox1.Items.Clear();
+            comboBox1.SelectedIndex = -1;
+            Prepimage(firstImg, false, 0);
+            Prepimage(secondimage, false, 0);
+            results.Add(CompareImg(firstImgSectorsHue, SecondimgListSectorsHue[0], 0));
+
+            textBox1.Text = results[0].Item1.ToString();
+            textBox2.Text = results[0].Item2.ToString();
+            textBox9.Text = results[0].Item3.ToString();
+
+            comboBox1.Enabled = true;
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -213,6 +205,8 @@ namespace Image_comparer_test_project__.net_framework_
 
             if (string.IsNullOrEmpty(openFileDialog1.SafeFileName) || openFileDialog1.SafeFileName.Contains("openFi")) return;
 
+            textBox13.Text = openFileDialog1.SafeFileName;
+
             firstImg = (Bitmap)Bitmap.FromFile(openFileDialog1.FileName);
 
             double ratio = firstImg.Height * 1.0 / firstImg.Width;
@@ -223,12 +217,14 @@ namespace Image_comparer_test_project__.net_framework_
 
         private void openAfbeelding2ToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (mode == Modes.Folder) return;
             openFileDialog1.ShowDialog();
 
             if (string.IsNullOrEmpty(openFileDialog1.SafeFileName) || openFileDialog1.SafeFileName.Contains("openFi")) return;
 
             button3.Enabled = true;
             button4.Enabled = true;
+            textBox12.Text = openFileDialog1.SafeFileName;
 
             secondimage = (Bitmap)Bitmap.FromFile(openFileDialog1.FileName);
 
@@ -278,17 +274,39 @@ namespace Image_comparer_test_project__.net_framework_
             
             string folder = folderBrowserDialog1.SelectedPath;
 
-            string[] files = Directory.GetFiles(folder);
+            fileNames = Directory.GetFiles(folder);
+            SecondimgListSectorsHue = new (int, int, int)[fileNames.Length][,];
 
-            for (int a = 0; a < files.Length; a++)
+            List<Thread> threads = new List<Thread>();
+            for (int b = 0; b < 20; b++)
             {
-                secondimage = (Bitmap)Bitmap.FromFile(files[a]);
-
-                double ratio = secondimage.Height * 1.0 / secondimage.Width;
-                secondimage = CropAtRect(secondimage, new Rectangle(0, 0, 600, (int)(600 * ratio)));
-
-                Prepimage(secondimage, false, a);
+                threads.Add(new Thread(() => Prepimage(secondimage, false, 0)));
             }
+
+            for (int a = 0; a < fileNames.Length; a++)
+            {
+                List<Thread> inactive = threads.Where(t => t.ThreadState != ThreadState.Running).ToList();
+
+                Bitmap image = (Bitmap)Bitmap.FromFile(fileNames[a]);
+
+                double ratio = image.Height * 1.0 / image.Width;
+                image = CropAtRect(image, new Rectangle(0, 0, 600, (int)(600 * ratio)));
+
+                int b = a;
+                inactive[0] = new Thread(() => Prepimage(image, false, b));
+                inactive[0].Start();
+            }
+
+            foreach (var thread in threads)
+            {
+                if (thread.ThreadState == ThreadState.Running)
+                {
+                    thread.Join();
+                }
+            }
+
+            button3.Enabled = true;
+            button4.Enabled = true;
         }
 
         private void singleModeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -335,7 +353,70 @@ namespace Image_comparer_test_project__.net_framework_
             }
         }
 
-        private (int, int, int) CompareImg((int, int, int)[,] firstImgSectorsCompare, (int, int, int)[,] secondImgSectorsCompare)
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (comboBox1.SelectedIndex == -1) return;
+
+            chart1.DataSource = ds.Tables[comboBox1.SelectedIndex];
+            chart1.Series[0].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            chart1.Series[0].XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
+            chart1.Series[0].YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
+            chart1.Series[0].LegendText = "match results Hue";
+            chart1.Series[0].XValueMember = "xAxisHue";
+            chart1.Series[0].YValueMembers = "yAxisHue";
+            chart1.Series[0].IsVisibleInLegend = true;
+
+            chart1.Series[1].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            chart1.Series[1].XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
+            chart1.Series[1].YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
+            chart1.Series[1].LegendText = "match results Brightness";
+            chart1.Series[1].XValueMember = "xAxisBrightness";
+            chart1.Series[1].YValueMembers = "yAxisBrightness";
+            chart1.Series[1].IsVisibleInLegend = true;
+
+            chart1.Series[2].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            chart1.Series[2].XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
+            chart1.Series[2].YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
+            chart1.Series[2].LegendText = "match results Saturation";
+            chart1.Series[2].XValueMember = "xAxisSaturation";
+            chart1.Series[2].YValueMembers = "yAxisSaturation";
+            chart1.Series[2].IsVisibleInLegend = true;
+            chart1.DataBind();
+
+            chart1.Update();
+
+            textBox5.Text = (chart1.ChartAreas[0].AxisX.Minimum - 1).ToString();
+            textBox6.Text = chart1.ChartAreas[0].AxisX.Maximum.ToString();
+            textBox7.Text = chart1.ChartAreas[0].AxisY.Maximum.ToString();
+            textBox8.Text = chart1.ChartAreas[0].AxisY.Minimum.ToString();
+
+            textBox1.Text = results[comboBox1.SelectedIndex].Item1.ToString();
+            textBox2.Text = results[comboBox1.SelectedIndex].Item2.ToString();
+            textBox9.Text = results[comboBox1.SelectedIndex].Item3.ToString();
+            textBox10.Text = ((results[comboBox1.SelectedIndex].Item1 + results[comboBox1.SelectedIndex].Item2 + results[comboBox1.SelectedIndex].Item3) / 3).ToString();
+            textBox11.Text = results[comboBox1.SelectedIndex].Item4;
+            textBox12.Text = fileNames[comboBox1.SelectedIndex].Substring(fileNames[comboBox1.SelectedIndex].LastIndexOf(@"\") + 1);
+        }
+
+        private void textBox14_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter && !string.IsNullOrEmpty(textBox7.Text) && Convert.ToInt32(textBox7.Text) > -1)
+            {
+                Directory.Delete(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\foto's", true);
+                Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\foto's");
+                for (int a = 0; a < results.Count; a++)
+                {
+                    double test = Convert.ToDouble(results[a].Item4.Remove(results[a].Item4.Length - 1, 1));
+                    if (Convert.ToDouble(results[a].Item4.Remove(results[a].Item4.Length - 1, 1)) <= Convert.ToDouble(textBox14.Text))
+                    {
+                        File.Copy(fileNames[a], Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\foto's\" + 
+                            fileNames[a].Substring(fileNames[comboBox1.SelectedIndex].LastIndexOf(@"\") + 1) + " " + results[a].Item4.Remove(results[a].Item4.Length - 1, 1) + ".jpg");
+                    }
+                }
+            }
+        }
+
+        private (int, int, int, string) CompareImg((int, int, int)[,] firstImgSectorsCompare, (int, int, int)[,] secondImgSectorsCompare, int iteration)
         {
             List<int> diffHue = new List<int>();
             List<int> diffBrightness = new List<int>();
@@ -408,58 +489,27 @@ namespace Image_comparer_test_project__.net_framework_
             {
                 yAxisSaturation.Add(diffSaturation.Where(x => x == xAxisSaturation[a]).ToList().Count);
             }
-
-            DataSet ds = new DataSet();
+           
             ds.Tables.Add();
-            ds.Tables[0].Columns.Add("xAxisHue");
-            ds.Tables[0].Columns.Add("yAxisHue");
-            ds.Tables[0].Columns.Add("xAxisBrightness");
-            ds.Tables[0].Columns.Add("yAxisBrightness");
-            ds.Tables[0].Columns.Add("xAxisSaturation");
-            ds.Tables[0].Columns.Add("yAxisSaturation");
+            ds.Tables[ds.Tables.Count - 1].Columns.Add("xAxisHue");
+            ds.Tables[ds.Tables.Count - 1].Columns.Add("yAxisHue");
+            ds.Tables[ds.Tables.Count - 1].Columns.Add("xAxisBrightness");
+            ds.Tables[ds.Tables.Count - 1].Columns.Add("yAxisBrightness");
+            ds.Tables[ds.Tables.Count - 1].Columns.Add("xAxisSaturation");
+            ds.Tables[ds.Tables.Count - 1].Columns.Add("yAxisSaturation");
 
             for (int c = 0; c < xAxisHue.Count; c++)
             {
-                ds.Tables[0].Rows.Add(xAxisHue[c], yAxisHue[c], xAxisBrightness.Count > c ? xAxisBrightness[c] : 0,
+                ds.Tables[ds.Tables.Count - 1].Rows.Add(xAxisHue[c], yAxisHue[c], xAxisBrightness.Count > c ? xAxisBrightness[c] : 0,
                     yAxisBrightness.Count > c ? yAxisBrightness[c] : 0,
                     xAxisSaturation.Count > c ? xAxisSaturation[c] : 0,
                     yAxisSaturation.Count > c ? yAxisSaturation[c] : 0);
             }
 
-            chart1.DataSource = ds;
-            chart1.Series[0].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            chart1.Series[0].XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
-            chart1.Series[0].YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
-            chart1.Series[0].LegendText = "match results Hue";
-            chart1.Series[0].XValueMember = "xAxisHue";
-            chart1.Series[0].YValueMembers = "yAxisHue";
-            chart1.Series[0].IsVisibleInLegend = true;
+            textBox11.Text = (diffHue.Average() / (diffHue.Max() / 100.0)).ToString() + "%";
+            comboBox1.Items.Add(ds.Tables.Count - 1);
 
-            chart1.Series[1].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            chart1.Series[1].XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
-            chart1.Series[1].YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
-            chart1.Series[1].LegendText = "match results Brightness";
-            chart1.Series[1].XValueMember = "xAxisBrightness";
-            chart1.Series[1].YValueMembers = "yAxisBrightness";
-            chart1.Series[1].IsVisibleInLegend = true;
-
-            chart1.Series[2].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            chart1.Series[2].XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
-            chart1.Series[2].YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
-            chart1.Series[2].LegendText = "match results Saturation";
-            chart1.Series[2].XValueMember = "xAxisSaturation";
-            chart1.Series[2].YValueMembers = "yAxisSaturation";
-            chart1.Series[2].IsVisibleInLegend = true;
-            chart1.DataBind();
-
-            chart1.Update();
-
-            textBox5.Text = (chart1.ChartAreas[0].AxisX.Minimum - 1).ToString();
-            textBox6.Text = chart1.ChartAreas[0].AxisX.Maximum.ToString();
-            textBox8.Text = chart1.ChartAreas[0].AxisY.Minimum.ToString();
-            textBox7.Text = chart1.ChartAreas[0].AxisY.Maximum.ToString();
-
-            return ((int)diffHue.Average(), (int)diffBrightness.Average(), (int)diffSaturation.Average());
+            return ((int)diffHue.Average(), (int)diffBrightness.Average(), (int)diffSaturation.Average(), (diffHue.Average() / (diffHue.Max() / 100.0)).ToString() + "%");
         }
 
     }
