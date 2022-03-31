@@ -15,8 +15,5 @@
     "host_permissions": [
         "https://*/",
         "http://*/"
-    ],
-    "content_security_policy": {
-        "extension_pages": "script-src http://127.0.0.1:5000;  object-src http://127.0.0.1:5000;"
-    }
+    ]
 }
