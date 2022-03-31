@@ -29,13 +29,18 @@ namespace Image_comparer_test_project__.net_framework_
             comboBox1.Items.Clear();
             comboBox1.SelectedIndex = -1;
 
+            for (int a = 0; a < SecondimgListSectors.Length; a++)
+            {
+                ds.Tables.Add();
+            }
+
             if (mode == Modes.Single)
             {
                 results.Add(CompareImg(firstImgSectors, SecondimgListSectors[0], 0));
             }
             else
             {
-                Thread[] threads = new Thread[30];
+                Thread[] threads = new Thread[25];
                 (List<(int, int, int)>, string) firstimage = firstImgSectors;
                 int length = SecondimgListSectors.Length / threads.Length;
                 for (int a = 0; a < threads.Length; a++)

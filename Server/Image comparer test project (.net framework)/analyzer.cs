@@ -75,7 +75,7 @@ namespace Image_comparer_test_project__.net_framework_
                 bmpData = null;
             });
 
-            (int, int, int)[] colors = new (int, int, int)[bytes / 3];
+            Span<(int, int, int)> colors = new (int, int, int)[bytes / 3];
             for (int a = 0, b = 0; a < rgbValues.Length; a += 3, b++)
             {
                 float red = rgbValues[a + 2] / 255f;
@@ -304,39 +304,39 @@ namespace Image_comparer_test_project__.net_framework_
                 yAxisSaturation.Add(diffSaturation.Where(x => x == xAxisSaturation[a]).ToList().Count);
             }
 
-            lock (ds)
-            {
-                ds.Tables.Add();
-                ds.Tables[ds.Tables.Count - 1].TableName = secondImgSectorsCompare.Item2;
-                ds.Tables[ds.Tables.Count - 1].Columns.Add("xAxisHue");
-                ds.Tables[ds.Tables.Count - 1].Columns.Add("yAxisHue");
-                ds.Tables[ds.Tables.Count - 1].Columns.Add("xAxisBrightness");
-                ds.Tables[ds.Tables.Count - 1].Columns.Add("yAxisBrightness");
-                ds.Tables[ds.Tables.Count - 1].Columns.Add("xAxisSaturation");
-                ds.Tables[ds.Tables.Count - 1].Columns.Add("yAxisSaturation");
 
+            ds.Tables[pos].TableName = secondImgSectorsCompare.Item2;
+            ds.Tables[pos].Columns.Add("xAxisHue");
+            ds.Tables[pos].Columns.Add("yAxisHue");
+            ds.Tables[pos].Columns.Add("xAxisBrightness");
+            ds.Tables[pos].Columns.Add("yAxisBrightness");
+            ds.Tables[pos].Columns.Add("xAxisSaturation");
+            ds.Tables[pos].Columns.Add("yAxisSaturation");
+
+            var t = Task.Run(() => {
                 for (int c = 0; c < xAxisHue.Count; c++)
                 {
-                    ds.Tables[ds.Tables.Count - 1].Rows.Add(xAxisHue[c], yAxisHue[c], xAxisBrightness.Count > c ? xAxisBrightness[c] : 0,
+                    ds.Tables[pos].Rows.Add(xAxisHue[c], yAxisHue[c], xAxisBrightness.Count > c ? xAxisBrightness[c] : 0,
                         yAxisBrightness.Count > c ? yAxisBrightness[c] : 0,
                         xAxisSaturation.Count > c ? xAxisSaturation[c] : 0,
                         yAxisSaturation.Count > c ? yAxisSaturation[c] : 0);
                 }
+            });
 
-                if (mode == Modes.Folder)
-                {
-                    BeginInvoke(new MethodInvoker(delegate
-                    {
-                        textBox11.Text = (diffHue.Average() / (diffHue.Max() / 100.0)).ToString() + "%";
-                        comboBox1.Items.Add(secondImgSectorsCompare.Item2);
-                    }));
-                }
-                else
+            if (mode == Modes.Folder)
+            {
+                BeginInvoke(new MethodInvoker(delegate
                 {
                     textBox11.Text = (diffHue.Average() / (diffHue.Max() / 100.0)).ToString() + "%";
                     comboBox1.Items.Add(secondImgSectorsCompare.Item2);
-                }
+                }));
             }
+            else
+            {
+                textBox11.Text = (diffHue.Average() / (diffHue.Max() / 100.0)).ToString() + "%";
+                comboBox1.Items.Add(secondImgSectorsCompare.Item2);
+            }
+
 
             return ((int)diffHue.Average(), (int)diffBrightness.Average(), (int)diffSaturation.Average(), (diffHue.Average() / (diffHue.Max() / 100.0)).ToString() + "%", secondImgSectorsCompare.Item2);
         }
