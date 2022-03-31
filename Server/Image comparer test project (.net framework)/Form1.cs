@@ -9,169 +9,69 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
 using System.IO;
+using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 
 namespace Image_comparer_test_project__.net_framework_
 {
     sealed partial class Form1 : Form
     {
-        private List<(int, int, int)> firstImgSectors = new List<(int, int, int)>();
-        private List<List<(int, int, int)>> SecondimgListSectors = new List<List<(int, int, int)>>();
-        private DataSet ds = new DataSet();
-        private List<(int, int, int, string)> results;
-        private string[] fileNames = new string[1];
-
-        //only square supported for now
-        private const int WidthSectors = 41;
-        private const int HeightSectors = 41;  
-
-        private PixelWeights PixelWeights = PixelWeights.Geen;
-
-        private Modes mode = Modes.Single;
-
         public Form1()
         {
-            InitializeComponent();       
+            InitializeComponent();
+            System.Diagnostics.Process.GetCurrentProcess().PriorityClass = System.Diagnostics.ProcessPriorityClass.High;
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
             ds = new DataSet();
-            results = new List<(int, int, int, string)>();
+            results = new List<(int, int, int, string, string)>();
             comboBox1.Items.Clear();
             comboBox1.SelectedIndex = -1;
 
             if (mode == Modes.Single)
             {
-                results.Add(CompareImg(firstImgSectors, SecondimgListSectors[0]));
+                results.Add(CompareImg(firstImgSectors, SecondimgListSectors[0], 0));
             }
             else
             {
-                for (int a = 0; a < SecondimgListSectors.Count; a++)
+                Thread[] threads = new Thread[30];
+                (List<(int, int, int)>, string) firstimage = firstImgSectors;
+                int length = SecondimgListSectors.Length / threads.Length;
+                for (int a = 0; a < threads.Length; a++)
                 {
-                    results.Add(CompareImg(firstImgSectors, SecondimgListSectors[a]));
+                    int startPos = length * a;               
+                    threads[a] = new Thread(() => ThreadRunCompare(startPos, length, firstimage));
+                    threads[a].Start();
                 }
+
+                length = SecondimgListSectors.Length % threads.Length;
+                int lastPos = SecondimgListSectors.Length - length;
+                Thread lastThread = new Thread(() => ThreadRunCompare(lastPos, length, firstimage));
+                lastThread.Start();
+
+                foreach (var thread in threads)
+                {
+                    thread.Join();
+                }
+
+                lastThread.Join();
             }
-           
+
             if (mode == Modes.Single)
             {
                 textBox1.Text = results[0].Item1.ToString();
                 textBox2.Text = results[0].Item2.ToString();
                 textBox9.Text = results[0].Item3.ToString();
                 textBox10.Text = ((results[0].Item1 + results[0].Item2 + results[0].Item3) / 3).ToString();
+                comboBox1.Enabled = true;
+                comboBox1.SelectedIndex = 0;
                 return;
             }
 
+            comboBox1.Sorted = true;
             comboBox1.Enabled = true;
             textBox14.Enabled = true;
-        }
-
-        private static Bitmap CropAtRect(Bitmap b, Rectangle r)
-        {
-            Bitmap nb = new Bitmap(r.Width, r.Height);
-            Graphics g = Graphics.FromImage(nb);
-            g.DrawImage(b, -r.X, -r.Y, nb.Width, nb.Height);
-            return nb;
-        }
-
-        private static UInt16 ToUInt16(int number)
-        {
-            if (number < 0) return (UInt16)(-number);
-            return (UInt16)number;
-        }
-
-        private void Prepimage(Bitmap image, bool firstImg)
-        {
-            List<(int, int,  int)> sectorAverages = new List<(int, int, int)>();
-            int sectorWidth = image.Width / WidthSectors;
-            int sectorheight = image.Height / HeightSectors;
-            int totalPixelsPerSector = sectorWidth * sectorheight;
-
-            for (int a = 0; a < WidthSectors; a++)
-            {
-                for (int b = 0; b < HeightSectors; b++)
-                {
-                    int TotalHueValues = 0;
-                    int totalBrightnessValues = 0;
-                    int totalSaturationValues = 0;
-
-                    double weight = 1;
-
-                    switch (PixelWeights)
-                    {
-                        case PixelWeights.Logaritmisch:
-                            if (a == 0 || b == 0)
-                            {
-                                weight = 1;
-                            }
-                            if ((WidthSectors / 2 - ToUInt16(WidthSectors / 2 - a)) < (WidthSectors / 2 - ToUInt16(WidthSectors / 2 - b)))
-                            {
-                                weight = Math.Log(a) * a + 1.0;
-
-                            }
-                            else
-                            {
-                                weight = Math.Log(b) * a + 1.0;
-                            }
-                            break;
-                        case PixelWeights.Linear:
-                            if ((WidthSectors / 2 - ToUInt16(WidthSectors / 2 - a)) < (WidthSectors / 2 - ToUInt16(WidthSectors / 2 - b)))
-                            {
-                                weight = 0.08 * (WidthSectors / 2 - ToUInt16(WidthSectors / 2 - a)) + 1;
-
-                            }
-                            else
-                            {
-                                weight = 0.08 * (WidthSectors / 2 - ToUInt16(WidthSectors / 2 - b)) + 1;
-                            }
-                            break;
-                        case PixelWeights.Vierkant:
-                            if ((WidthSectors / 2 - ToUInt16(WidthSectors / 2 - a)) < (WidthSectors / 2 - ToUInt16(WidthSectors / 2 - b)))
-                            {
-                                weight = 2.0 * (WidthSectors / 2 - ToUInt16(WidthSectors / 2 - a)) + 1;
-
-                            }
-                            else
-                            {
-                                weight = 2.0 * (WidthSectors / 2 - ToUInt16(WidthSectors / 2 - b)) + 1;
-                            }
-                            break;
-                        case PixelWeights.Exponentieel:
-                            if ((WidthSectors / 2 - ToUInt16(WidthSectors / 2 - a)) < (WidthSectors / 2 - ToUInt16(WidthSectors / 2 - b)))
-                            {
-                                weight = a * (WidthSectors / 2 - ToUInt16(WidthSectors / 2 - a)) + 1;
-
-                            }
-                            else
-                            {
-                                weight = b * (WidthSectors / 2 - ToUInt16(WidthSectors / 2 - b)) + 1;
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-
-                    for (int c = 0; c < sectorWidth; c++)
-                    {
-                        for (int d = 0; d < sectorheight; d++)
-                        {
-                            Color pixelColor = image.GetPixel(a * sectorWidth + c, b * sectorheight + d);
-
-                            TotalHueValues += (int)pixelColor.GetHue();
-                            totalBrightnessValues += (int)(pixelColor.GetBrightness() * 100);
-                            totalSaturationValues += (int)(pixelColor.GetSaturation() * 100);
-                        }
-                    }
-
-                    sectorAverages.Add(((int)(TotalHueValues / totalPixelsPerSector * weight), (int)(totalBrightnessValues / totalPixelsPerSector * weight), (int)(totalSaturationValues / totalPixelsPerSector * weight)));
-                }
-            }          
-
-            if (firstImg)
-            {
-                firstImgSectors = sectorAverages;
-                return;
-            }
-            SecondimgListSectors.Add(sectorAverages);
         }
 
         private void button4_Click(object sender, EventArgs e)
@@ -190,14 +90,9 @@ namespace Image_comparer_test_project__.net_framework_
 
             if (string.IsNullOrEmpty(openFileDialog1.SafeFileName) || openFileDialog1.SafeFileName.Contains("openFi")) return;
 
+            Prepimage(openFileDialog1.FileName, true, 0);
+
             textBox13.Text = openFileDialog1.SafeFileName;
-
-            Bitmap image = (Bitmap)Bitmap.FromFile(openFileDialog1.FileName);
-
-            double ratio = image.Height * 1.0 / image.Width;
-            image = CropAtRect(image, new Rectangle(0, 0, 600, (int)(600 * ratio)));
-
-            Prepimage(image, true);
         }
 
         private void openAfbeelding2ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -207,16 +102,11 @@ namespace Image_comparer_test_project__.net_framework_
 
             if (string.IsNullOrEmpty(openFileDialog1.SafeFileName) || openFileDialog1.SafeFileName.Contains("openFi")) return;
 
+            Prepimage(openFileDialog1.FileName, false, 0);
+
             button3.Enabled = true;
             button4.Enabled = true;
             textBox12.Text = openFileDialog1.SafeFileName;
-
-            Bitmap image = (Bitmap)Bitmap.FromFile(openFileDialog1.FileName);
-
-            double ratio = image.Height * 1.0 / image.Width;
-            image = CropAtRect(image, new Rectangle(0, 0, 600, (int)(600 * ratio)));
-
-            Prepimage(image, false);
         }
 
         private void geenToolStripMenuItem_Click(object sender, EventArgs e)
@@ -260,34 +150,29 @@ namespace Image_comparer_test_project__.net_framework_
             string folder = folderBrowserDialog1.SelectedPath;
 
             fileNames = Directory.GetFiles(folder);
-            SecondimgListSectors = new List<List<(int, int, int)>>();
+            SecondimgListSectors = new (List<(int, int, int)>, string)[fileNames.Length];
+            Thread[] threads = new Thread[30];
 
-            List<Thread> threads = new List<Thread>();
-            for (int b = 0; b < 20; b++)
+            for (int a = 0; a < threads.Length; a++)
             {
-                threads.Add(new Thread(() => Prepimage(new Bitmap(0, 0), false)));
+                string[] substring = new string[fileNames.Length / threads.Length];
+                int subStringLength = substring.Length * a;
+                Array.Copy(fileNames, subStringLength, substring, 0, substring.Length);
+                threads[a] = new Thread(() => ThreadRunPrep(substring, subStringLength));
+                threads[a].Start();
             }
 
-            for (int a = 0; a < fileNames.Length; a++)
-            {
-                List<Thread> inactive = threads.Where(t => t.ThreadState != ThreadState.Running).ToList();
-
-                Bitmap image = (Bitmap)Bitmap.FromFile(fileNames[a]);
-
-                double ratio = image.Height * 1.0 / image.Width;
-                image = CropAtRect(image, new Rectangle(0, 0, 600, (int)(600 * ratio)));
-
-                inactive[0] = new Thread(() => Prepimage(image, false));
-                inactive[0].Start();
-            }
+            string[] lastSubString = new string[fileNames.Length % threads.Length];
+            Array.Copy(fileNames, fileNames.Length - fileNames.Length % threads.Length, lastSubString, 0, lastSubString.Length);
+            Thread lastThread = new Thread(() => ThreadRunPrep(lastSubString, fileNames.Length - fileNames.Length % threads.Length));
+            lastThread.Start();
 
             foreach (var thread in threads)
             {
-                if (thread.ThreadState == ThreadState.Running)
-                {
-                    thread.Join();
-                }
+                thread.Join();
             }
+
+            lastThread.Join();
 
             button3.Enabled = true;
             button4.Enabled = true;
@@ -341,7 +226,18 @@ namespace Image_comparer_test_project__.net_framework_
         {
             if (comboBox1.SelectedIndex == -1) return;
 
-            chart1.DataSource = ds.Tables[comboBox1.SelectedIndex];
+            int pos2 = -1;
+
+            for (int a = 0; a < ds.Tables.Count; a++)
+            {
+                if (ds.Tables[a].TableName == comboBox1.Items[comboBox1.SelectedIndex].ToString())
+                {
+                    pos2 = a;
+                    break;
+                }
+            }
+
+            chart1.DataSource = ds.Tables[pos2];
             chart1.Series[0].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             chart1.Series[0].XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
             chart1.Series[0].YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
@@ -368,20 +264,22 @@ namespace Image_comparer_test_project__.net_framework_
             chart1.DataBind();
 
             chart1.Update();
+            List<string> fileNames = results.Select(r => r.Item5).ToList();
+            int pos = fileNames.IndexOf(comboBox1.Items[comboBox1.SelectedIndex].ToString());
 
             textBox5.Text = (chart1.ChartAreas[0].AxisX.Minimum - 1).ToString();
             textBox6.Text = chart1.ChartAreas[0].AxisX.Maximum.ToString();
             textBox7.Text = chart1.ChartAreas[0].AxisY.Maximum.ToString();
             textBox8.Text = chart1.ChartAreas[0].AxisY.Minimum.ToString();
 
-            textBox1.Text = results[comboBox1.SelectedIndex].Item1.ToString();
-            textBox2.Text = results[comboBox1.SelectedIndex].Item2.ToString();
-            textBox9.Text = results[comboBox1.SelectedIndex].Item3.ToString();
-            textBox10.Text = ((results[comboBox1.SelectedIndex].Item1 + results[comboBox1.SelectedIndex].Item2 + results[comboBox1.SelectedIndex].Item3) / 3).ToString();
-            textBox11.Text = results[comboBox1.SelectedIndex].Item4;
+            textBox1.Text = results[pos].Item1.ToString();
+            textBox2.Text = results[pos].Item2.ToString();
+            textBox9.Text = results[pos].Item3.ToString();
+            textBox10.Text = ((results[pos].Item1 + results[pos].Item2 + results[pos].Item3) / 3).ToString();
+            textBox11.Text = results[pos].Item4;
             if (mode == Modes.Folder)
             {
-                textBox12.Text = fileNames[comboBox1.SelectedIndex].Substring(fileNames[comboBox1.SelectedIndex].LastIndexOf(@"\") + 1);
+                textBox12.Text = fileNames[pos];
             }
         }
 
@@ -401,94 +299,6 @@ namespace Image_comparer_test_project__.net_framework_
                     }
                 }
             }
-        }
-
-        private (int, int, int, string) CompareImg(List<(int, int, int)> firstImgSectorsCompare, List<(int, int, int)> secondImgSectorsCompare)
-        {
-            List<int> diffHue = new List<int>();
-            List<int> diffBrightness = new List<int>();
-            List<int> diffSaturation = new List<int>();
-
-            firstImgSectorsCompare = firstImgSectorsCompare.OrderBy(x => x.Item1).ToList();
-            secondImgSectorsCompare = secondImgSectorsCompare.OrderBy(x => x.Item1).ToList();
-
-            for (int a = 0; a < firstImgSectorsCompare.Count; a++)
-            {
-                diffHue.Add(ToUInt16(firstImgSectorsCompare[a].Item1 - secondImgSectorsCompare[a].Item1));
-            }
-
-            firstImgSectorsCompare = firstImgSectorsCompare.OrderBy(x => x.Item2).ToList();
-            secondImgSectorsCompare = secondImgSectorsCompare.OrderBy(x => x.Item2).ToList();
-
-            for (int a = 0; a < firstImgSectorsCompare.Count; a++)
-            {
-                diffBrightness.Add(ToUInt16(firstImgSectorsCompare[a].Item2 - secondImgSectorsCompare[a].Item2));
-            }
-
-            firstImgSectorsCompare = firstImgSectorsCompare.OrderBy(x => x.Item3).ToList();
-            secondImgSectorsCompare = secondImgSectorsCompare.OrderBy(x => x.Item3).ToList();
-
-            for (int a = 0; a < firstImgSectorsCompare.Count; a++)
-            {
-                diffSaturation.Add(ToUInt16(firstImgSectorsCompare[a].Item3 - secondImgSectorsCompare[a].Item3));
-            }
-
-            List<int> xAxisHue = new List<int>();
-            List<int> xAxisBrightness = new List<int>();
-            List<int> xAxisSaturation = new List<int>();
-            for (int b = 0; b <= diffHue.Max(); b++)
-            {
-                xAxisHue.Add(b);
-            }
-
-            for (int d = 0; d <= diffBrightness.Max(); d++)
-            {
-                xAxisBrightness.Add(d);
-            }
-
-            for (int d = 0; d <= diffSaturation.Max(); d++)
-            {
-                xAxisSaturation.Add(d);
-            }
-
-            List<int> yAxisHue = new List<int>();
-            List<int> yAxisBrightness = new List<int>();
-            List<int> yAxisSaturation = new List<int>();
-            for (int a = 0; a < xAxisHue.Count; a++)
-            {
-                yAxisHue.Add(diffHue.Where(x => x == xAxisHue[a]).ToList().Count);
-            }
-
-            for (int a = 0; a < xAxisBrightness.Count; a++)
-            {
-                yAxisBrightness.Add(diffBrightness.Where(x => x == xAxisBrightness[a]).ToList().Count);
-            }
-
-            for (int a = 0; a < xAxisSaturation.Count; a++)
-            {
-                yAxisSaturation.Add(diffSaturation.Where(x => x == xAxisSaturation[a]).ToList().Count);
-            }
-           
-            ds.Tables.Add();
-            ds.Tables[ds.Tables.Count - 1].Columns.Add("xAxisHue");
-            ds.Tables[ds.Tables.Count - 1].Columns.Add("yAxisHue");
-            ds.Tables[ds.Tables.Count - 1].Columns.Add("xAxisBrightness");
-            ds.Tables[ds.Tables.Count - 1].Columns.Add("yAxisBrightness");
-            ds.Tables[ds.Tables.Count - 1].Columns.Add("xAxisSaturation");
-            ds.Tables[ds.Tables.Count - 1].Columns.Add("yAxisSaturation");
-
-            for (int c = 0; c < xAxisHue.Count; c++)
-            {
-                ds.Tables[ds.Tables.Count - 1].Rows.Add(xAxisHue[c], yAxisHue[c], xAxisBrightness.Count > c ? xAxisBrightness[c] : 0,
-                    yAxisBrightness.Count > c ? yAxisBrightness[c] : 0,
-                    xAxisSaturation.Count > c ? xAxisSaturation[c] : 0,
-                    yAxisSaturation.Count > c ? yAxisSaturation[c] : 0);
-            }
-
-            textBox11.Text = (diffHue.Average() / (diffHue.Max() / 100.0)).ToString() + "%";
-            comboBox1.Items.Add(ds.Tables.Count - 1);
-
-            return ((int)diffHue.Average(), (int)diffBrightness.Average(), (int)diffSaturation.Average(), (diffHue.Average() / (diffHue.Max() / 100.0)).ToString() + "%");
         }
     }
 }
