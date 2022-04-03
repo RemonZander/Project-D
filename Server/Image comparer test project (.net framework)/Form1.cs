@@ -296,7 +296,6 @@ namespace Image_comparer_test_project__.net_framework_
                 Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\foto's");
                 for (int a = 0; a < results.Count; a++)
                 {
-                    double test = Convert.ToDouble(results[a].Item4.Remove(results[a].Item4.Length - 1, 1));
                     if (Convert.ToDouble(results[a].Item4.Remove(results[a].Item4.Length - 1, 1)) <= Convert.ToDouble(textBox14.Text))
                     {
                         File.Copy(fileNames[a], Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\foto's\" + 

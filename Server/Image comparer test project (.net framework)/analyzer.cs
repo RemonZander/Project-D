@@ -243,6 +243,28 @@ namespace Image_comparer_test_project__.net_framework_
             List<int> diffHue = new List<int>();
             List<int> diffBrightness = new List<int>();
             List<int> diffSaturation = new List<int>();
+            List<int> totalFirstImg = new List<int>();
+            List<int> totalSecondImg = new List<int>();
+            List<int> diffTotal = new List<int>();
+
+            foreach (var item in firstImgSectorsCompare.Item1)
+            {
+                totalFirstImg.Add(item.Item1 + item.Item2 + item.Item3);
+            }
+
+            totalFirstImg = totalFirstImg.OrderBy(x => x).ToList();
+
+            foreach (var item in secondImgSectorsCompare.Item1)
+            {
+                totalSecondImg.Add(item.Item1 + item.Item2 + item.Item3);
+            }
+
+            totalSecondImg = totalSecondImg.OrderBy(x => x).ToList();
+
+            for (int f = 0; f < totalFirstImg.Count; f++)
+            {
+                diffTotal.Add(ToUInt16(totalFirstImg[f] - totalSecondImg[f]));
+            }
 
             firstImgSectorsCompare.Item1 = firstImgSectorsCompare.Item1.OrderBy(x => x.Item1).ToList();
             secondImgSectorsCompare.Item1 = secondImgSectorsCompare.Item1.OrderBy(x => x.Item1).ToList();
@@ -338,7 +360,8 @@ namespace Image_comparer_test_project__.net_framework_
             }
 
 
-            return ((int)diffHue.Average(), (int)diffBrightness.Average(), (int)diffSaturation.Average(), (diffHue.Average() / (diffHue.Max() / 100.0)).ToString() + "%", secondImgSectorsCompare.Item2);
+            //return ((int)diffHue.Average(), (int)diffBrightness.Average(), (int)diffSaturation.Average(), (diffHue.Average() / (diffHue.Max() / 100.0)).ToString() + "%", secondImgSectorsCompare.Item2);
+            return ((int)diffHue.Average(), (int)diffBrightness.Average(), (int)diffSaturation.Average(), (diffTotal.Average() / (diffTotal.Max() / 100.0)).ToString() + "%", secondImgSectorsCompare.Item2);
         }
     }
 }
