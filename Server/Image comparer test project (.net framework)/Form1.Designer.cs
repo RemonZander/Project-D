@@ -510,6 +510,7 @@
             this.textBox14.Name = "textBox14";
             this.textBox14.Size = new System.Drawing.Size(145, 20);
             this.textBox14.TabIndex = 34;
+            this.textBox14.TextChanged += new System.EventHandler(this.textBox14_TextChanged);
             this.textBox14.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox14_KeyDown);
             // 
             // label18

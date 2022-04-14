@@ -16,6 +16,8 @@ namespace Image_comparer_test_project__.net_framework_
 {
     sealed partial class Form1 : Form
     {
+        private string folder;
+
         public Form1()
         {
             InitializeComponent();
@@ -152,7 +154,7 @@ namespace Image_comparer_test_project__.net_framework_
 
             if (string.IsNullOrEmpty(folderBrowserDialog1.SelectedPath)) return;
             
-            string folder = folderBrowserDialog1.SelectedPath;
+            folder = folderBrowserDialog1.SelectedPath;
 
             fileNames = Directory.GetFiles(folder);
             SecondimgListSectors = new (List<(int, int, int)>, string)[fileNames.Length];
@@ -290,7 +292,7 @@ namespace Image_comparer_test_project__.net_framework_
 
         private void textBox14_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter && !string.IsNullOrEmpty(textBox7.Text) && Convert.ToInt32(textBox7.Text) > -1)
+            if (e.KeyCode == Keys.Enter && !string.IsNullOrEmpty(textBox14.Text) && Convert.ToInt32(textBox14.Text) > -1)
             {
                 Directory.Delete(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\foto's", true);
                 Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\foto's");
@@ -298,11 +300,18 @@ namespace Image_comparer_test_project__.net_framework_
                 {
                     if (Convert.ToDouble(results[a].Item4.Remove(results[a].Item4.Length - 1, 1)) <= Convert.ToDouble(textBox14.Text))
                     {
-                        File.Copy(fileNames[a], Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\foto's\" + 
-                            fileNames[a].Substring(fileNames[comboBox1.SelectedIndex].LastIndexOf(@"\") + 1) + " " + results[a].Item4.Remove(results[a].Item4.Length - 1, 1) + ".jpg");
+                        string fileName = results.Where(r => r.Item5 == results[a].Item5).Select(r => r.Item5).ToList()[0];
+
+                        File.Copy(folder + @"\" + fileName, Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\foto's\" +
+                            results[a].Item4.Remove(results[a].Item4.Length - 1, 1) + " " + fileName);
                     }
                 }
             }
+        }
+
+        private void textBox14_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
