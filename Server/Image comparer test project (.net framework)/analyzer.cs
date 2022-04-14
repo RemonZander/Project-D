@@ -22,7 +22,6 @@ namespace Image_comparer_test_project__.net_framework_
         private List<(int, int, int, string, string)> results;
         private string[] fileNames = new string[1];
 
-
         //only square supported for now
         private const int WidthSectors = 17;
         private const int HeightSectors = 17;
