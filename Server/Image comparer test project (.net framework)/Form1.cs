@@ -14,7 +14,7 @@ using System.Runtime.InteropServices;
 
 namespace Image_comparer_test_project__.net_framework_
 {
-    sealed partial class Form1 : Form
+    internal sealed partial class Form1 : Form
     {
         private string folder;
 
@@ -27,7 +27,7 @@ namespace Image_comparer_test_project__.net_framework_
         private void button3_Click(object sender, EventArgs e)
         {
             ds = new DataSet();
-            results = new List<(int, int, int, string, string)>();
+            results = new List<Results>();
             comboBox1.Items.Clear();
             comboBox1.SelectedIndex = -1;
 
@@ -43,7 +43,7 @@ namespace Image_comparer_test_project__.net_framework_
             else
             {
                 Thread[] threads = new Thread[25];
-                (List<(int, int, int)>, string) firstimage = firstImgSectors;
+                SectorData firstimage = firstImgSectors;
                 int length = SecondimgListSectors.Length / threads.Length;
                 for (int a = 0; a < threads.Length; a++)
                 {
@@ -52,25 +52,32 @@ namespace Image_comparer_test_project__.net_framework_
                     threads[a].Start();
                 }
 
-                length = SecondimgListSectors.Length % threads.Length;
-                int lastPos = SecondimgListSectors.Length - length;
-                Thread lastThread = new Thread(() => ThreadRunCompare(lastPos, length, firstimage));
-                lastThread.Start();
+                Thread lastThread = new Thread(() => ThreadRunCompare(0, 0, firstimage));
+                if (SecondimgListSectors.Length % threads.Length != 0)
+                {
+                    length = SecondimgListSectors.Length % threads.Length;
+                    int lastPos = SecondimgListSectors.Length - length;
+                    lastThread = new Thread(() => ThreadRunCompare(lastPos, length, firstimage));
+                    lastThread.Start();
+                }
 
                 foreach (var thread in threads)
                 {
                     thread.Join();
                 }
 
-                lastThread.Join();
+                if (SecondimgListSectors.Length % threads.Length != 0)
+                {
+                    lastThread.Join();
+                }
             }
 
             if (mode == Modes.Single)
             {
-                textBox1.Text = results[0].Item1.ToString();
-                textBox2.Text = results[0].Item2.ToString();
-                textBox9.Text = results[0].Item3.ToString();
-                textBox10.Text = ((results[0].Item1 + results[0].Item2 + results[0].Item3) / 3).ToString();
+                textBox1.Text = results[0].HueDifference.ToString();
+                textBox2.Text = results[0].BrightnessDifference.ToString();
+                textBox9.Text = results[0].SaturationDifference.ToString();
+                textBox10.Text = ((results[0].HueDifference + results[0].BrightnessDifference + results[0].SaturationDifference) / 3).ToString();
                 comboBox1.Enabled = true;
                 comboBox1.SelectedIndex = 0;
                 return;
@@ -157,7 +164,7 @@ namespace Image_comparer_test_project__.net_framework_
             folder = folderBrowserDialog1.SelectedPath;
 
             fileNames = Directory.GetFiles(folder);
-            SecondimgListSectors = new (List<(int, int, int)>, string)[fileNames.Length];
+            SecondimgListSectors = new SectorData[fileNames.Length];
             Thread[] threads = new Thread[30];
 
             for (int a = 0; a < threads.Length; a++)
@@ -271,7 +278,7 @@ namespace Image_comparer_test_project__.net_framework_
             chart1.DataBind();
 
             chart1.Update();
-            List<string> fileNames = results.Select(r => r.Item5).ToList();
+            List<string> fileNames = results.Select(r => r.FileName).ToList();
             int pos = fileNames.IndexOf(comboBox1.Items[comboBox1.SelectedIndex].ToString());
 
             textBox5.Text = (chart1.ChartAreas[0].AxisX.Minimum - 1).ToString();
@@ -279,11 +286,16 @@ namespace Image_comparer_test_project__.net_framework_
             textBox7.Text = chart1.ChartAreas[0].AxisY.Maximum.ToString();
             textBox8.Text = chart1.ChartAreas[0].AxisY.Minimum.ToString();
 
-            textBox1.Text = results[pos].Item1.ToString();
-            textBox2.Text = results[pos].Item2.ToString();
-            textBox9.Text = results[pos].Item3.ToString();
-            textBox10.Text = ((results[pos].Item1 + results[pos].Item2 + results[pos].Item3) / 3).ToString();
-            textBox11.Text = results[pos].Item4;
+            textBox1.Text = results[pos].HueDifference.ToString();
+            textBox2.Text = results[pos].BrightnessDifference.ToString();
+            textBox9.Text = results[pos].SaturationDifference.ToString();
+            textBox10.Text = ((results[pos].HueDifference + results[pos].BrightnessDifference + results[pos].SaturationDifference) / 3).ToString();
+            textBox11.Text = results[pos].HueDiffPercent;
+            textBox15.Text = results[pos].BrightnessDiffPercent;
+            textBox16.Text = results[pos].SaturationDiffPercent;
+            textBox17.Text = (Convert.ToDouble(results[pos].HueDiffPercent.Replace("%", "")) +
+                Convert.ToDouble(results[pos].BrightnessDiffPercent.Replace("%", "")) +
+                Convert.ToDouble(results[pos].SaturationDiffPercent.Replace("%", ""))) / 3 + "%";
             if (mode == Modes.Folder)
             {
                 textBox12.Text = fileNames[pos];
@@ -294,16 +306,19 @@ namespace Image_comparer_test_project__.net_framework_
         {
             if (e.KeyCode == Keys.Enter && !string.IsNullOrEmpty(textBox14.Text) && Convert.ToInt32(textBox14.Text) > -1)
             {
+                
                 Directory.Delete(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\foto's", true);
                 Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\foto's");
                 for (int a = 0; a < results.Count; a++)
                 {
-                    if (Convert.ToDouble(results[a].Item4.Remove(results[a].Item4.Length - 1, 1)) <= Convert.ToDouble(textBox14.Text))
+                    double totalDiff = (Convert.ToDouble(results[a].HueDiffPercent.Replace("%", "")) +
+                        Convert.ToDouble(results[a].BrightnessDiffPercent.Replace("%", "")) +
+                        Convert.ToDouble(results[a].SaturationDiffPercent.Replace("%", ""))) / 3;
+                    if (totalDiff <= Convert.ToDouble(textBox14.Text))
                     {
-                        string fileName = results.Where(r => r.Item5 == results[a].Item5).Select(r => r.Item5).ToList()[0];
+                        string fileName = results.Where(r => r.FileName == results[a].FileName).Select(r => r.FileName).ToList()[0];
 
-                        File.Copy(folder + @"\" + fileName, Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\foto's\" +
-                            results[a].Item4.Remove(results[a].Item4.Length - 1, 1) + " " + fileName);
+                        File.Copy(folder + @"\" + fileName, Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\foto's\" + totalDiff + " " + fileName);
                     }
                 }
             }
