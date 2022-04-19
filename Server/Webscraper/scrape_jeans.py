@@ -4,15 +4,15 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 import requests
+from os import path, makedirs
 
-def scrape_page_layout_one(n, maxItems):
+def scrape_page(n, maxItems):
     #GET LIST OF ALL ITEMS
     items = driver.find_elements(By.CSS_SELECTOR, ".js_item_root:not(.js_sponsored_product)")
     #print(f"length: {len(items)}")
     #print(f"page: {n}")
 
-    page = driver.find_element(By.CSS_SELECTOR, ".is-active > span").text
-    
+    #page = driver.find_element(By.CSS_SELECTOR, ".is-active > span").text 
     for item in items:
         if n > maxItems:
             return n
@@ -46,16 +46,20 @@ def scrape_page_layout_one(n, maxItems):
 
 def iterate_lowest_category(start_url):
     #SET MAXIMUM OF PAGES TO LOAD (EACH PAGE HAS MAXIMUM OF 24 PRODUCTS)
-    counter = 1
+    currentItems = 1
     pageNum = 1
     maxItems = 1000
-    while counter < maxItems:
+    while currentItems < maxItems:
         driver.get(start_url + f"?page={pageNum}&view=list")
         #TRY INCASE PAGE DOES NOT EXIST (OUT OF RANGE), OR PAGE SETUP IS DIFFERENT (CLOTHING FOR EXAMPLE HAS DIFFERENT SETUP)
-        counter = scrape_page_layout_one(counter, maxItems) #TODO: REMOVE N FROM FUNCTION (ONLY NEEDED FOR DEBUGGING)
+        currentItems = scrape_page(currentItems, maxItems) #TODO: REMOVE N FROM FUNCTION (ONLY NEEDED FOR DEBUGGING)
         pageNum += 1
 
 if __name__ == '__main__':
+    if not (path.exists("scraped_jeans")):
+        print("not found")
+        makedirs("scraped_jeans")
+
     base_url = "https://www.bol.com"
 
     chrome_options = webdriver.ChromeOptions()
@@ -73,4 +77,5 @@ if __name__ == '__main__':
     #find_lowest_categories("https://www.bol.com/nl/nl/l/boeken/8299/")
 
 
-iterate_lowest_category("https://www.bol.com/nl/nl/l/heren-jeans/47416/")
+#iterate_lowest_category("https://www.bol.com/nl/nl/l/heren-jeans/47416/")
+iterate_lowest_category("https://www.bol.com/nl/nl/l/grote-maten-herenmode/47468/")
