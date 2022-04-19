@@ -155,12 +155,29 @@ def find_lowest_categories(start_url, path=""):
     for url in extracted_url_list:
         find_lowest_categories(url, f"{start_url}>{path}") #Delimeter is ">"
 
+def extract_sub_categories(main_category_urls):
+    for cat_url in main_category_urls:
+        driver.get(cat_url)
+        main_sub_cat_list = driver.find_elements(By.CSS_SELECTOR, "main > div > div > ul > li > a")
+        sub_cats = []
+        for main_sub_cat in main_sub_cat_list:
+            title = main_sub_cat.text
+            #FILER ALLE AND ALLES (CATEGORIES CONTAINING ALL CATEGORIES)
+            if "alles" in title.lower() or "alle" in title.lower():
+                pass
+            else:
+                sub_cats.append(main_sub_cat.get_attribute("href"))
+        #with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            #{executor.submit(find_lowest_categories, sc): sc for sc in sub_cats}
+
+        for main_sub_cat in sub_cats:
+            #print(title)
+            #print(main_sub_cat.get_attribute("href"))
+            find_lowest_categories(main_sub_cat)
 
 if __name__ == '__main__':
     base_url = "https://www.bol.com"
-
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-
     #driver.implicitly_wait(20)
     driver.maximize_window()
     driver.get(base_url)
@@ -171,8 +188,6 @@ if __name__ == '__main__':
     #get_one()
     #print("GETTING ALL SUB-CATEGORY URLS")
     #find_lowest_categories("https://www.bol.com/nl/nl/l/boeken/8299/")
-
-
 
     #MAIN-CATEGORIES WE WANT TO SCRAPE (HARD CODED TO EXLUDE SPECIFIC CATEGORIES)
     categories_urls = [
@@ -187,25 +202,5 @@ if __name__ == '__main__':
         #"https://www.bol.com/nl/nl/menu/categories/subMenu/9",  #Dier, Tuin & Klussen
         #"https://www.bol.com/nl/nl/menu/categories/subMenu/13"  #Auto & Motor
     ]
-    
-    #TODO: MAKE SEPARATE FUNCTION
-    for cat_url in categories_urls:
-        driver.get(cat_url)
-        main_sub_cat_list = driver.find_elements(By.CSS_SELECTOR, "main > div > div > ul > li > a")
-        sub_cats = []
-        for main_sub_cat in main_sub_cat_list:
-            title = main_sub_cat.text
-            #FILER ALLE AND ALLES (CATEGORIES CONTAINING ALL CATEGORIES)
-            if "alles" in title.lower() or "alle" in title.lower():
-                pass
-            else:
-                sub_cats.append(main_sub_cat.get_attribute("href"))
 
-        #with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-            #{executor.submit(find_lowest_categories, sc): sc for sc in sub_cats}
-
-
-        for main_sub_cat in sub_cats:
-            #print(title)
-            #print(main_sub_cat.get_attribute("href"))
-            find_lowest_categories(main_sub_cat)
+    extract_sub_categories(categories_urls)
