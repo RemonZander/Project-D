@@ -220,7 +220,7 @@ namespace Image_comparer_test_project__.net_framework_
             }
 
             colors = null;
-            nb.Save(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\prep\" + filename.Substring(filename.LastIndexOf(@"\") + 1));
+            nb.Save(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\prep\" + filename.Substring(filename.LastIndexOf(@"\") + 1), ImageFormat.Jpeg);
 
             if (firstImg)
             {
