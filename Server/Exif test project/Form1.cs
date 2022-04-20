@@ -21,6 +21,58 @@ namespace Exif_test_project
             textBox3.Enabled = true;
             textBox4.Enabled = true;
             button2.Enabled = true;
+
+            byteArray = File.ReadAllBytes(openFileDialog1.FileName);
+            if (byteArray[0] != 255 || byteArray[1] != 216)
+            {
+                return;
+            }
+
+            string title = "";
+            string subject = "";
+            string userComment = "";
+            int titleIndex = FindIndex(new List<byte> { 156, 155 }, 0, byteArray.ToList());
+            if (titleIndex != -1)
+            {
+                int titleOffset = ToInt(ToHex(byteArray[titleIndex + 10], "") + ToHex(byteArray[titleIndex + 11], ""), 0, 0) + 9;
+                int titleLength = ToInt(ToHex(byteArray[titleIndex + 6], "") + ToHex(byteArray[titleIndex + 7], ""), 0, 0);
+                title = Encoding.Unicode.GetString(byteArray, titleOffset + 3, titleLength - 2);
+            }
+
+            int subjectIndex = FindIndex(new List<byte> { 156, 159 }, 0, byteArray.ToList());
+            if (subjectIndex != -1)
+            {
+                int subjectoffset = ToInt(ToHex(byteArray[subjectIndex + 10], "") + ToHex(byteArray[subjectIndex + 11], ""), 0, 0) + 9;
+                int subjectLength = ToInt(ToHex(byteArray[subjectIndex + 6], "") + ToHex(byteArray[subjectIndex + 7], ""), 0, 0);
+                subject = Encoding.Unicode.GetString(byteArray, subjectoffset + 3, subjectLength - 2);
+            }
+
+            int userCommentIndex = FindIndex(new List<byte> { 146, 134 }, 0, byteArray.ToList());
+            if (userCommentIndex != -1)
+            {
+                int userCommentOffset = ToInt(ToHex(byteArray[userCommentIndex + 10], "") + ToHex(byteArray[userCommentIndex + 11], ""), 0, 0) + 12;
+                int userCommentLength = ToInt(ToHex(byteArray[userCommentIndex + 6], "") + ToHex(byteArray[userCommentIndex + 7], ""), 0, 0);
+                userComment = Encoding.ASCII.GetString(byteArray, userCommentOffset + 8, userCommentLength - 8);
+            }
+
+            textBox2.Text = title;
+            textBox3.Text = subject;
+            textBox4.Text = userComment;
+        }
+
+        private int FindIndex(List<byte> query, int startindex, List<byte> array)
+        {
+            if (startindex + query.Count >= array.Count) return -1;
+            int index = array.IndexOf(query[0], startindex);
+            if (index == -1) return -1;
+            for (int a = 1; a < query.Count; a++)
+            {
+                if (array[index + a] != query[a])
+                {
+                    return FindIndex(query, index + 1, array);
+                }
+            }
+            return index;
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -64,7 +116,7 @@ namespace Exif_test_project
             Array.Resize(ref mainCategory, mainCategory.Length + 3);                //add 3 because the maincategory has 3 trailing 00 at the end
 
             //Find end of exif data and copy image data into new byte array
-            byteArray = File.ReadAllBytes(openFileDialog1.FileName);
+            //byteArray = File.ReadAllBytes(openFileDialog1.FileName);
             int exifEnd = EndExifIndex(2);
             byte[] image = new byte[byteArray.Length - exifEnd];
             Array.Copy(byteArray, exifEnd, image, 0, byteArray.Length - exifEnd);
@@ -101,7 +153,6 @@ namespace Exif_test_project
                 160, 0, 0, 7, 0, 0, 0, 4, 48, 49, 48, 48, 0, 0, 0, 0, 65, 83, 67, 73, 73, 0, 0, 0}).ToArray();
             newByteArray = newByteArray.Concat(subCategories).ToArray();
             byteArray = newByteArray.Concat(image).ToArray();
-
             saveFileDialog1.ShowDialog();
         }
 
