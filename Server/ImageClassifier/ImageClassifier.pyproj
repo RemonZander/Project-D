@@ -2,16 +2,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>398a7745-5e91-4342-9dbc-5edd5c56e162</ProjectGuid>
+    <ProjectGuid>c546d6dd-69b1-4a19-8d11-40db591c95b9</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>main.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <Name>SimpleNeuralNet</Name>
-    <RootNamespace>SimpleNeuralNet</RootNamespace>
-    <InterpreterId>CondaEnv|CondaEnv|SimpleNeuralNet</InterpreterId>
+    <Name>ImageClassifier</Name>
+    <RootNamespace>ImageClassifier</RootNamespace>
+    <InterpreterId>CondaEnv|CondaEnv|TensorflowENV</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -25,7 +25,10 @@
     <Compile Include="main.py" />
   </ItemGroup>
   <ItemGroup>
-    <InterpreterReference Include="CondaEnv|CondaEnv|SimpleNeuralNet" />
+    <Content Include="requirements.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="CondaEnv|CondaEnv|TensorflowENV" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
