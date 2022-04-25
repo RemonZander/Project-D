@@ -48,9 +48,8 @@ namespace Image_comparer_test_project__.net_framework_
         {
             Bitmap image = (Bitmap)Bitmap.FromFile(filename);
 
-
             double ratio = image.Height * 1.0 / image.Width;
-            image = CropAtRect(image, new Rectangle(0, 0, 400, (int)(400 * ratio)));
+            image = CropAtRect(image, new Rectangle(0, 0, 200, (int)(200 * ratio)));
 
             //for data analysis only
             Bitmap nb = new Bitmap(image.Width, image.Height);
