@@ -13,7 +13,7 @@ Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "WebExtension", "WebExtensio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Image comparer test project (.net framework)", "Server\Image comparer test project (.net framework)\Image comparer test project (.net framework).csproj", "{DEA38624-2C93-40AC-8CCD-0183790CBD5B}"
 EndProject
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "ImageClassifier", "ImageClassifier\ImageClassifier.pyproj", "{C546D6DD-69B1-4A19-8D11-40DB591C95B9}"
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "ImageClassifier", "Server\ImageClassifier\ImageClassifier.pyproj", "{C546D6DD-69B1-4A19-8D11-40DB591C95B9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
