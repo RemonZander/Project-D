@@ -15,6 +15,7 @@ class BolWebScraper:
         self.download_bool = download_bool
         self.base_url = "https://www.bol.com"
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+        self.__initiate_scraper()
         #self.driver.implicitly_wait(10)
 
     def scrape_starting_from_sub_menus(self, sub_menu_list):
@@ -28,7 +29,6 @@ class BolWebScraper:
         self.__terminate_scraper()
 
     def scrape_lowest_categories_and_save_in_same_folder(self, category_list, folder_name, total_amount):
-        self.__initiate_scraper()
         amount_per_cat = total_amount // len(category_list)
         print(amount_per_cat)
         total_scraped = 0
@@ -106,11 +106,11 @@ class BolWebScraper:
             max_pages = children[0].find_element(By.CSS_SELECTOR, "span").text
         else:
             max_pages = children[-2].find_element(By.CSS_SELECTOR, ".js_pagination_item").get_attribute("data-page-number")
-        print("max_pages:" + max_pages)
-        print(type(currentItems), currentItems)
-        print(type(maxItems), maxItems)
-        print(type(pageNum))
-        print(type(max_pages))
+        #print("max_pages:" + max_pages)
+       #print(type(currentItems), currentItems)
+        #print(type(maxItems), maxItems)
+        #print(type(pageNum))
+        #print(type(max_pages))
         while currentItems < maxItems and pageNum <= int(max_pages):
             self.driver.get(start_url + f"?page={pageNum}&view=list")
             #TRY INCASE PAGE DOES NOT EXIST (OUT OF RANGE), OR PAGE SETUP IS DIFFERENT (CLOTHING FOR EXAMPLE HAS DIFFERENT SETUP)
