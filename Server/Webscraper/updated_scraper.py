@@ -7,7 +7,7 @@ from selenium.webdriver.common.by import By
 import requests
 import concurrent.futures
 from os import path, makedirs
-from PIL import Image
+from square_image import square_image
 
 
 class BolWebScraper:
@@ -72,7 +72,7 @@ class BolWebScraper:
         with open (f"{dir}/{total_scraped}-{n}.jpg", "wb") as file:
             r = requests.get(image_link, allow_redirects=True)
             file.write(r.content)
-            return True
+        square_image(f"{dir}/{total_scraped}-{n}.jpg")
 
     def __scrape_page(self, n, maxItems, dir, total_scraped):
         #GET LIST OF ALL ITEMS
