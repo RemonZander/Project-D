@@ -187,14 +187,19 @@ if __name__ == '__main__':
         #])
 
     #Scrape broeken
+    bol_web_scraper.scrape_lowest_categories_and_save_in_same_folder(["https://www.bol.com/nl/nl/l/jeans-dames/47200/", "https://www.bol.com/nl/nl/l/broeken-dames/47205/", "https://www.bol.com/nl/nl/l/broeken-jeans/46560/", "https://www.bol.com/nl/nl/l/meisjes-broeken-jeans/46401/", "https://www.bol.com/nl/nl/l/broeken-heren/47425/", "https://www.bol.com/nl/nl/l/heren-jeans/47416/"], "broeken", 30)
     
     #Scrape schoenen / sneakers
-
+    bol_web_scraper.scrape_lowest_categories_and_save_in_same_folder(["https://www.bol.com/nl/nl/l/heren-sneakers/37547/", "https://www.bol.com/nl/nl/l/dames-sneakers/37531/", "https://www.bol.com/nl/nl/l/meisjes-sneakers/46442/", "https://www.bol.com/nl/nl/l/sneakers-jongens/46589/"], "sneakers", 30)
+    
     #Scrape slippers
-
+    bol_web_scraper.scrape_lowest_categories_and_save_in_same_folder(["https://www.bol.com/nl/nl/l/slippers-jongens/46600/", "https://www.bol.com/nl/nl/l/slippers-meisjes/46446/", "https://www.bol.com/nl/nl/l/heren-slippers/37549/", "https://www.bol.com/nl/nl/l/dames-slippers/37534/"], "slippers", 30)
+    
     #Scrape jassen
     bol_web_scraper.scrape_lowest_categories_and_save_in_same_folder(["https://www.bol.com/nl/nl/l/jassen-dames/47203/", "https://www.bol.com/nl/nl/l/jassen/47445/", "https://www.bol.com/nl/nl/l/meisjes-jassen/46383/", "https://www.bol.com/nl/nl/l/jongensjassen/46545/"], "jassen", 30)
 
     #scrape t-shirts
-
+    bol_web_scraper.scrape_lowest_categories_and_save_in_same_folder(["https://www.bol.com/nl/nl/l/jongensshirts/46556/", "https://www.bol.com/nl/nl/l/t-shirts-meisjes/46394/", "https://www.bol.com/nl/nl/l/shirts-heren/47412/", "https://www.bol.com/nl/nl/l/t-shirts-dames/47302/"], "t-shirts", 30)
+    
     #Scrape korte broeken
+    bol_web_scraper.scrape_lowest_categories_and_save_in_same_folder(["https://www.bol.com/nl/nl/l/korte-broeken-jongens/46563/", "https://www.bol.com/nl/nl/l/korte-broeken-meisjes/46404/", "https://www.bol.com/nl/nl/l/korte-broeken-heren/47427/", "https://www.bol.com/nl/nl/l/korte-broeken-dames/47275/"], "korte broeken", 30)
