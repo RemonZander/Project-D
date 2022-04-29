@@ -174,8 +174,18 @@ class BolWebScraper:
                 #{executor.submit(find_lowest_categories, sc): sc for sc in sub_cats}
             return sub_cats
 
-if __name__ == '__main__':
+#Function added for concurrency
+def scrape_cats(categories, folder_name, amount):
     bol_web_scraper = BolWebScraper(True)
+    bol_web_scraper.scrape_lowest_categories_and_save_in_same_folder(categories, folder_name, amount)
+
+if __name__ == '__main__':
+    #bol_web_scraper1 = BolWebScraper(True)
+    #bol_web_scraper2 = BolWebScraper(True)
+    #bol_web_scraper3 = BolWebScraper(True)
+    #bol_web_scraper4 = BolWebScraper(True)
+    #bol_web_scraper5 = BolWebScraper(True)
+    #bol_web_scraper6 = BolWebScraper(True)
     #bol_web_scraper.scrape_starting_from_sub_menus([
             #"https://www.bol.com/nl/nl/menu/categories/subMenu/3",  #Computer en Elekronica
            # "https://www.bol.com/nl/nl/menu/categories/subMenu/4",  #Speelgoed, Hobby en Feest
@@ -189,20 +199,27 @@ if __name__ == '__main__':
           #  "https://www.bol.com/nl/nl/menu/categories/subMenu/13"  #Auto & Motor
         #])
 
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+            future = executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/jeans-dames/47200/", "https://www.bol.com/nl/nl/l/broeken-dames/47205/", "https://www.bol.com/nl/nl/l/broeken-jeans/46560/", "https://www.bol.com/nl/nl/l/meisjes-broeken-jeans/46401/", "https://www.bol.com/nl/nl/l/broeken-heren/47425/", "https://www.bol.com/nl/nl/l/heren-jeans/47416/"], "broeken", 15)
+            future = executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/heren-sneakers/37547/", "https://www.bol.com/nl/nl/l/dames-sneakers/37531/", "https://www.bol.com/nl/nl/l/meisjes-sneakers/46442/", "https://www.bol.com/nl/nl/l/sneakers-jongens/46589/"], "sneakers", 15)
+            future = executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/slippers-jongens/46600/", "https://www.bol.com/nl/nl/l/slippers-meisjes/46446/", "https://www.bol.com/nl/nl/l/heren-slippers/37549/", "https://www.bol.com/nl/nl/l/dames-slippers/37534/"], "slippers", 15)
+            future = executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/jassen-dames/47203/", "https://www.bol.com/nl/nl/l/jassen/47445/", "https://www.bol.com/nl/nl/l/meisjes-jassen/46383/", "https://www.bol.com/nl/nl/l/jongensjassen/46545/"], "jassen", 15)
+            future = executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/jongensshirts/46556/", "https://www.bol.com/nl/nl/l/t-shirts-meisjes/46394/", "https://www.bol.com/nl/nl/l/shirts-heren/47412/", "https://www.bol.com/nl/nl/l/t-shirts-dames/47302/"], "t-shirts", 10)
+            future = executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/korte-broeken-jongens/46563/", "https://www.bol.com/nl/nl/l/korte-broeken-meisjes/46404/", "https://www.bol.com/nl/nl/l/korte-broeken-heren/47427/", "https://www.bol.com/nl/nl/l/korte-broeken-dames/47275/"], "korte broeken", 10)
     #Scrape broeken
-    bol_web_scraper.scrape_lowest_categories_and_save_in_same_folder(["https://www.bol.com/nl/nl/l/jeans-dames/47200/", "https://www.bol.com/nl/nl/l/broeken-dames/47205/", "https://www.bol.com/nl/nl/l/broeken-jeans/46560/", "https://www.bol.com/nl/nl/l/meisjes-broeken-jeans/46401/", "https://www.bol.com/nl/nl/l/broeken-heren/47425/", "https://www.bol.com/nl/nl/l/heren-jeans/47416/"], "broeken", 10000)
+    #bol_web_scraper1.scrape_lowest_categories_and_save_in_same_folder(["https://www.bol.com/nl/nl/l/jeans-dames/47200/", "https://www.bol.com/nl/nl/l/broeken-dames/47205/", "https://www.bol.com/nl/nl/l/broeken-jeans/46560/", "https://www.bol.com/nl/nl/l/meisjes-broeken-jeans/46401/", "https://www.bol.com/nl/nl/l/broeken-heren/47425/", "https://www.bol.com/nl/nl/l/heren-jeans/47416/"], "broeken", 10)
     
     #Scrape schoenen / sneakers
-    bol_web_scraper.scrape_lowest_categories_and_save_in_same_folder(["https://www.bol.com/nl/nl/l/heren-sneakers/37547/", "https://www.bol.com/nl/nl/l/dames-sneakers/37531/", "https://www.bol.com/nl/nl/l/meisjes-sneakers/46442/", "https://www.bol.com/nl/nl/l/sneakers-jongens/46589/"], "sneakers", 10000)
+    #bol_web_scraper2.scrape_lowest_categories_and_save_in_same_folder(["https://www.bol.com/nl/nl/l/heren-sneakers/37547/", "https://www.bol.com/nl/nl/l/dames-sneakers/37531/", "https://www.bol.com/nl/nl/l/meisjes-sneakers/46442/", "https://www.bol.com/nl/nl/l/sneakers-jongens/46589/"], "sneakers", 10)
     
     #Scrape slippers
-    bol_web_scraper.scrape_lowest_categories_and_save_in_same_folder(["https://www.bol.com/nl/nl/l/slippers-jongens/46600/", "https://www.bol.com/nl/nl/l/slippers-meisjes/46446/", "https://www.bol.com/nl/nl/l/heren-slippers/37549/", "https://www.bol.com/nl/nl/l/dames-slippers/37534/"], "slippers", 10000)
+    #bol_web_scraper3.scrape_lowest_categories_and_save_in_same_folder(["https://www.bol.com/nl/nl/l/slippers-jongens/46600/", "https://www.bol.com/nl/nl/l/slippers-meisjes/46446/", "https://www.bol.com/nl/nl/l/heren-slippers/37549/", "https://www.bol.com/nl/nl/l/dames-slippers/37534/"], "slippers", 10)
     
     #Scrape jassen
-    bol_web_scraper.scrape_lowest_categories_and_save_in_same_folder(["https://www.bol.com/nl/nl/l/jassen-dames/47203/", "https://www.bol.com/nl/nl/l/jassen/47445/", "https://www.bol.com/nl/nl/l/meisjes-jassen/46383/", "https://www.bol.com/nl/nl/l/jongensjassen/46545/"], "jassen", 10000)
+    #bol_web_scraper4.scrape_lowest_categories_and_save_in_same_folder(["https://www.bol.com/nl/nl/l/jassen-dames/47203/", "https://www.bol.com/nl/nl/l/jassen/47445/", "https://www.bol.com/nl/nl/l/meisjes-jassen/46383/", "https://www.bol.com/nl/nl/l/jongensjassen/46545/"], "jassen", 10)
 
     #scrape t-shirts
-    bol_web_scraper.scrape_lowest_categories_and_save_in_same_folder(["https://www.bol.com/nl/nl/l/jongensshirts/46556/", "https://www.bol.com/nl/nl/l/t-shirts-meisjes/46394/", "https://www.bol.com/nl/nl/l/shirts-heren/47412/", "https://www.bol.com/nl/nl/l/t-shirts-dames/47302/"], "t-shirts", 10000)
+    #bol_web_scraper5.scrape_lowest_categories_and_save_in_same_folder(["https://www.bol.com/nl/nl/l/jongensshirts/46556/", "https://www.bol.com/nl/nl/l/t-shirts-meisjes/46394/", "https://www.bol.com/nl/nl/l/shirts-heren/47412/", "https://www.bol.com/nl/nl/l/t-shirts-dames/47302/"], "t-shirts", 10)
     
     #Scrape korte broeken
-    bol_web_scraper.scrape_lowest_categories_and_save_in_same_folder(["https://www.bol.com/nl/nl/l/korte-broeken-jongens/46563/", "https://www.bol.com/nl/nl/l/korte-broeken-meisjes/46404/", "https://www.bol.com/nl/nl/l/korte-broeken-heren/47427/", "https://www.bol.com/nl/nl/l/korte-broeken-dames/47275/"], "korte broeken", 10000)
+    #bol_web_scraper6.scrape_lowest_categories_and_save_in_same_folder(["https://www.bol.com/nl/nl/l/korte-broeken-jongens/46563/", "https://www.bol.com/nl/nl/l/korte-broeken-meisjes/46404/", "https://www.bol.com/nl/nl/l/korte-broeken-heren/47427/", "https://www.bol.com/nl/nl/l/korte-broeken-dames/47275/"], "korte broeken", 10)
