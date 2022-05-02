@@ -22,10 +22,8 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ConvertFPIDataset.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Image segmentation.py" />
+	<Compile Include="ModelLoadAndSaving.py" />
+    <Compile Include="ImageSegmentation.py" />
     <Compile Include="ImageClassifier.py" />
     <Compile Include="TransferLearning.py" />
   </ItemGroup>
