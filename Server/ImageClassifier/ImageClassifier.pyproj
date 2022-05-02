@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>c546d6dd-69b1-4a19-8d11-40db591c95b9</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Image segmentation.py</StartupFile>
+    <StartupFile>ConvertFPIDataset.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,12 +22,15 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="ConvertFPIDataset.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Image segmentation.py" />
-    <Compile Include="main.py" />
-    <Compile Include="Transfer learning.py" />
+    <Compile Include="ImageClassifier.py" />
+    <Compile Include="TransferLearning.py" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="requirements.txt" />
+    <Content Include="env.yml" />
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="CondaEnv|CondaEnv|env" />

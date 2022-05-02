@@ -1,4 +1,4 @@
-﻿################################################################################
+################################################################################
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
@@ -6,15 +6,14 @@
 /Server/.vs
 /Server/Exif test project/obj
 /Server/Webscraper/Python 3.9
-/Server/Exif test project/bin/Debug/net6.0-windows
+/Server/Exif test project/bin
 /Server/Python server/env
 
 /WebExtension/bin
-/WebExtension/obj
+/WebExtension/obj/
 /Server/Python server/env1
-/Server/Webscraper/env/Lib/site-packages
+/Server/Webscraper/env2
 /Server/Webscraper/env
-/Server/Image comparer test project/bin/Debug/net6.0-windows
 /Server/Image comparer test project/obj
 /Server/Image comparer test project (.net framework)/bin
 /Server/Image comparer test project (.net framework)/obj
