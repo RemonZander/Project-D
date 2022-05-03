@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>c546d6dd-69b1-4a19-8d11-40db591c95b9</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>ConvertFPIDataset.py</StartupFile>
+    <StartupFile>ImageSegmentation.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,7 +22,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-	<Compile Include="ModelLoadAndSaving.py" />
+    <Compile Include="ModelLoadAndSaving.py" />
     <Compile Include="ImageSegmentation.py" />
     <Compile Include="ImageClassifier.py" />
     <Compile Include="TransferLearning.py" />
