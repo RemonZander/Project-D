@@ -52,6 +52,10 @@ def show_predictions(dataset=None, num=1):
       print(new_mask)
       print("Image")
       print(image[0])
+
+      maskFile = open("test.txt", "r+")
+      maskFile.write(new_mask);
+      maskFile.close()
       display([image[0], mask[0], new_mask])
 
 train_images = dataset['train'].map(load_image, num_parallel_calls=tf.data.AUTOTUNE)
@@ -161,4 +165,4 @@ class trainModel():
 
 model = tf.keras.models.load_model('ImageSegmentation/model.h5')
 
-show_predictions(test_batches, 3)
+show_predictions(test_batches, 1)
