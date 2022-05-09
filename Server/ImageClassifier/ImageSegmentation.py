@@ -4,6 +4,7 @@ import tensorflow_datasets as tfds
 from tensorflow_examples.models.pix2pix import pix2pix
 from IPython.display import clear_output
 import matplotlib.pyplot as plt
+from PIL import Image
 
 ####GLOBAL VARIABLES AND FUNCTIONS
 dataset, info = tfds.load('oxford_iiit_pet:3.*.*', with_info=True)
@@ -26,18 +27,6 @@ def load_image(datapoint):
 
   return input_image, input_mask
 
-def display(display_list):
-  plt.figure(figsize=(15, 15))
-
-  title = ['Input Image', 'True Mask', 'Predicted Mask']
-
-  for i in range(len(display_list)):
-    plt.subplot(1, len(display_list), i+1)
-    plt.title(title[i])
-    plt.imshow(tf.keras.utils.array_to_img(display_list[i]))
-    plt.axis('off')
-  plt.show()
-
 def create_mask(pred_mask):
   pred_mask = tf.argmax(pred_mask, axis=-1)
   pred_mask = pred_mask[..., tf.newaxis]
@@ -48,15 +37,25 @@ def show_predictions(dataset=None, num=1):
     for image, mask in dataset.take(num):
       pred_mask = model.predict(image)
       new_mask = create_mask(pred_mask)
-      print("Image cutout mask:")
-      print(new_mask)
-      print("Image")
-      print(image[0])
 
-      maskFile = open("test.txt", "r+")
-      maskFile.write(new_mask);
-      maskFile.close()
-      display([image[0], mask[0], new_mask])
+      old_image = tf.keras.utils.array_to_img(image[0])
+      cutout = tf.keras.utils.array_to_img(new_mask)
+      cutout = cutout.convert("RGB")
+
+      imgData = old_image.getdata()
+      d = cutout.getdata()
+      newImageData = []
+      for i, pixelData in enumerate(d):
+          if pixelData[0] == 127:
+              newImageData.append((255, 255, 255))
+          else:
+              newImageData.append(imgData[i])
+
+      cutout.save('cutout.jpg')
+      
+      cutout.putdata(newImageData)
+      
+      cutout.save('newImage.jpg')
 
 train_images = dataset['train'].map(load_image, num_parallel_calls=tf.data.AUTOTUNE)
 test_images = dataset['test'].map(load_image, num_parallel_calls=tf.data.AUTOTUNE)
