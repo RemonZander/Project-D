@@ -21,3 +21,11 @@
 /packages
 /test data/scraped_jeans
 /Server/Webscraper/__pycache__
+/Server/ImageClassifier/tenserFlow
+/Server/Webscraper/env1
+/Server/Webscraper/broeken
+/Server/Webscraper/jassen
+/Server/Webscraper/korte broeken
+/Server/Webscraper/slippers
+/Server/Webscraper/t-shirts
+/Server/Webscraper/sneakers
