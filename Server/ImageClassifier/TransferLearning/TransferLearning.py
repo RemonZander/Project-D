@@ -98,7 +98,7 @@ model.compile(
     metrics=[keras.metrics.BinaryAccuracy()],
 )
 
-epochs = 2
+epochs = 10
 model.fit(train_ds, epochs=epochs, validation_data=validation_ds)
 
 #Finetuning
@@ -116,6 +116,4 @@ model.compile(
     metrics=[keras.metrics.BinaryAccuracy()],
 )
 
-epochs = 10
-model.fit(train_ds, epochs=epochs, validation_data=validation_ds)
 
