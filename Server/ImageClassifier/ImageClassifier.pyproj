@@ -11,7 +11,7 @@
     <OutputPath>.</OutputPath>
     <Name>ImageClassifier</Name>
     <RootNamespace>ImageClassifier</RootNamespace>
-    <InterpreterId>MSBuild|TenserFlow|$(MSBuildProjectFullPath)</InterpreterId>
+    <InterpreterId>CondaEnv|CondaEnv|tensorFlow</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,15 +32,9 @@
     <Content Include="requirements.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Interpreter Include="TenserFlow\">
-      <Id>TenserFlow</Id>
-      <Version>3.9</Version>
-      <Description>TenserFlow (Python 3.9 (64-bit))</Description>
-      <InterpreterPath>Scripts\python.exe</InterpreterPath>
-      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
-      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
-      <Architecture>X64</Architecture>
-    </Interpreter>
+    <InterpreterReference Include="CondaEnv|CondaEnv|tensorFlow" />
+    <InterpreterReference Include="CondaEnv|CondaEnv|TensorflowENV" />
+    <InterpreterReference Include="Global|VisualStudio|TenserFlow" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

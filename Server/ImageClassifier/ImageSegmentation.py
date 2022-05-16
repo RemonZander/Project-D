@@ -1,4 +1,5 @@
-from pickle import TRUE
+from email.mime import image
+from pickle import NONE, TRUE
 import tensorflow as tf
 import tensorflow_datasets as tfds
 from tensorflow_examples.models.pix2pix import pix2pix
@@ -33,29 +34,32 @@ def create_mask(pred_mask):
   return pred_mask[0]
 
 def show_predictions(dataset=None, num=1):
-  if dataset:
-    for image, mask in dataset.take(num):
-      pred_mask = model.predict(image)
-      new_mask = create_mask(pred_mask)
+    #for image, mask in dataset.take(num):    
+    #for image in dataset[0:num]:
+        image = dataset[0]
+        #pred_mask = model((NONE, image), training=False)
+        pred_mask = model.predict(image)
+        new_mask = create_mask(pred_mask)
 
-      old_image = tf.keras.utils.array_to_img(image[0])
-      cutout = tf.keras.utils.array_to_img(new_mask)
-      cutout = cutout.convert("RGB")
+        old_image = tf.keras.utils.array_to_img(image[0])
+        cutout = tf.keras.utils.array_to_img(new_mask)
+        cutout = cutout.convert("RGB")
 
-      imgData = old_image.getdata()
-      d = cutout.getdata()
-      newImageData = []
-      for i, pixelData in enumerate(d):
-          if pixelData[0] == 127:
-              newImageData.append((255, 255, 255))
-          else:
-              newImageData.append(imgData[i])
+        imgData = old_image.getdata()
 
-      cutout.save('cutout.jpg')
+        d = cutout.getdata()
+        newImageData = []
+        for i, pixelData in enumerate(d):
+            if pixelData[0] == 127:
+                newImageData.append((255, 255, 255))
+            else:
+                newImageData.append(imgData[i])
+
+        cutout.save('cutout.jpg')
       
-      cutout.putdata(newImageData)
+        cutout.putdata(newImageData)
       
-      cutout.save('newImage.jpg')
+        cutout.save('newImage.jpg')
 
 train_images = dataset['train'].map(load_image, num_parallel_calls=tf.data.AUTOTUNE)
 test_images = dataset['test'].map(load_image, num_parallel_calls=tf.data.AUTOTUNE)
@@ -157,11 +161,19 @@ class trainModel():
 
         return tf.keras.Model(inputs=inputs, outputs=x)
 
-
 #trainModelClass = trainModel()
 
 #model = trainModelClass.TrainModel()
 
 model = tf.keras.models.load_model('ImageSegmentation/model.h5')
 
-show_predictions(test_batches, 1)
+#show_predictions(test_batches, 1)
+
+testImages = []
+testImg = tf.keras.preprocessing.image.load_img('ImageSegmentation/test data/broeken/0-0.jpg')
+
+testImg2 = tf.image.resize(testImg, [128, 128])
+testImg2 = tf.cast(testImg2, tf.float32) / 255.0
+testImages.append(testImg2)
+
+show_predictions(testImages, 1)
