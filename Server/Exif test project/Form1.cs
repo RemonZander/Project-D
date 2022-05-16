@@ -31,8 +31,9 @@ namespace Exif_test_project
             string title = "";
             string subject = "";
             string userComment = "";
+            int exifEnd = EndExifIndex(2);
             int titleIndex = FindIndex(new List<byte> { 156, 155 }, 0, byteArray.ToList());
-            if (titleIndex != -1)
+            if (titleIndex != -1 && titleIndex < exifEnd)
             {
                 int titleOffset = ToInt(ToHex(byteArray[titleIndex + 10], "") + ToHex(byteArray[titleIndex + 11], ""), 0, 0) + 9;
                 int titleLength = ToInt(ToHex(byteArray[titleIndex + 6], "") + ToHex(byteArray[titleIndex + 7], ""), 0, 0);
@@ -40,7 +41,7 @@ namespace Exif_test_project
             }
 
             int subjectIndex = FindIndex(new List<byte> { 156, 159 }, 0, byteArray.ToList());
-            if (subjectIndex != -1)
+            if (subjectIndex != -1 && subjectIndex < exifEnd)
             {
                 int subjectoffset = ToInt(ToHex(byteArray[subjectIndex + 10], "") + ToHex(byteArray[subjectIndex + 11], ""), 0, 0) + 9;
                 int subjectLength = ToInt(ToHex(byteArray[subjectIndex + 6], "") + ToHex(byteArray[subjectIndex + 7], ""), 0, 0);
@@ -48,7 +49,7 @@ namespace Exif_test_project
             }
 
             int userCommentIndex = FindIndex(new List<byte> { 146, 134 }, 0, byteArray.ToList());
-            if (userCommentIndex != -1)
+            if (userCommentIndex != -1 && userCommentIndex < exifEnd)
             {
                 int userCommentOffset = ToInt(ToHex(byteArray[userCommentIndex + 10], "") + ToHex(byteArray[userCommentIndex + 11], ""), 0, 0) + 12;
                 int userCommentLength = ToInt(ToHex(byteArray[userCommentIndex + 6], "") + ToHex(byteArray[userCommentIndex + 7], ""), 0, 0);
