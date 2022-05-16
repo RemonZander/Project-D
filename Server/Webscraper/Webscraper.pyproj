@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{b376fdfb-2f1b-40bb-ad68-2afaa14dfab4}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>updated_scraper.py</StartupFile>
+    <StartupFile>Exif Data.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -21,6 +21,7 @@
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Exif Data.py" />
     <Compile Include="main.py" />
     <Compile Include="scrape_jeans.py" />
     <Compile Include="square_image.py" />
