@@ -77,11 +77,14 @@ model = tf.keras.models.Sequential()
 for layer in base_model.layers[0:-1]:
   model.add(layer)
 
+
+
+#Freeze the base_model
+for layer in model.layers[0:-5]:
+    layer.trainable = False
+
+#model.trainable = False
 model.summary()
-
-# Freeze the base_model
-model.trainable = False
-
 # Create new model on top
 inputs = keras.Input(shape=(180, 180, 3))
 x = data_augmentation(inputs)  # Apply random data augmentation
