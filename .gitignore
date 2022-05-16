@@ -14,6 +14,8 @@
 /Server/Python server/env1
 /Server/Webscraper/env2
 /Server/Webscraper/env
+/Server/Webscraper/__pycache__
+/Server/Webscraper/env1
 /Server/Image comparer test project/obj
 /Server/Image comparer test project (.net framework)/bin
 /Server/Image comparer test project (.net framework)/obj
@@ -23,3 +25,5 @@
 /Server/Image comparer test project (.net framework)/bin
 /test data/scraped_jeans
 /Server/ImageClassifier/TenserFlow
+/Server/ImageClassifier/ImageSegmentation/test data
+*.jpg

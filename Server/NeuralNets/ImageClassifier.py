@@ -18,18 +18,7 @@ dataset_url = "https://storage.googleapis.com/download.tensorflow.org/example_im
 data_dir = tf.keras.utils.get_file('flower_photos', origin=dataset_url, untar=True)
 data_dir = pathlib.Path(data_dir)
 
-img_urls = [
-    ("Sunflower", "https://h2.commercev3.net/cdn.gurneys.com/images/800/70530.jpg"),
-    ("Tullip", "https://bollenstreek.nl/wp-content/uploads/2021/02/2019_04_29_019345-scaled.jpg"),
-    ("Dandelion", "https://media-cldnry.s-nbcnews.com/image/upload/t_nbcnews-fp-1024-512,f_auto,q_auto:best/MSNBC/Components/Photo/_new/090915-tech-dandelion-hmed.jpg"),
-    ("Daisy", "https://sakataornamentals.eu/wp-content/uploads/2020/07/Cape-Daisy-Zanzibar.jpg"),
-    ("Daisy Mario", "https://static.wikia.nocookie.net/marionl/images/4/4f/DaisyMP8.gif/revision/latest?cb=20100630071809&path-prefix=nl"),
-    ("Roses", "https://www.reneveyrat.fr/629-large_default2x/roses-by-the-unit-royale.jpg"),
-    ("Roses with people", "https://www.hortipoint.nl/wp-content/uploads/2021/09/trosroos3-1024x677.png"),
-    ("Sunflower", "https://st.focusedcollection.com/14026668/i/650/focused_268330552-stock-photo-young-woman-walking-sunflower-green.jpg"),
-    ("Tullip with woman back", "https://thegorgeguide.com/staging/wp-content/uploads/2020/06/Oregon-Tulip-Festival-Tamara.jpg"),
-    ("Sunflower in field", "https://www.thespruce.com/thmb/xjipBd0Qz03yxMtyOjj4CaUNqhU=/3236x2158/filters:fill(auto,1)/flower-garden-ideas-4174111-hero-12fd6f26724f45f38bc22f007ed6ada7.jpg"),
-]
+img_urls = []
 
 batches = []
 
@@ -110,24 +99,26 @@ for batch in batches:
     print("This image most likely belongs to {} with a {:.2f} percent confidence.".format(class_names[np.argmax(score)], 100 * np.max(score)))
 print("==================================================End Prediction=================================================")
 
-acc = history.history['accuracy']
-val_acc = history.history['val_accuracy']
+model.save('ImageClassifier/model.h5')
 
-loss = history.history['loss']
-val_loss = history.history['val_loss']
+# acc = history.history['accuracy']
+# val_acc = history.history['val_accuracy']
 
-epochs_range = range(epochs)
+# loss = history.history['loss']
+# val_loss = history.history['val_loss']
 
-plt.figure(figsize=(8, 8))
-plt.subplot(1, 2, 1)
-plt.plot(epochs_range, acc, label='Training Accuracy')
-plt.plot(epochs_range, val_acc, label='Validation Accuracy')
-plt.legend(loc='lower right')
-plt.title('Training and Validation Accuracy')
+# epochs_range = range(epochs)
 
-plt.subplot(1, 2, 2)
-plt.plot(epochs_range, loss, label='Training Loss')
-plt.plot(epochs_range, val_loss, label='Validation Loss')
-plt.legend(loc='upper right')
-plt.title('Training and Validation Loss')
-plt.show()
+# plt.figure(figsize=(8, 8))
+# plt.subplot(1, 2, 1)
+# plt.plot(epochs_range, acc, label='Training Accuracy')
+# plt.plot(epochs_range, val_acc, label='Validation Accuracy')
+# plt.legend(loc='lower right')
+# plt.title('Training and Validation Accuracy')
+
+# plt.subplot(1, 2, 2)
+# plt.plot(epochs_range, loss, label='Training Loss')
+# plt.plot(epochs_range, val_loss, label='Validation Loss')
+# plt.legend(loc='upper right')
+# plt.title('Training and Validation Loss')
+# plt.show()

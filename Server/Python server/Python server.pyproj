@@ -11,7 +11,7 @@
     <OutputPath>.</OutputPath>
     <Name>Python server</Name>
     <RootNamespace>Python server</RootNamespace>
-    <InterpreterId>CondaEnv|CondaEnv|SimpleNeuralNet</InterpreterId>
+    <InterpreterId>MSBuild|TenserFlow|D:\school bestanden\HBO\Informatica\2020-2025\Projecten\Project D\Server\ImageClassifier\ImageClassifier.pyproj</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -26,6 +26,7 @@
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="CondaEnv|CondaEnv|SimpleNeuralNet" />
+    <InterpreterReference Include="MSBuild|TenserFlow|D:\school bestanden\HBO\Informatica\2020-2025\Projecten\Project D\Server\ImageClassifier\ImageClassifier.pyproj" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
