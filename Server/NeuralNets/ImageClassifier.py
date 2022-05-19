@@ -14,20 +14,7 @@ batch_size = 32
 img_height = 180
 img_width = 180
 
-dataset_url = "https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz"
-data_dir = tf.keras.utils.get_file('flower_photos', origin=dataset_url, untar=True)
-data_dir = pathlib.Path(data_dir)
-
-img_urls = []
-
-batches = []
-
-for index, url in enumerate(img_urls):
-    path = tf.keras.utils.get_file(str(index), origin=url[1], cache_subdir="datasets/prediction_data")
-    img = tf.keras.utils.load_img(path, target_size=(img_height, img_width))
-    img_array = tf.keras.utils.img_to_array(img)
-    batch = tf.expand_dims(img_array, 0)
-    batches.append((url[0], batch))
+data_dir = pathlib.Path("C:/FTPStorage/datasets/bol_com")
 
 train_ds = tf.keras.utils.image_dataset_from_directory(
   data_dir,
@@ -86,39 +73,6 @@ model = Sequential([
 
 model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), metrics=['accuracy'])
 
-model.summary()
-
-epochs=20
-history = model.fit(train_ds, validation_data=val_ds, epochs=epochs)
-
-print("==================================================Start Prediction=================================================")
-for batch in batches:
-    predictions = model.predict(batch[1])
-    score = tf.nn.softmax(predictions[0])
-    print("Image used for prediction is: " + batch[0])
-    print("This image most likely belongs to {} with a {:.2f} percent confidence.".format(class_names[np.argmax(score)], 100 * np.max(score)))
-print("==================================================End Prediction=================================================")
+model.fit(train_ds, validation_data=val_ds, epochs=20)
 
 model.save('ImageClassifier/model.h5')
-
-# acc = history.history['accuracy']
-# val_acc = history.history['val_accuracy']
-
-# loss = history.history['loss']
-# val_loss = history.history['val_loss']
-
-# epochs_range = range(epochs)
-
-# plt.figure(figsize=(8, 8))
-# plt.subplot(1, 2, 1)
-# plt.plot(epochs_range, acc, label='Training Accuracy')
-# plt.plot(epochs_range, val_acc, label='Validation Accuracy')
-# plt.legend(loc='lower right')
-# plt.title('Training and Validation Accuracy')
-
-# plt.subplot(1, 2, 2)
-# plt.plot(epochs_range, loss, label='Training Loss')
-# plt.plot(epochs_range, val_loss, label='Validation Loss')
-# plt.legend(loc='upper right')
-# plt.title('Training and Validation Loss')
-# plt.show()
