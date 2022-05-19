@@ -2,16 +2,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>c546d6dd-69b1-4a19-8d11-40db591c95b9</ProjectGuid>
+    <ProjectGuid>ceb0ce3f-6990-4a92-8f2a-05db5e03a4fe</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>ImageSegmentation.py</StartupFile>
+    <StartupFile>ImageClassifier\run.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <Name>ImageClassifier</Name>
-    <RootNamespace>ImageClassifier</RootNamespace>
-    <InterpreterId>CondaEnv|CondaEnv|tensorFlow</InterpreterId>
+    <Name>NeuralNets</Name>
+    <RootNamespace>NeuralNets</RootNamespace>
+    <InterpreterId>CondaEnv|CondaEnv|TensorflowENV</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,19 +22,29 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ModelLoadAndSaving.py" />
-    <Compile Include="ImageSegmentation.py" />
     <Compile Include="ImageClassifier.py" />
+    <Compile Include="ImageClassifier\run.py" />
+    <Compile Include="ImageSegmentation.py" />
     <Compile Include="TransferLearning.py" />
+    <Compile Include="TransferLearning\IC+Save.py" />
+    <Compile Include="TransferLearning\ICTL.py" />
+    <Compile Include="TransferLearning\TLTEST.py" />
+    <Compile Include="TransferLearning\TransferLearning.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ImageClassifier\" />
+    <Folder Include="ImageSegmentation\" />
+    <Folder Include="TransferLearning\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="env.yml" />
+    <Content Include="ImageClassifier\model.h5" />
+    <Content Include="ImageSegmentation\model.h5" />
     <Content Include="requirements.txt" />
+    <Content Include="TransferLearning\ICmodel.h5" />
   </ItemGroup>
   <ItemGroup>
-    <InterpreterReference Include="CondaEnv|CondaEnv|tensorFlow" />
     <InterpreterReference Include="CondaEnv|CondaEnv|TensorflowENV" />
-    <InterpreterReference Include="Global|VisualStudio|TenserFlow" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
