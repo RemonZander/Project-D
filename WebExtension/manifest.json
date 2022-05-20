@@ -20,6 +20,12 @@
             "css": ["bolExtension.css"]
         }
       ],
+      "web_accessible_resources" : [
+        {
+            "resources": [ "images/*.jpg" ],
+            "matches": ["<all_urls>"]
+        }
+     ],
     "action": {
         "default_title": "Bol.com Image Search"
     }
