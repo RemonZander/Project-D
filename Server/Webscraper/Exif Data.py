@@ -100,9 +100,59 @@ class ExifData():
         else:
             return self.ToHex(int(value / 16), str(int(value % 16)) + hexString)
 
-    def SaveData(self):
-        pass
+    def SaveData(self, title, subject, userComment):
+        titleTemp = bytearray(title.encode())
+        subjectTemp = bytearray(subject.encode())
+        userCommentTemp = bytearray(userComment.encode())
+        userCommentTemp.append(0)
+
+        titleBytes = bytearray()
+        for a in range(0, len(titleTemp) * 2):
+            titleBytes.append(titleTemp[int(a / 2)])
+            titleBytes.append(0)
+
+        titleBytes.append(0)
+        titleBytes.append(0)
+
+        subjectBytes = bytearray()
+        for b in range(0, len(subjectTemp) * 2):
+            subjectBytes.append(subjectTemp[int(a / 2)])
+            subjectBytes.append(0)
+
+        subjectBytes.append(0)
+        subjectBytes.append(0)
+        subjectBytes.append(0)
+        exifEnd = self.EndExifIndex(2);
+
+        imageBytes = bytearray(self.byteArray[exifEnd:len(self.byteArray) - exifEnd])
+        mainCategoryPos = self.ToHex(62 + len(titleBytes) - 3 - 9, "")
+        Titlepos = self.ToHex(60 + len(titleBytes) + len(subjectBytes) + 1 - 12, "")                           
+        subCategoryPos = self.ToHex(62 + len(titleBytes) + len(subjectBytes) + 29 - 12, "")                        
+        totalLength = self.ToHex(58 + len(titleBytes) + len(subjectBytes) + 37 + len(userCommentTemp), "")        
+        mainCategoryLength = self.ToHex(len(subjectBytes) - 1, "")                                             
+        titleLength = self.ToHex(len(titleBytes), "")                                                               
+        subCategoriesLength = self.ToHex(len(subjectBytes) + 7, "")
+        
+        newByteArray = bytearray([255, 216, 255, 225,
+                                  self.ToInt(totalLength[0:int(len(totalLength) / 2)], 0, 0) if len(totalLength) > 2 else 0,
+                                  self.ToInt(totalLength[int(len(totalLength) / 2):], 0, 0) if len(totalLength) > 2 else self.ToInt(totalLength, 0, 0),
+                                  69, 120, 105, 102, 0, 0, 77, 77, 0, 42, 0, 0, 0, 8, 0, 7, 135, 105, 0, 4, 0, 0, 0, 1, 0, 0,
+                                  self.ToInt(Titlepos[0:int(len(Titlepos) / 2)], 0, 0) if len(Titlepos) > 2 else 0,
+                                  self.ToInt(Titlepos[int(len(Titlepos) / 2):], 0, 0) if len(Titlepos) > 2 else self.ToInt(Titlepos, 0, 0),
+                                  156, 155, 0, 1, 0, 0,
+                                  self.ToInt(mainCategoryLength[0:int(len(mainCategoryLength) / 2)], 0, 0) if len(mainCategoryLength) > 2 else 0,
+                                  self.ToInt(mainCategoryLength[int(len(mainCategoryLength) / 2):], 0, 0) if len(mainCategoryLength) > 2 else self.ToInt(mainCategoryLength, 0, 0), 0, 0,
+                                  self.ToInt(mainCategoryPos[0:int(len(mainCategoryPos) / 2)], 0, 0) if len(mainCategoryPos) > 2 else 0,
+                                  self.ToInt(mainCategoryPos[int(len(mainCategoryPos) / 2):], 0, 0) if len(mainCategoryPos) > 2 else self.ToInt(mainCategoryPos, 0, 0), 0, 0])
+        newByteArray.append(titleBytes)
+
+
+
+        print(mainCategoryPos + " " + Titlepos + " " + subCategoryPos + " " + totalLength + " " + mainCategoryLength + " " + titleLength
+              + " " + subCategoriesLength + " " + str(newByteArray))
 
 
 a = ExifData("C:\\Users\\remon\\Desktop\\test.jpeg")
-print(a.LoadData())
+#print(a.LoadData())
+
+a.SaveData("a", "aa", "aaa")
