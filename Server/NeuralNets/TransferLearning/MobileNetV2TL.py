@@ -65,8 +65,6 @@ prediction_layer = tf.keras.layers.Dense(num_classes)
 prediction_batch = prediction_layer(feature_batch_average)
 print(prediction_batch.shape)
 
-
-
 inputs = tf.keras.Input(shape=(160, 160, 3))
 x = data_augmentation(inputs)
 x = preprocess_input(x)
@@ -95,7 +93,7 @@ initial_epochs = 10
 history = model.fit(train_ds,
                     epochs=initial_epochs,
                     validation_data=val_ds)
-model.save('MobileNetV2TFModel.h5')
+#model.save('2MobileNetV2TFModel.h5')
 
 acc = history.history['accuracy']
 val_acc = history.history['val_accuracy']
@@ -121,11 +119,62 @@ plt.ylim([0,1.0])
 plt.title('Training and Validation Loss')
 plt.xlabel('epoch')
 plt.show()
+##FINE TUNING FROM HERE ON OUT
+
+base_model.trainable = True
+
+# Let's take a look to see how many layers are in the base model
+print("Number of layers in the base model: ", len(base_model.layers))
+
+# Fine-tune from this layer onwards
+fine_tune_at = 100
+
+# Freeze all the layers before the `fine_tune_at` layer
+for layer in base_model.layers[:fine_tune_at]:
+  layer.trainable = False
+
+model.compile(loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+              optimizer = tf.keras.optimizers.RMSprop(learning_rate=base_learning_rate/10),
+              metrics=['accuracy'])
+
+model.summary()
+print(len(model.trainable_variables))
+
+fine_tune_epochs = 10
+total_epochs =  initial_epochs + fine_tune_epochs
+
+history_fine = model.fit(train_ds,
+                         epochs=total_epochs,
+                         initial_epoch=history.epoch[-1],
+                         validation_data=val_ds)
 
 
+model.save('TLMobileNetV2TFModel200.h5')
 
+acc += history_fine.history['accuracy']
+val_acc += history_fine.history['val_accuracy']
 
+loss += history_fine.history['loss']
+val_loss += history_fine.history['val_loss']
 
+plt.figure(figsize=(8, 8))
+plt.subplot(2, 1, 1)
+plt.plot(acc, label='Training Accuracy')
+plt.plot(val_acc, label='Validation Accuracy')
+plt.ylim([0.8, 1])
+plt.plot([initial_epochs-1,initial_epochs-1],
+          plt.ylim(), label='Start Fine Tuning')
+plt.legend(loc='lower right')
+plt.title('Training and Validation Accuracy')
 
-
+plt.subplot(2, 1, 2)
+plt.plot(loss, label='Training Loss')
+plt.plot(val_loss, label='Validation Loss')
+plt.ylim([0, 1.0])
+plt.plot([initial_epochs-1,initial_epochs-1],
+         plt.ylim(), label='Start Fine Tuning')
+plt.legend(loc='upper right')
+plt.title('Training and Validation Loss')
+plt.xlabel('epoch')
+plt.show()
 #https://www.tensorflow.org/tutorials/images/transfer_learning
