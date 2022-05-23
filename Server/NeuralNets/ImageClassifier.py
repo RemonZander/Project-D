@@ -14,7 +14,7 @@ batch_size = 32
 img_height = 180
 img_width = 180
 
-data_dir = pathlib.Path("C:/FTPStorage/datasets/bol_com")
+data_dir = pathlib.Path("C:/FTPStorage/datasets/bol_com") # TEMP PATH
 
 train_ds = tf.keras.utils.image_dataset_from_directory(
   data_dir,
