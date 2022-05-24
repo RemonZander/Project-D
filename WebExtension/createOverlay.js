@@ -35,12 +35,11 @@ if (!document.querySelector("#bolOverlay")) {
 
 	const elementArray = [
 		{
-			image: "/images/1.jpg",
+			image: "1.jpg",
 			title: "Object OBJLISA SLIM PANT NOOS Dames Broek Marina - Maat 38",
 			subCategory: "Broeken",
 			match: "98",
-			description:
-				`•	Object Dames Slim fit pantalon
+			description: `•	Object Dames Slim fit pantalon
 				•	Paspel zakken aan de achterkant
 				•	Elastische tailleband
 				•	50% polyester, 32% Viscose, 13% polyester, 5% Elastaan
@@ -50,12 +49,11 @@ if (!document.querySelector("#bolOverlay")) {
 				`,
 		},
 		{
-			image: "/images/2.jpg",
+			image: "2.jpg",
 			title: "Fruit of the Loom Joggingbroek (met rechte Pijp) Zwart Maat M",
 			subCategory: "Broeken",
 			match: "96",
-			description:
-				`Deze wereldberoemde Joggingbroek van Fruit of the Loom met rechte pijp mogen niet ontbreken in de kledingkast van een man.
+			description: `Deze wereldberoemde Joggingbroek van Fruit of the Loom met rechte pijp mogen niet ontbreken in de kledingkast van een man.
 				De broek is zowel casual als trendy en heeft elastieken boorden, waardoor u hem naar de sportschool of gewoon thuis op de bank kunt dragen. De Joggingbroek hebben twee handige zakken aan de zijkant.
 				Fruit of the Loom gebruikt hun kwalitatief hoogwaardige Belcoro garen om deze Joggingbroek te produceren, waardoor ze zacht en comfortabel aanvoelen.
 				
@@ -77,20 +75,18 @@ if (!document.querySelector("#bolOverlay")) {
 				`,
 		},
 		{
-			image: "/images/3.jpg",
+			image: "3.jpg",
 			title: "Bruine Broek/Pantalon van Je m'appelle - Dames - Maat 2XL - 6 maten beschikbaar",
 			subCategory: "Broeken",
 			match: "94",
-			description:
-				`• Fijne chino in zacht katoen met wafeltjesstructuur en elastan• Ritssluiting met knoop • Steekzakken aan de voorkant en fake-paspelzakjes aan de achterkant • Elastische tailleband met riemlusjes`,
+			description: `• Fijne chino in zacht katoen met wafeltjesstructuur en elastan• Ritssluiting met knoop • Steekzakken aan de voorkant en fake-paspelzakjes aan de achterkant • Elastische tailleband met riemlusjes`,
 		},
 		{
-			image: "/images/4.jpg",
+			image: "4.jpg",
 			title: "ONLY ONLLIVE LOVE LIFE NEW LEGGINGS NOOS Dames Legging - Maat L",
 			subCategory: "Broeken",
 			match: "92",
-			description:
-				`- Basic legging
+			description: `- Basic legging
 				- Normal waist
 				- Elastiek in de taille
 				- Stretchy stof
@@ -98,12 +94,11 @@ if (!document.querySelector("#bolOverlay")) {
 				`,
 		},
 		{
-			image: "/images/5.jpg",
+			image: "5.jpg",
 			title: "ONLY ONLPOPTRASH LIFE EASY COL PANT PNT NOOS Dames Broek - Maat M X L32",
 			subCategory: "Broeken",
 			match: "90",
-			description:
-				`- Loose fit broek
+			description: `- Loose fit broek
 				- Smalle broekspijpen
 				- Snoerkoord in de taille
 				- Elastische rib aan de achterkant van de taille
@@ -115,31 +110,28 @@ if (!document.querySelector("#bolOverlay")) {
 				`,
 		},
 		{
-			image: "/images/6.jpg",
+			image: "6.jpg",
 			title: "GARCIA Celia Dames Skinny Fit Broek Wit - Maat W29 X L30",
 			subCategory: "Broeken",
 			match: "88",
-			description:
-				`De Celia 244 accentueert de vrouwelijke vormen door de superslim fit, een hoge taille en pijpen die strak aansluiten van bovenbeen tot enkel. De tailleband valt gemiddeld tot net iets onder de navel.
+			description: `De Celia 244 accentueert de vrouwelijke vormen door de superslim fit, een hoge taille en pijpen die strak aansluiten van bovenbeen tot enkel. De tailleband valt gemiddeld tot net iets onder de navel.
 
 				Better Cotton is een initiatief dat zich wereldwijd inzet voor betere omstandigheden in de katoenindustrie. Bij het creëren van dit GARCIA kledingstuk gebruik gemaakt van een duurzame wastechniek.
 				`,
 		},
 		{
-			image: "/images/7.jpg",
+			image: "7.jpg",
 			title: "WE Fashion Dames soepelvallende pantalon met strikceintuur",
 			subCategory: "Broeken",
 			match: "86",
-			description:
-				`Een broek van soepele, geweven kwaliteit met een hoge taille en rechte, wijde pijpen. De broek heeft bekleed elastiek en een drawstring in de taille en twee steekzakken.`,
+			description: `Een broek van soepele, geweven kwaliteit met een hoge taille en rechte, wijde pijpen. De broek heeft bekleed elastiek en een drawstring in de taille en twee steekzakken.`,
 		},
 		{
-			image: "/images/8.jpg",
+			image: "8.jpg",
 			title: "Vila VIKOOLA PANTS Dames Broek Cement - Maat 38",
 			subCategory: "Broeken",
 			match: "84",
-			description:
-				`•	Vila Dames Broek
+			description: `•	Vila Dames Broek
 				•	Steekzakken
 				•	100% Katoen
 				•	Hydrofiel
@@ -151,12 +143,11 @@ if (!document.querySelector("#bolOverlay")) {
 				`,
 		},
 		{
-			image: "/images/9.jpg",
+			image: "9.jpg",
 			title: "Fruit of the Loom Joggingbroek (met rechte Pijp) Grijs Maat S",
 			subCategory: "Broeken",
 			match: "82",
-			description:
-				`Deze wereldberoemde Joggingbroek van Fruit of the Loom met rechte pijp mogen niet ontbreken in de kledingkast van een man.
+			description: `Deze wereldberoemde Joggingbroek van Fruit of the Loom met rechte pijp mogen niet ontbreken in de kledingkast van een man.
 				De broek is zowel casual als trendy en heeft elastieken boorden, waardoor u hem naar de sportschool of gewoon thuis op de bank kunt dragen. De Joggingbroek hebben twee handige zakken aan de zijkant.
 				Fruit of the Loom gebruikt hun kwalitatief hoogwaardige Belcoro garen om deze Joggingbroek te produceren, waardoor ze zacht en comfortabel aanvoelen.
 				
@@ -178,20 +169,18 @@ if (!document.querySelector("#bolOverlay")) {
 				`,
 		},
 		{
-			image: "/images/10.jpg",
+			image: "10.jpg",
 			title: "Le Jogg Denim Spring - Broek van Je m'appelle",
 			subCategory: "Broeken",
 			match: "80",
-			description:
-				`• Fijne broek die je het liefst iedere dag wil dragen• Gemaakt van heerlijk katoen met elastan• Super stretch• Leuke contrast rib in de taille en sierlijk verstelbaar koord`,
+			description: `• Fijne broek die je het liefst iedere dag wil dragen• Gemaakt van heerlijk katoen met elastan• Super stretch• Leuke contrast rib in de taille en sierlijk verstelbaar koord`,
 		},
 		{
-			image: "/images/11.jpg",
+			image: "11.jpg",
 			title: "ONLY ONLROYAL HW SK ROCK COATED PIM NOOS Dames Broek - Maat M X L32",
 			subCategory: "Broeken",
 			match: "78",
-			description:
-				`- Gecoate skinny fit broek
+			description: `- Gecoate skinny fit broek
 				- High waist
 				- Knoop- en rits sluiting aan de voorkant
 				- 5-pocket model
@@ -201,12 +190,11 @@ if (!document.querySelector("#bolOverlay")) {
 				`,
 		},
 		{
-			image: "/images/12.jpg",
+			image: "12.jpg",
 			title: "VERO MODA VMOCTAVIA HW SWEAT PANT GA Dames Broek - Maat M",
 			subCategory: "Broeken",
 			match: "76",
-			description:
-				`- Jogging broek
+			description: `- Jogging broek
 				- De broek is gemaakt van biologisch katoen.
 				- De broek heeft een aantrekkoord in de middel om de broek te sluiten.
 				-hoge taille.
@@ -214,12 +202,11 @@ if (!document.querySelector("#bolOverlay")) {
 				`,
 		},
 		{
-			image: "/images/13.jpg",
+			image: "13.jpg",
 			title: "Ambika Flared Legging - Maat M - Zwart - Rib",
 			subCategory: "Broeken",
 			match: "74",
-			description:
-				`LET OP: De broek valt wat groot. Twijfel je tussen twee maten, neem dan de kleinere maat!
+			description: `LET OP: De broek valt wat groot. Twijfel je tussen twee maten, neem dan de kleinere maat!
 				Deze flared broek zit zo lekker als een joggingbroek, maar ziet er super fashionable uit! Deze broeken met uitlopende pijpen zijn helemaal hot dit seizoen! Combineer de broek met een leuk wit it-shirt en sneakers of met een chique top en pumps!
 				
 				– Kleur: zwart
@@ -233,20 +220,18 @@ if (!document.querySelector("#bolOverlay")) {
 				`,
 		},
 		{
-			image: "/images/14.jpg",
+			image: "14.jpg",
 			title: "Bruine Broek/Pantalon van Je m'appelle - Dames - Maat M - 6 maten beschikbaar",
 			subCategory: "Broeken",
 			match: "72",
-			description:
-				`• Fijne chino in zacht katoen met wafeltjesstructuur en elastan• Ritssluiting met knoop • Steekzakken aan de voorkant en fake-paspelzakjes aan de achterkant • Elastische tailleband met riemlusjes`,
+			description: `• Fijne chino in zacht katoen met wafeltjesstructuur en elastan• Ritssluiting met knoop • Steekzakken aan de voorkant en fake-paspelzakjes aan de achterkant • Elastische tailleband met riemlusjes`,
 		},
 		{
-			image: "/images/15.jpg",
+			image: "15.jpg",
 			title: "Vila VIKOOLA PANTS Dames Broek Green Bay - Maat 38",
 			subCategory: "Broeken",
 			match: "70",
-			description:
-				`•	Vila Dames Broek
+			description: `•	Vila Dames Broek
 				•	Steekzakken
 				•	100% Katoen
 				•	Hydrofiel
@@ -258,20 +243,18 @@ if (!document.querySelector("#bolOverlay")) {
 				`,
 		},
 		{
-			image: "/images/16.jpg",
+			image: "16.jpg",
 			title: "Comfortabele Dames Sport Broek / JoggingsBroek / Home Pants | Blauw - Maat M",
 			subCategory: "Broeken",
 			match: "68",
-			description:
-				`Deze mooie en trendy Joggingbroek heeft geen tekort aan mooie details zoals bijpassende strepen langs de hele zijnaad, een bijpassend trekkoord met brede metalen uiteinden en paspelzakken. In puur viscose interlockmateriaal is het een super zachte Joggingbroek. De broek is zowel casual als trendy en heeft elastieken boorden, waardoor u hem naar de sportschool of gewoon thuis op de bank kunt dragen. De Joggingbroek hebben twee handige zakken aan de zijkant. Voorzien van een elastische tailleband met aantrekkoordjes en twee steekzakken.`,
+			description: `Deze mooie en trendy Joggingbroek heeft geen tekort aan mooie details zoals bijpassende strepen langs de hele zijnaad, een bijpassend trekkoord met brede metalen uiteinden en paspelzakken. In puur viscose interlockmateriaal is het een super zachte Joggingbroek. De broek is zowel casual als trendy en heeft elastieken boorden, waardoor u hem naar de sportschool of gewoon thuis op de bank kunt dragen. De Joggingbroek hebben twee handige zakken aan de zijkant. Voorzien van een elastische tailleband met aantrekkoordjes en twee steekzakken.`,
 		},
 		{
-			image: "/images/17.jpg",
+			image: "17.jpg",
 			title: "Ambika Flared Legging - Maat M - Bruin - Panter",
 			subCategory: "Broeken",
 			match: "66",
-			description:
-				`Deze flared broek zit zo lekker als een joggingbroek, maar ziet er super fashionable uit! Deze broeken met luipaardprint zijn helemaal hot dit seizoen! Combineer de broek met een leuk wit it-shirt en sneakers of met een chique top en pumps!
+			description: `Deze flared broek zit zo lekker als een joggingbroek, maar ziet er super fashionable uit! Deze broeken met luipaardprint zijn helemaal hot dit seizoen! Combineer de broek met een leuk wit it-shirt en sneakers of met een chique top en pumps!
 
 				– Kleur: bruin
 				– Materiaal: 95 polyester, 5% elastaan
@@ -284,20 +267,18 @@ if (!document.querySelector("#bolOverlay")) {
 				`,
 		},
 		{
-			image: "/images/18.jpg",
+			image: "18.jpg",
 			title: "ONLY ONLFEVER STRETCH FLAIRED PANTS JRS NOOS Dames Broek - Maat W30xL30",
 			subCategory: "Broeken",
 			match: "64",
-			description:
-				`Broek van ONLY. Stretchy stof. Binnenbeenlengte: 83 cm in maat M`,
+			description: `Broek van ONLY. Stretchy stof. Binnenbeenlengte: 83 cm in maat M`,
 		},
 		{
-			image: "/images/19.jpg",
+			image: "19.jpg",
 			title: "Premium Dames Legging Katoen | Basic Legging | Wit - L",
 			subCategory: "Broeken",
 			match: "62",
-			description:
-				`Het is de ideale legging voor in in je vrije tijd en dagelijkse activiteiten. Deze legging voelt aan als een tweede huid en zal geen belemmering zijn!
+			description: `Het is de ideale legging voor in in je vrije tijd en dagelijkse activiteiten. Deze legging voelt aan als een tweede huid en zal geen belemmering zijn!
 
 				Een zwarte basic legging is onmisbaar in je garderobe. Van sexy jurkje, rokjes, of broekjes elke look wordt helemaal compleet met een mooie legging. De zwarte kleur maakt het eenvoudig om te combineren terwijl het extra zachte materiaal comfortabel is om te dragen.
 				
@@ -307,12 +288,11 @@ if (!document.querySelector("#bolOverlay")) {
 				`,
 		},
 		{
-			image: "/images/20.jpg",
+			image: "20.jpg",
 			title: "ONLY ONLLIVE LOVE LIFE NEW LEGGINGS NOOS Dames Legging - Maat M",
 			subCategory: "Broeken",
 			match: "60",
-			description:
-				`- Basic legging
+			description: `- Basic legging
 				- Normal waist
 				- Elastiek in de taille
 				- Stretchy stof
@@ -322,21 +302,23 @@ if (!document.querySelector("#bolOverlay")) {
 	];
 
 	elementArray.forEach((el) => {
+		const imgLink = chrome.runtime.getURL(`images/${el.image}`);
+
 		const bolItem = elementFromHtml(`
 			<div class="bolItem">
-				<img class="bolItemImg" src="${el.image}">
+				<img class="bolItemImg" src="${imgLink}">
 				<div class="bolItemBody">
 					<div class="bolItemHeader">
 						<div class="bolItemTitle titleWrap" title="${el.title}">${el.title}</div>
 						<div class="bolItemDropdownBtn"></div>
 					</div>
 					<div class="bolItemDescription">
-						<div class="bolItemDescImg"><img src="${el.image}"></div>
+						<div class="bolItemDescImg"><img src="${imgLink}"></div>
 						${el.description}
 					</div>
 					<div class="bolItemDetails">
 						<div class="bolItemSubCategory noWrap" title="${el.subCategory}">${el.subCategory}</div>
-						<div class="bolItemMatch">Match: ${el.match}</div>
+						<div class="bolItemMatch">Match: ${el.match}%</div>
 					</div>
 				</div>
 			</div>
