@@ -21,8 +21,8 @@ def slugify(value, allow_unicode=False):
     value = re.sub(r'[^\w\s-]', '', value.lower())
     return re.sub(r'[-\s]+', '-', value).strip('-_')
 
-img_height = 160
-img_width = 160
+img_height = 180
+img_width = 180
 
 img_urls = [
     ("Regular fit stretch jeans, straight", "https://image01.bonprix.nl/assets/460x644/1642409133/19339429-3PcU60Wk.jpg"),
@@ -102,7 +102,7 @@ for index, url in enumerate(img_urls_jeans):
     batch = tf.expand_dims(img_array, 0)
     batches.append((url[0], batch))
 
-model = tf.keras.models.load_model("TLMobileNetV2TFModel.h5")
+model = tf.keras.models.load_model("model.h5")
 
 print("==================================================Start Prediction=================================================")
 total_pants_percent = 0
