@@ -93,18 +93,22 @@
 
             .bolItem {
                 display: flex;
-                background-color: #F2F2F2;
+                background-color: #FFFFFF;
                 border: solid 1px #020202;
 
                 .bolItemImg {
                     cursor: pointer;
+                    width: 45px;
+                    height: auto;
+                    max-height: 100%;
+                    object-fit: contain;
                 }
 
                 .bolItemBody {
                     display: flex;
                     flex-direction: column;
                     width: 100%;
-                    justify-content: space-between;
+                    justify-content: center;
 
                     .bolItemHeader {
                         display: flex;
@@ -112,6 +116,7 @@
                         align-items: center;
                         padding: 0px 5% 0px 5%;
                         height: 50px;
+                        margin-bottom: 3.5%;
 
                         .bolItemTitle {
                             line-height: 25px;
@@ -155,6 +160,10 @@
                         .bolItemDescImg {
                             float: left;
                             padding: 0px 10px 0px 0px;
+                            
+                            img {
+                                height: 150px;
+                            }
                         }
                     }
                     
@@ -163,7 +172,7 @@
                         justify-content: space-between;
                         align-items: center;
                         padding: 0px 5% 0px 5%;
-                        margin-bottom: 2.5%;
+                        margin-top: 3.5%;
 
                         .bolItemSubCategory {
                             width: 100px;
