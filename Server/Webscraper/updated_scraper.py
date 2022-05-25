@@ -53,7 +53,8 @@ class BolWebScraper:
         image_link = self.__get_image_link(item)
         product_link = item.find_element(By.CSS_SELECTOR, ".product-item__content > .product-item__info > .product-title--inline > a").get_attribute("href")
         product_name = item.find_element(By.CSS_SELECTOR, ".product-item__content > .product-item__info > .product-title--inline").text
-        return (product_name, image_link, product_link)
+        product_description = self.__get_product_description(product_link)
+        return (product_name, image_link, product_link, product_description)
 
     def __get_image_link(self, item):
         #TRY-BLOCK FOR INCONSISTENCY PRODUCT IMAGES PLACEMENT IN WEBELEMENT
@@ -70,6 +71,18 @@ class BolWebScraper:
             else:
                 image_link = image_link.get_attribute("src")
         return image_link
+
+    def __get_product_description(self, product_link):
+        self.driver.get(product_link)
+        self.driver.implicitly_wait(10)
+        product_description = "PLACEHOLDER"
+        try:
+            product_description = self.driver.find_element(By.CSS_SELECTOR, "div.product-description").text
+        except:
+            url = self.driver.current_url
+            test = None
+        #product_description = self.driver.find_element(By.CLASS_NAME, "div.product-description").text()
+        return product_description
 
     def __download_image(self, dir, n, image_link, total_scraped):
         with open (f"{dir}/{total_scraped}-{n}.jpg", "wb") as file:
@@ -109,11 +122,7 @@ class BolWebScraper:
             max_pages = children[0].find_element(By.CSS_SELECTOR, "span").text
         else:
             max_pages = children[-2].find_element(By.CSS_SELECTOR, ".js_pagination_item").get_attribute("data-page-number")
-        #print("max_pages:" + max_pages)
-       #print(type(currentItems), currentItems)
-        #print(type(maxItems), maxItems)
-        #print(type(pageNum))
-        #print(type(max_pages))
+
         while currentItems < maxItems and pageNum <= int(max_pages):
             self.driver.get(start_url + f"?page={pageNum}&view=list")
             #TRY INCASE PAGE DOES NOT EXIST (OUT OF RANGE), OR PAGE SETUP IS DIFFERENT (CLOTHING FOR EXAMPLE HAS DIFFERENT SETUP)
@@ -187,17 +196,17 @@ if __name__ == '__main__':
     #bol_web_scraper5 = BolWebScraper(True)
     #bol_web_scraper6 = BolWebScraper(True)
     #bol_web_scraper.scrape_starting_from_sub_menus([
-            #"https://www.bol.com/nl/nl/menu/categories/subMenu/3",  #Computer en Elekronica
-           # "https://www.bol.com/nl/nl/menu/categories/subMenu/4",  #Speelgoed, Hobby en Feest
-           # "https://www.bol.com/nl/nl/menu/categories/subMenu/5",  #Zwanger, Baby & Peuter
-           # "https://www.bol.com/nl/nl/menu/categories/subMenu/6",  #Mooi & Gezond
-            #"https://www.bol.com/nl/nl/menu/categories/subMenu/7",  #Kleding, Schoenen & Accessoires
-           # "https://www.bol.com/nl/nl/menu/categories/subMenu/8",  #Sport, Outdoor & Reizen
-           # "https://www.bol.com/nl/nl/menu/categories/subMenu/12", #Kantoor & School
-           # "https://www.bol.com/nl/nl/menu/categories/subMenu/11", #Wonen, Koken & Huishouden
-          #  "https://www.bol.com/nl/nl/menu/categories/subMenu/9",  #Dier, Tuin & Klussen
-          #  "https://www.bol.com/nl/nl/menu/categories/subMenu/13"  #Auto & Motor
-        #])
+        #"https://www.bol.com/nl/nl/menu/categories/subMenu/3",  #Computer en Elekronica
+        # "https://www.bol.com/nl/nl/menu/categories/subMenu/4",  #Speelgoed, Hobby en Feest
+        # "https://www.bol.com/nl/nl/menu/categories/subMenu/5",  #Zwanger, Baby & Peuter
+        # "https://www.bol.com/nl/nl/menu/categories/subMenu/6",  #Mooi & Gezond
+        #"https://www.bol.com/nl/nl/menu/categories/subMenu/7",  #Kleding, Schoenen & Accessoires
+        # "https://www.bol.com/nl/nl/menu/categories/subMenu/8",  #Sport, Outdoor & Reizen
+        # "https://www.bol.com/nl/nl/menu/categories/subMenu/12", #Kantoor & School
+        # "https://www.bol.com/nl/nl/menu/categories/subMenu/11", #Wonen, Koken & Huishouden
+        #  "https://www.bol.com/nl/nl/menu/categories/subMenu/9",  #Dier, Tuin & Klussen
+        #  "https://www.bol.com/nl/nl/menu/categories/subMenu/13"  #Auto & Motor
+    #])
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
             future = executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/jeans-dames/47200/", "https://www.bol.com/nl/nl/l/broeken-dames/47205/", "https://www.bol.com/nl/nl/l/broeken-jeans/46560/", "https://www.bol.com/nl/nl/l/meisjes-broeken-jeans/46401/", "https://www.bol.com/nl/nl/l/broeken-heren/47425/", "https://www.bol.com/nl/nl/l/heren-jeans/47416/"], "broeken", 15)
