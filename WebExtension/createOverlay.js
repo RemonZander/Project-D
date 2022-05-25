@@ -1,5 +1,4 @@
 if (!document.querySelector("#bolOverlay")) {
-	console.log("opened");
 	const elementFromHtml = (html) => {
 		const template = document.createElement("template");
 
@@ -301,11 +300,10 @@ if (!document.querySelector("#bolOverlay")) {
 		},
 	];
 
+	// Sort items based on match, higher to lower
 	elementArray.sort((a, b) => {
 		return b.match - a.match;
 	});
-
-	console.log(elementArray);
 
 	const createItem = (item) => {
 		const imgLink = chrome.runtime.getURL(`images/${item.image}`);
@@ -333,7 +331,12 @@ if (!document.querySelector("#bolOverlay")) {
 		bolElement.querySelector("#bolElBody").appendChild(bolItem);
 	};
 
-	const displayItems = elementArray.map(createItem);
+	const displayItems = (array) => {
+		bolElement.querySelector("#bolElBody").innerHTML = "";
+		array.map(createItem);
+	};
+
+	displayItems(elementArray);
 
 	// Appends the overlay element as a child element after the <head> element
 	const htmlHead = document.querySelector("head");
@@ -346,10 +349,45 @@ if (!document.querySelector("#bolOverlay")) {
 		window.postMessage("closed", "*");
 	});
 
-	// Toggles the active class on the bol item to open it up or close it
-	document.querySelectorAll(".bolItemDropdownBtn").forEach((btn) => {
-		btn.addEventListener("click", () => {
-			btn.parentNode.parentNode.parentNode.classList.toggle("active");
+	const addBtnClick = () => {
+		// Toggles the active class on the bol item to open it up or close it
+		document.querySelectorAll(".bolItemDropdownBtn").forEach((btn) => {
+			btn.addEventListener("click", () => {
+				btn.parentNode.parentNode.parentNode.classList.toggle("active");
+			});
 		});
+	};
+
+	addBtnClick();
+
+	const bolInput = document.querySelector("#bolSearchInput");
+
+	// Add .toLowerCase() to input and to titles and descriptions if you dont want case sensitive
+	bolInput.addEventListener("keyup", (e) => {
+		// .replace(/\s\s+/g, ' ');
+		// ^ replaces multiple spaces with a single space
+		if (bolInput.value === "") return;
+
+		const filteredElementArray = elementArray.filter(filterItems);
+
+		const regex = new RegExp(bolInput.value, "g");
+		filteredElementArray.sort((a, b) => {
+			return (
+				(b.title.match(regex) || []).length -
+					(a.title.match(regex) || []).length ||
+				(b.description.match(regex) || []).length -
+					(a.description.match(regex) || []).length
+			);
+		});
+
+		displayItems(filteredElementArray);
+		addBtnClick();
 	});
+
+	const filterItems = (item) => {
+		return (
+			item.title.includes(bolInput.value) ||
+			item.description.includes(bolInput.value)
+		);
+	};
 }
