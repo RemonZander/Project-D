@@ -306,6 +306,25 @@ if (!document.querySelector("#bolOverlay")) {
 	});
 
 	const createItem = (item) => {
+		let description = "";
+		let title = "";
+
+		if (this.regex) {
+			description = description.replace(
+				this.regex,
+				// `<span style="background-color: #FFFF00;">${regex}</span>`
+				"test"
+			);
+			title = title.replace(
+				this.regex,
+				// `<span style="background-color: #FFFF00;">${regex}</span>`
+				"test"
+			);
+		} else {
+			description = item.description;
+			title = item.title;
+		}
+
 		const imgLink = chrome.runtime.getURL(`images/${item.image}`);
 
 		const bolItem = elementFromHtml(`
@@ -313,12 +332,12 @@ if (!document.querySelector("#bolOverlay")) {
 				<img class="bolItemImg" src="${imgLink}">
 				<div class="bolItemBody">
 					<div class="bolItemHeader">
-						<div class="bolItemTitle titleWrap" title="${item.title}">${item.title}</div>
+						<div class="bolItemTitle titleWrap" title="${title}">${title}</div>
 						<div class="bolItemDropdownBtn"></div>
 					</div>
 					<div class="bolItemDescription">
 						<div class="bolItemDescImg"><img src="${imgLink}"></div>
-						${item.description}
+						${description}
 					</div>
 					<div class="bolItemDetails">
 						<div class="bolItemSubCategory noWrap" title="${item.subCategory}">${item.subCategory}</div>
@@ -331,12 +350,14 @@ if (!document.querySelector("#bolOverlay")) {
 		bolElement.querySelector("#bolElBody").appendChild(bolItem);
 	};
 
-	const displayItems = (array) => {
+	const displayItems = (array, regex) => {
 		bolElement.querySelector("#bolElBody").innerHTML = "";
-		array.map(createItem);
+		array.map(createItem, {
+			regex: regex,
+		});
 	};
 
-	displayItems(elementArray);
+	displayItems(elementArray, "");
 
 	// Appends the overlay element as a child element after the <head> element
 	const htmlHead = document.querySelector("head");
@@ -366,28 +387,33 @@ if (!document.querySelector("#bolOverlay")) {
 	bolInput.addEventListener("keyup", (e) => {
 		// .replace(/\s\s+/g, ' ');
 		// ^ replaces multiple spaces with a single space
-		if (bolInput.value === "") return;
+		if (bolInput.value.toLowerCase() === "") {
+			displayItems(elementArray, "");
+			addBtnClick();
+		} else {
+			const filteredElementArray = elementArray.filter(filterItems);
 
-		const filteredElementArray = elementArray.filter(filterItems);
+			const regex = new RegExp(bolInput.value, "gi");
+			filteredElementArray.sort((a, b) => {
+				return (
+					(b.title.match(regex) || []).length -
+						(a.title.match(regex) || []).length ||
+					(b.description.match(regex) || []).length -
+						(a.description.match(regex) || []).length
+				);
+			});
 
-		const regex = new RegExp(bolInput.value, "g");
-		filteredElementArray.sort((a, b) => {
-			return (
-				(b.title.match(regex) || []).length -
-					(a.title.match(regex) || []).length ||
-				(b.description.match(regex) || []).length -
-					(a.description.match(regex) || []).length
-			);
-		});
-
-		displayItems(filteredElementArray);
-		addBtnClick();
+			displayItems(filteredElementArray, regex);
+			addBtnClick();
+		}
 	});
 
 	const filterItems = (item) => {
 		return (
-			item.title.includes(bolInput.value) ||
-			item.description.includes(bolInput.value)
+			item.title.toLowerCase().includes(bolInput.value.toLowerCase()) ||
+			item.description
+				.toLowerCase()
+				.includes(bolInput.value.toLowerCase())
 		);
 	};
 }
