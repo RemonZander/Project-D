@@ -33,7 +33,33 @@ if (!document.querySelector("#bolOverlay")) {
 		</div>
 	`);
 
-	const elementArray = [
+	let elementArray = [
+		{
+			image: "2.jpg",
+			title: "Fruit of the Loom Joggingbroek (met rechte Pijp) Zwart Maat M",
+			subCategory: "Broeken",
+			match: "96",
+			description: `Deze wereldberoemde Joggingbroek van Fruit of the Loom met rechte pijp mogen niet ontbreken in de kledingkast van een man.
+			De broek is zowel casual als trendy en heeft elastieken boorden, waardoor u hem naar de sportschool of gewoon thuis op de bank kunt dragen. De Joggingbroek hebben twee handige zakken aan de zijkant.
+			Fruit of the Loom gebruikt hun kwalitatief hoogwaardige Belcoro garen om deze Joggingbroek te produceren, waardoor ze zacht en comfortabel aanvoelen.
+			
+			Kleur: Zwart
+			Maat: M
+			Open boorden
+			Lichtgewicht ongekamde fleece
+			Zijzakken
+			Elastische boord met koord
+			Katoen/lycra geribbelde broekband en boorden
+			2 zakken aan de zijkant
+			240 g/m²
+			Belcoro garen voor comfortabele zachtheid en het verkrijgen van perfecte drukresultaten
+			Kijk in de tabel voor meer informatie over de maat
+			Belangrijk! De genoemde maten zijn de maten van de producten
+			Speling in maat +/- 2 cm
+			Materiaal: Katoen: 80%, Polyester: 20%
+			Merk: Fruit of the Loom
+			`,
+		},
 		{
 			image: "1.jpg",
 			title: "Object OBJLISA SLIM PANT NOOS Dames Broek Marina - Maat 38",
@@ -46,32 +72,6 @@ if (!document.querySelector("#bolOverlay")) {
 				Dit product is gemaakt met gerecycled polyester. Gerecycled polyester beschermt de natuurlijke bronnen en vermindert de hoeveelheid afval.
 				
 				40°C fijne was/wolwas, Niet bleken, Hangend drogen, Niet in wasdroger drogen, Strijken op gematigde temperatuur.
-				`,
-		},
-		{
-			image: "2.jpg",
-			title: "Fruit of the Loom Joggingbroek (met rechte Pijp) Zwart Maat M",
-			subCategory: "Broeken",
-			match: "96",
-			description: `Deze wereldberoemde Joggingbroek van Fruit of the Loom met rechte pijp mogen niet ontbreken in de kledingkast van een man.
-				De broek is zowel casual als trendy en heeft elastieken boorden, waardoor u hem naar de sportschool of gewoon thuis op de bank kunt dragen. De Joggingbroek hebben twee handige zakken aan de zijkant.
-				Fruit of the Loom gebruikt hun kwalitatief hoogwaardige Belcoro garen om deze Joggingbroek te produceren, waardoor ze zacht en comfortabel aanvoelen.
-				
-				Kleur: Zwart
-				Maat: M
-				Open boorden
-				Lichtgewicht ongekamde fleece
-				Zijzakken
-				Elastische boord met koord
-				Katoen/lycra geribbelde broekband en boorden
-				2 zakken aan de zijkant
-				240 g/m²
-				Belcoro garen voor comfortabele zachtheid en het verkrijgen van perfecte drukresultaten
-				Kijk in de tabel voor meer informatie over de maat
-				Belangrijk! De genoemde maten zijn de maten van de producten
-				Speling in maat +/- 2 cm
-				Materiaal: Katoen: 80%, Polyester: 20%
-				Merk: Fruit of the Loom
 				`,
 		},
 		{
@@ -94,30 +94,14 @@ if (!document.querySelector("#bolOverlay")) {
 				`,
 		},
 		{
-			image: "5.jpg",
-			title: "ONLY ONLPOPTRASH LIFE EASY COL PANT PNT NOOS Dames Broek - Maat M X L32",
-			subCategory: "Broeken",
-			match: "90",
-			description: `- Loose fit broek
-				- Smalle broekspijpen
-				- Snoerkoord in de taille
-				- Elastische rib aan de achterkant van de taille
-				- Riemlussen
-				- Geplooid aan de voorkant
-				- 2 paspelzakken aan de achterkant
-				- Stretchy stof
-				- Binnenbeenlengte: 73 cm in maat 38 X L32
-				`,
-		},
-		{
 			image: "6.jpg",
 			title: "GARCIA Celia Dames Skinny Fit Broek Wit - Maat W29 X L30",
 			subCategory: "Broeken",
 			match: "88",
 			description: `De Celia 244 accentueert de vrouwelijke vormen door de superslim fit, een hoge taille en pijpen die strak aansluiten van bovenbeen tot enkel. De tailleband valt gemiddeld tot net iets onder de navel.
-
-				Better Cotton is een initiatief dat zich wereldwijd inzet voor betere omstandigheden in de katoenindustrie. Bij het creëren van dit GARCIA kledingstuk gebruik gemaakt van een duurzame wastechniek.
-				`,
+			
+			Better Cotton is een initiatief dat zich wereldwijd inzet voor betere omstandigheden in de katoenindustrie. Bij het creëren van dit GARCIA kledingstuk gebruik gemaakt van een duurzame wastechniek.
+			`,
 		},
 		{
 			image: "7.jpg",
@@ -132,15 +116,15 @@ if (!document.querySelector("#bolOverlay")) {
 			subCategory: "Broeken",
 			match: "84",
 			description: `•	Vila Dames Broek
-				•	Steekzakken
-				•	100% Katoen
-				•	Hydrofiel
-				
-				
-				Set: samen met de VIKOOLA 3/4 Cropped Dames Blouse
-				
-				30°C bonte was, Niet bleken, Hangend drogen, Niet in wasdroger drogen, Strijken op lage temperatuur, Niet droogreinigen
-				`,
+			•	Steekzakken
+			•	100% Katoen
+			•	Hydrofiel
+			
+			
+			Set: samen met de VIKOOLA 3/4 Cropped Dames Blouse
+			
+			30°C bonte was, Niet bleken, Hangend drogen, Niet in wasdroger drogen, Strijken op lage temperatuur, Niet droogreinigen
+			`,
 		},
 		{
 			image: "9.jpg",
@@ -148,24 +132,40 @@ if (!document.querySelector("#bolOverlay")) {
 			subCategory: "Broeken",
 			match: "82",
 			description: `Deze wereldberoemde Joggingbroek van Fruit of the Loom met rechte pijp mogen niet ontbreken in de kledingkast van een man.
-				De broek is zowel casual als trendy en heeft elastieken boorden, waardoor u hem naar de sportschool of gewoon thuis op de bank kunt dragen. De Joggingbroek hebben twee handige zakken aan de zijkant.
-				Fruit of the Loom gebruikt hun kwalitatief hoogwaardige Belcoro garen om deze Joggingbroek te produceren, waardoor ze zacht en comfortabel aanvoelen.
-				
-				Kleur: Grijs
-				Maat: S
-				Open boorden
-				Lichtgewicht ongekamde fleece
-				Zijzakken
-				Elastische boord met koord
-				Katoen/lycra geribbelde broekband en boorden
-				2 zakken aan de zijkant
-				240 g/m²
-				Belcoro garen voor comfortabele zachtheid en het verkrijgen van perfecte drukresultaten
-				Kijk in de tabel voor meer informatie over de maat
-				Belangrijk! De genoemde maten zijn de maten van de producten
-				Speling in maat +/- 2 cm
-				Materiaal: Katoen: 80%, Polyester: 20%
-				Merk: Fruit of the Loom
+			De broek is zowel casual als trendy en heeft elastieken boorden, waardoor u hem naar de sportschool of gewoon thuis op de bank kunt dragen. De Joggingbroek hebben twee handige zakken aan de zijkant.
+			Fruit of the Loom gebruikt hun kwalitatief hoogwaardige Belcoro garen om deze Joggingbroek te produceren, waardoor ze zacht en comfortabel aanvoelen.
+			
+			Kleur: Grijs
+			Maat: S
+			Open boorden
+			Lichtgewicht ongekamde fleece
+			Zijzakken
+			Elastische boord met koord
+			Katoen/lycra geribbelde broekband en boorden
+			2 zakken aan de zijkant
+			240 g/m²
+			Belcoro garen voor comfortabele zachtheid en het verkrijgen van perfecte drukresultaten
+			Kijk in de tabel voor meer informatie over de maat
+			Belangrijk! De genoemde maten zijn de maten van de producten
+			Speling in maat +/- 2 cm
+			Materiaal: Katoen: 80%, Polyester: 20%
+			Merk: Fruit of the Loom
+			`,
+		},
+		{
+			image: "5.jpg",
+			title: "ONLY ONLPOPTRASH LIFE EASY COL PANT PNT NOOS Dames Broek - Maat M X L32",
+			subCategory: "Broeken",
+			match: "90",
+			description: `- Loose fit broek
+				- Smalle broekspijpen
+				- Snoerkoord in de taille
+				- Elastische rib aan de achterkant van de taille
+				- Riemlussen
+				- Geplooid aan de voorkant
+				- 2 paspelzakken aan de achterkant
+				- Stretchy stof
+				- Binnenbeenlengte: 73 cm in maat 38 X L32
 				`,
 		},
 		{
@@ -301,31 +301,39 @@ if (!document.querySelector("#bolOverlay")) {
 		},
 	];
 
-	elementArray.forEach((el) => {
-		const imgLink = chrome.runtime.getURL(`images/${el.image}`);
+	elementArray.sort((a, b) => {
+		return b.match - a.match;
+	});
+
+	console.log(elementArray);
+
+	const createItem = (item) => {
+		const imgLink = chrome.runtime.getURL(`images/${item.image}`);
 
 		const bolItem = elementFromHtml(`
 			<div class="bolItem">
 				<img class="bolItemImg" src="${imgLink}">
 				<div class="bolItemBody">
 					<div class="bolItemHeader">
-						<div class="bolItemTitle titleWrap" title="${el.title}">${el.title}</div>
+						<div class="bolItemTitle titleWrap" title="${item.title}">${item.title}</div>
 						<div class="bolItemDropdownBtn"></div>
 					</div>
 					<div class="bolItemDescription">
 						<div class="bolItemDescImg"><img src="${imgLink}"></div>
-						${el.description}
+						${item.description}
 					</div>
 					<div class="bolItemDetails">
-						<div class="bolItemSubCategory noWrap" title="${el.subCategory}">${el.subCategory}</div>
-						<div class="bolItemMatch">Match: ${el.match}%</div>
+						<div class="bolItemSubCategory noWrap" title="${item.subCategory}">${item.subCategory}</div>
+						<div class="bolItemMatch">Match: ${item.match}%</div>
 					</div>
 				</div>
 			</div>
 		`);
 
 		bolElement.querySelector("#bolElBody").appendChild(bolItem);
-	});
+	};
+
+	const displayItems = elementArray.map(createItem);
 
 	// Appends the overlay element as a child element after the <head> element
 	const htmlHead = document.querySelector("head");
