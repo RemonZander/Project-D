@@ -1,7 +1,8 @@
 from flask import Flask, request
 import concurrent.futures
-from flask_socketio import SocketIO
+#from flask_socketio import SocketIO
 from enum import Enum
+import socket
 
 class MessageType(Enum):
     SendImageFromExtensionToPyServer = 1,
@@ -18,8 +19,6 @@ class MessageType(Enum):
 
 
 app = Flask(__name__)
-
-socketio = SocketIO(app)
 
 @app.route("/image", methods=["POST"])
 def postThreads():
@@ -44,9 +43,16 @@ def check_file_type(filename):
             return True
     return False
 
-@socketio.on('json')
-def handle_json(json):
-    print('received json: ' + str(json))
+@app.route("/tcp", methods=["GET"])
+def tcp():
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect(('localhost', 5001))
+    s.send(str.encode('Hello, world'))
+    data = s.recv(1024)
+    s.close()
+    print(repr(data))
+    return f'Received: {repr(data)}'
+
 
 if __name__ == '__main__':
-    socketio.run(app)
+    app.run()
