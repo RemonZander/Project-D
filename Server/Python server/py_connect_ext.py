@@ -3,19 +3,21 @@ import concurrent.futures
 #from flask_socketio import SocketIO
 from enum import Enum
 import socket
+from tcp_server import *
 
+#TODO: CREATE SERPARATE JSON FILE FOR MESSAGE TYPES FOR SERIALIZATION
 class MessageType(Enum):
-    SendImageFromExtensionToPyServer = 1,
-    SendImageFromPyServerToImageSegmentation = 2,
-    ReturnImageCutOutFromImageSegmentationToPyServer = 3,
-    SendImageCutOutFromPyServerToImageClassification = 4,
-    ReturnIdentifiedObjectNameFromImageClassificationToPyServer = 5,
-    SendImageCutOutAndCategoryProductsFromPyServerToImageComparer = 6,
-    ReturnProductListFromImageComparerToPyServer = 7,
-    ReturnSearchResultsFromPyServerToExtension = 8,
-    EndCommunication = 9,
-    InitiateCommunication = 10,
-    AcceptCommunication = 11
+    SEND_IMG_FROM_EXT_TO_PY_SERVER = 1,
+    SEND_IMG_FROM_PY_SERVER_TO_IMG_SEGMENTATION= 2,
+    RETURN_IMG_CUTOUT_FROM_IMG_SEGMENTATION_TO_PY_SERVER = 3,
+    SEND_IMG_CUT_OUT_FROM_PY_SERVER_TO_IMG_CLASSIFICATION = 4,
+    RETURN_IDENTIFIED_OBJ_NAME_FROM_IMG_CLASSIFICATION_TO_PY_SERVER = 5,
+    SEND_IMG_CUTOUT_AND_CATEGORY_PRODUCTS_FROM_PY_SERVER_TO_IMG_COMPARER = 6,
+    RETURN_PRODUCT_LIST_FROM_IMG_COMPARER_TO_PY_SERVER = 7,
+    RETURN_SEARCH_RESULTS_FROM_PY_SERVER_TO_EXT = 8,
+    END_COMMUNICATION = 9,
+    INIT_COMMUNICATION = 10,
+    ACCEPT_COMMUNICATION = 11
 
 
 app = Flask(__name__)
@@ -45,13 +47,15 @@ def check_file_type(filename):
 
 @app.route("/tcp", methods=["GET"])
 def tcp():
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect(('localhost', 5001))
-    s.send(str.encode('Hello, world'))
-    data = s.recv(1024)
-    s.close()
-    print(repr(data))
-    return f'Received: {repr(data)}'
+    if request.method == "GET":
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect(('localhost', 5001))
+        s.send(str.encode('Hello, world'))
+        data = s.recv(1024)
+        s.close()
+        print(repr(data))
+        return f'Received: {repr(data)}'
+
 
 
 if __name__ == '__main__':
