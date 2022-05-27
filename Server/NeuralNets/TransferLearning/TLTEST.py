@@ -49,7 +49,7 @@ test_ds = test_ds.cache().batch(batch_size).prefetch(buffer_size=10)
 data_augmentation = keras.Sequential(
     [layers.RandomFlip("horizontal"), layers.RandomRotation(0.1),]
 )
-
+"""
 for images, labels in train_ds.take(1):
     plt.figure(figsize=(10, 10))
     first_image = images[0]
@@ -62,7 +62,7 @@ for images, labels in train_ds.take(1):
         plt.title(int(labels[0]))
         plt.axis("off")
     #plt.show()
-
+"""
 #base_model = keras.applications.Xception(
 #    weights="imagenet",  # Load weights pre-trained on ImageNet.
 #    input_shape=(150, 150, 3),
@@ -80,7 +80,7 @@ for layer in base_model.layers[0:-1]:
 
 
 #Freeze the base_model
-for layer in model.layers[0:-5]:
+for layer in model.layers[0:-1]:
     layer.trainable = False
 
 #model.trainable = False
@@ -100,8 +100,36 @@ model.compile(
 )
 
 epochs = 10
-model.fit(train_ds, epochs=epochs, validation_data=validation_ds)
+history1 = model.fit(train_ds, epochs=epochs, validation_data=validation_ds)
+print(model.metrics_names)
+#acc = history1.history['acc']
+#val_acc = history1.history['val_acc']
+bin_acc = history1.history["binary_accuracy"]
+loss = history1.history['loss']
+#val_loss = history1.history['val_loss']
 
+for epoch in bin_acc:
+    print(epoch)
+
+epoch_list = [1, 2, 3 , 4 , 5, 6, 7, 8 ,9 , 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+
+print(len(bin_acc))
+"""
+plt.figure(figsize=(8, 8))
+plt.subplot(1, 2, 1)
+plt.plot(epoch_list, bin_acc, label='Binary Accuracy')
+#plt.plot(epochs, val_acc, label='Validation Accuracy')
+
+plt.legend(loc='lower right')
+plt.title('Training Binary Accuracy')
+
+plt.subplot(1, 2, 2)
+plt.plot(epoch_list, loss, label='Training Loss')
+#plt.plot(epochs, val_loss, label='Validation Loss')
+plt.legend(loc='upper right')
+plt.title('Training Loss')
+plt.show()
+"""
 #Finetuning
 # Unfreeze the base_model. Note that it keeps running in inference mode
 # since we passed `training=False` when calling it. This means that
@@ -118,9 +146,13 @@ model.compile(
     metrics=[keras.metrics.BinaryAccuracy()],
 )
 
-epochs = 5
-history = model.fit(train_ds, epochs=epochs, validation_data=validation_ds)
+epochs = 10
+history_fine = model.fit(train_ds, epochs=epochs, validation_data=validation_ds)
 
+bin_acc += history_fine.history["binary_accuracy"]
+loss += history_fine.history['loss']
+
+"""
 acc = history.history['accuracy']
 val_acc = history.history['val_accuracy']
 
@@ -141,4 +173,22 @@ plt.plot(epochs_range, loss, label='Training Loss')
 plt.plot(epochs_range, val_loss, label='Validation Loss')
 plt.legend(loc='upper right')
 plt.title('Training and Validation Loss')
+plt.show()
+"""
+plt.figure(figsize=(8, 8))
+plt.subplot(1, 2, 1)
+plt.plot(epoch_list, bin_acc, label='Binary Accuracy')
+#plt.plot(epochs, val_acc, label='Validation Accuracy')
+plt.plot([10-1,10-0-1],
+         plt.ylim(), label='Start Fine Tuning')
+plt.legend(loc='lower right')
+plt.title('Training Binary Accuracy')
+
+plt.subplot(1, 2, 2)
+plt.plot(epoch_list, loss, label='Training Loss')
+#plt.plot(epochs, val_loss, label='Validation Loss')
+plt.plot([10-1,10-0-1],
+         plt.ylim(), label='Start Fine Tuning')
+plt.legend(loc='upper right')
+plt.title('Training Loss')
 plt.show()
