@@ -20,6 +20,18 @@ namespace ImageSegmentationTrainingsDataCreator
             if (string.IsNullOrEmpty(folderBrowserDialog1.SelectedPath)) return;
 
             string[] files = Directory.GetFiles(folderBrowserDialog1.SelectedPath);
+            try
+            {
+                Directory.CreateDirectory(folderBrowserDialog1.SelectedPath + @"/.masks");
+                Directory.CreateDirectory(folderBrowserDialog1.SelectedPath + @"/.data");
+            }
+            catch (Exception)
+            {
+            }
+            progressBar1.Minimum = 0;
+            progressBar1.Maximum = files.Length;
+            progressBar1.Value = 0;
+            label2.Text = "0 van de " + files.Length;
 
             for (int a = 0; a < files.Length; a++)
             {
@@ -34,21 +46,27 @@ namespace ImageSegmentationTrainingsDataCreator
                 (Bitmap image, int maxHeightObject, int maxWidthObject, int topOffset, int leftOffset) ObjectCutout = MakeMask(image, Color.FromArgb(0, 0, 0, 0), Color.FromArgb(0, 0, 0, 0), Color.FromArgb(0, 0, 0, 0), false);
                 int newSize = random.Next(80, 128);
                 ObjectCutout.image = new Bitmap(ObjectCutout.image, new Size(newSize, newSize));
-                Graphics og = Graphics.FromImage(ObjectCutout.image);
                 int xPos = random.Next(0, 250 - ObjectCutout.maxWidthObject + 20);
                 int yPos = random.Next(0, 250 - ObjectCutout.maxHeightObject + 20);
                 bg.DrawImage(ObjectCutout.image, xPos, yPos);
                 bg.Save();
 
-                currentBackground.Save("../test_data/" + a + ".jpg");
+                currentBackground.Save(folderBrowserDialog1.SelectedPath + @"/.data/" + a + ".jpg");
 
                 currentBackground = new Bitmap(Image.FromFile(@"../Mask_background.jpg"));
                 bg = Graphics.FromImage(currentBackground);
                 bg.DrawImage(new Bitmap(Image.FromFile(files[a]), new Size(newSize, newSize)), xPos, yPos);
                 bg.Save();
                 Bitmap ObjectCutoutMask = MakeMask(currentBackground, Color.FromArgb(32, 143, 140), Color.FromArgb(68, 1, 84), Color.FromArgb(253, 231, 36), true).image;
-                ObjectCutoutMask.Save("../test_data/" + a + " mask.jpg");
+                ObjectCutoutMask.Save(folderBrowserDialog1.SelectedPath + @"/.masks/" + a + ".jpg");
+
+                progressBar1.Value += 1;
+                progressBar1.Update();
+                label2.Text = a + 1 + " van de " + files.Length;
+                label2.Update();
             }
+
+            MessageBox.Show("Klaar!");
         }
 
         private (Bitmap image, int maxHeightObject, int maxWidthObject, int topOffset, int leftOffset) MakeMask(Bitmap image, Color backgroundColor, Color objectColor, Color borderColor, bool colorObject)
@@ -160,6 +178,11 @@ namespace ImageSegmentationTrainingsDataCreator
             }
             image.MakeTransparent(Color.FromArgb(0, 0, 0, 0));
             return (image, maxHeightObject, maxWidthObject, topOffset, leftOffset);
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
