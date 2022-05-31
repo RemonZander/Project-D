@@ -1,13 +1,17 @@
 from email.mime import image
 from turtle import down
+from numpy import product
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
+from exif_data import ExifData
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 import requests
 import concurrent.futures
 from os import path, makedirs
 from square_image import square_image
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 
 class BolWebScraper:
@@ -17,9 +21,10 @@ class BolWebScraper:
         self.chrome_options = webdriver.ChromeOptions()
         self.chrome_options.add_argument('headless')
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), chrome_options=self.chrome_options)
+        self.webdriver_wait = WebDriverWait(self.driver, 10)
         #self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
         self.__initiate_scraper()
-        #self.driver.implicitly_wait(10)
+        self.driver.implicitly_wait(10)
 
     def scrape_starting_from_sub_menus(self, sub_menu_list):
         self.__initiate_scraper()
@@ -44,64 +49,72 @@ class BolWebScraper:
         #accept cookies
         self.driver.find_element(By.CSS_SELECTOR, "wsp-consent-modal > div > button").click()
 
-
     def __terminate_scraper(self):
         self.driver.close()
 
     # RETURNS TUPLE (product_name, product_image, product_link)
     def __get_item_properties(self, item):
         image_link = self.__get_image_link(item)
-        product_link = item.find_element(By.CSS_SELECTOR, ".product-item__content > .product-item__info > .product-title--inline > a").get_attribute("href")
-        product_name = item.find_element(By.CSS_SELECTOR, ".product-item__content > .product-item__info > .product-title--inline").text
+        test2 = self.driver.current_url
+        product_link = self.webdriver_wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".product-item__content > .product-item__info > .product-title--inline > a"))).get_attribute("href")
+        product_name = self.webdriver_wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".product-item__content > .product-item__info > .product-title--inline"))).text
+        product_category = self.webdriver_wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "h1.bol_header"))).text
+        #TO DO: Fix that only 1 image is being downloaded
         product_description = self.__get_product_description(product_link)
-        return (product_name, image_link, product_link, product_description)
+        return (product_name, image_link, product_link, product_description, product_category)
 
     def __get_image_link(self, item):
         #TRY-BLOCK FOR INCONSISTENCY PRODUCT IMAGES PLACEMENT IN WEBELEMENT
         try:
-            image_link = item.find_element(By.CSS_SELECTOR, ".product-item__image > div > a > img").get_attribute("src")
+            image_link = self.webdriver_wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".product-item__image > div > a > img"))).get_attribute("src")
         except:
-            image_link = item.find_element(By.CSS_SELECTOR, ".product-item__image > div > a > .skeleton-image > div > img")
+            test = self.driver.current_url
+            image_link = self.webdriver_wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".product-item__image > div > a > .skeleton-image > div > img")))
             if image_link.get_attribute("src") is None:
-                # print("CANNOT FIND SRC IN ELEMENT, TRYING ALTERNATIVE")
+                #print("CANNOT FIND SRC IN ELEMENT, TRYING ALTERNATIVE")
                 #for attr in range(len(image_link.get_property("attributes"))):
                     #print(f"INDEX: {attr},\n {image_link.get_property('attributes')[attr]}\n\n")
                 image_link = image_link.get_property("attributes")[1]["value"]
                 #print("FOUND IMAGE LINK" + image_link)
             else:
                 image_link = image_link.get_attribute("src")
+
         return image_link
 
     def __get_product_description(self, product_link):
         self.driver.get(product_link)
-        self.driver.implicitly_wait(10)
-        product_description = "PLACEHOLDER"
+
+        product_description = "NOT FOUND"
         try:
             product_description = self.driver.find_element(By.CSS_SELECTOR, "div.product-description").text
         except:
-            url = self.driver.current_url
-            test = None
-        #product_description = self.driver.find_element(By.CLASS_NAME, "div.product-description").text()
+            print("Description element not found.")
+
+        self.driver.back()
+
         return product_description
 
-    def __download_image(self, dir, n, image_link, total_scraped):
-        with open (f"{dir}/{total_scraped}-{n}.jpg", "wb") as file:
-            r = requests.get(image_link, allow_redirects=True)
+    def __download_image(self, dir, n, product_properties, total_scraped):
+        path_file = f"{dir}/{total_scraped}-{n}.jpg"
+
+        with open (path_file, "wb") as file:
+            r = requests.get(product_properties[1], allow_redirects=True)
             file.write(r.content)
-        square_image(f"{dir}/{total_scraped}-{n}.jpg")
+        ExifData(path_file).SaveData(product_properties[0], product_properties[4], product_properties[3])
+        #square_image(path_file)
 
     def __scrape_page(self, n, maxItems, dir, total_scraped):
         #GET LIST OF ALL ITEMS
         items = self.driver.find_elements(By.CSS_SELECTOR, ".js_item_root:not(.js_sponsored_product)")
         print(f"length: {len(items)}")
         print(f"scraped_items: {n}")
-        #page = driver.find_element(By.CSS_SELECTOR, ".is-active > span").text 
+        #page = driver.find_element(By.CSS_SELECTOR, ".is-active > span").text
         for item in items:
             if n >= maxItems:
                 return n
             item_properties = self.__get_item_properties(item)
             if(self.download_bool):
-                self.__download_image(dir, n, item_properties[1], total_scraped)
+                self.__download_image(dir, n, item_properties, total_scraped)
             n = n + 1
         return n
 
@@ -209,26 +222,33 @@ if __name__ == '__main__':
     #])
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
-            future = executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/jeans-dames/47200/", "https://www.bol.com/nl/nl/l/broeken-dames/47205/", "https://www.bol.com/nl/nl/l/broeken-jeans/46560/", "https://www.bol.com/nl/nl/l/meisjes-broeken-jeans/46401/", "https://www.bol.com/nl/nl/l/broeken-heren/47425/", "https://www.bol.com/nl/nl/l/heren-jeans/47416/"], "broeken", 15)
-            future = executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/heren-sneakers/37547/", "https://www.bol.com/nl/nl/l/dames-sneakers/37531/", "https://www.bol.com/nl/nl/l/meisjes-sneakers/46442/", "https://www.bol.com/nl/nl/l/sneakers-jongens/46589/"], "sneakers", 15)
-            future = executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/slippers-jongens/46600/", "https://www.bol.com/nl/nl/l/slippers-meisjes/46446/", "https://www.bol.com/nl/nl/l/heren-slippers/37549/", "https://www.bol.com/nl/nl/l/dames-slippers/37534/"], "slippers", 15)
-            future = executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/jassen-dames/47203/", "https://www.bol.com/nl/nl/l/jassen/47445/", "https://www.bol.com/nl/nl/l/meisjes-jassen/46383/", "https://www.bol.com/nl/nl/l/jongensjassen/46545/"], "jassen", 15)
-            future = executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/jongensshirts/46556/", "https://www.bol.com/nl/nl/l/t-shirts-meisjes/46394/", "https://www.bol.com/nl/nl/l/shirts-heren/47412/", "https://www.bol.com/nl/nl/l/t-shirts-dames/47302/"], "t-shirts", 10)
-            future = executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/korte-broeken-jongens/46563/", "https://www.bol.com/nl/nl/l/korte-broeken-meisjes/46404/", "https://www.bol.com/nl/nl/l/korte-broeken-heren/47427/", "https://www.bol.com/nl/nl/l/korte-broeken-dames/47275/"], "korte broeken", 10)
+        future = executor.submit(scrape_cats, [
+            "https://www.bol.com/nl/nl/l/lange-jeans/47200/4295688522/",
+            "https://www.bol.com/nl/nl/l/lange-broeken/47205/4295688522/",
+            "https://www.bol.com/nl/nl/l/lange-broeken-jeans/46560/4295688522/",
+            "https://www.bol.com/nl/nl/l/lange-broeken-jeans/46401/4295688522/",
+            "https://www.bol.com/nl/nl/l/lange-broeken/47425/4295688522/",
+            "https://www.bol.com/nl/nl/l/lange-jeans/47416/4295688522/"
+        ], "lange broeken", 15)
+        future = executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/heren-sneakers/37547/", "https://www.bol.com/nl/nl/l/dames-sneakers/37531/", "https://www.bol.com/nl/nl/l/meisjes-sneakers/46442/", "https://www.bol.com/nl/nl/l/sneakers-jongens/46589/"], "sneakers", 15)
+        future = executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/slippers-jongens/46600/", "https://www.bol.com/nl/nl/l/slippers-meisjes/46446/", "https://www.bol.com/nl/nl/l/heren-slippers/37549/", "https://www.bol.com/nl/nl/l/dames-slippers/37534/"], "slippers", 15)
+        future = executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/jassen-dames/47203/", "https://www.bol.com/nl/nl/l/jassen/47445/", "https://www.bol.com/nl/nl/l/meisjes-jassen/46383/", "https://www.bol.com/nl/nl/l/jongensjassen/46545/"], "jassen", 15)
+        future = executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/jongensshirts/46556/", "https://www.bol.com/nl/nl/l/t-shirts-meisjes/46394/", "https://www.bol.com/nl/nl/l/shirts-heren/47412/", "https://www.bol.com/nl/nl/l/t-shirts-dames/47302/"], "t-shirts", 10)
+        future = executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/korte-broeken-jongens/46563/", "https://www.bol.com/nl/nl/l/korte-broeken-meisjes/46404/", "https://www.bol.com/nl/nl/l/korte-broeken-heren/47427/", "https://www.bol.com/nl/nl/l/korte-broeken-dames/47275/"], "korte broeken", 10)
     #Scrape broeken
     #bol_web_scraper1.scrape_lowest_categories_and_save_in_same_folder(["https://www.bol.com/nl/nl/l/jeans-dames/47200/", "https://www.bol.com/nl/nl/l/broeken-dames/47205/", "https://www.bol.com/nl/nl/l/broeken-jeans/46560/", "https://www.bol.com/nl/nl/l/meisjes-broeken-jeans/46401/", "https://www.bol.com/nl/nl/l/broeken-heren/47425/", "https://www.bol.com/nl/nl/l/heren-jeans/47416/"], "broeken", 10)
-    
+
     #Scrape schoenen / sneakers
     #bol_web_scraper2.scrape_lowest_categories_and_save_in_same_folder(["https://www.bol.com/nl/nl/l/heren-sneakers/37547/", "https://www.bol.com/nl/nl/l/dames-sneakers/37531/", "https://www.bol.com/nl/nl/l/meisjes-sneakers/46442/", "https://www.bol.com/nl/nl/l/sneakers-jongens/46589/"], "sneakers", 10)
-    
+
     #Scrape slippers
     #bol_web_scraper3.scrape_lowest_categories_and_save_in_same_folder(["https://www.bol.com/nl/nl/l/slippers-jongens/46600/", "https://www.bol.com/nl/nl/l/slippers-meisjes/46446/", "https://www.bol.com/nl/nl/l/heren-slippers/37549/", "https://www.bol.com/nl/nl/l/dames-slippers/37534/"], "slippers", 10)
-    
+
     #Scrape jassen
     #bol_web_scraper4.scrape_lowest_categories_and_save_in_same_folder(["https://www.bol.com/nl/nl/l/jassen-dames/47203/", "https://www.bol.com/nl/nl/l/jassen/47445/", "https://www.bol.com/nl/nl/l/meisjes-jassen/46383/", "https://www.bol.com/nl/nl/l/jongensjassen/46545/"], "jassen", 10)
 
     #scrape t-shirts
     #bol_web_scraper5.scrape_lowest_categories_and_save_in_same_folder(["https://www.bol.com/nl/nl/l/jongensshirts/46556/", "https://www.bol.com/nl/nl/l/t-shirts-meisjes/46394/", "https://www.bol.com/nl/nl/l/shirts-heren/47412/", "https://www.bol.com/nl/nl/l/t-shirts-dames/47302/"], "t-shirts", 10)
-    
+
     #Scrape korte broeken
     #bol_web_scraper6.scrape_lowest_categories_and_save_in_same_folder(["https://www.bol.com/nl/nl/l/korte-broeken-jongens/46563/", "https://www.bol.com/nl/nl/l/korte-broeken-meisjes/46404/", "https://www.bol.com/nl/nl/l/korte-broeken-heren/47427/", "https://www.bol.com/nl/nl/l/korte-broeken-dames/47275/"], "korte broeken", 10)
