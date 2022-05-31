@@ -14,12 +14,12 @@ using System.Runtime.InteropServices;
 
 namespace Image_comparer_test_project__.net_framework_
 {
-    sealed partial class Form1 : Form
+    internal sealed partial class Form1 : Form
     {
-        private (List<(int, int, int)>, string) firstImgSectors = (new List<(int, int, int)>(), "");
-        private (List<(int, int, int)>, string)[] SecondimgListSectors = new (List<(int, int, int)>, string)[1];
+        private SectorData firstImgSectors;
+        private SectorData[] SecondimgListSectors = new SectorData[1];
         private DataSet ds = new DataSet();
-        private List<(int, int, int, string, string)> results;
+        private List<Results> results;
         private string[] fileNames = new string[1];
 
         //only square supported for now
@@ -49,9 +49,18 @@ namespace Image_comparer_test_project__.net_framework_
             Bitmap image = (Bitmap)Bitmap.FromFile(filename);
 
             double ratio = image.Height * 1.0 / image.Width;
-            image = CropAtRect(image, new Rectangle(0, 0, 400, (int)(400 * ratio)));
+            image = CropAtRect(image, new Rectangle(0, 0, 200, (int)(200 * ratio)));
 
-            (List<(int, int, int)>, string) sectorAverages = (new List<(int, int, int)>(), filename.Substring(filename.LastIndexOf(@"\") + 1));
+            //for data analysis only
+            Bitmap nb = new Bitmap(image.Width, image.Height);
+            Graphics g = Graphics.FromImage(nb);
+
+            SectorData sectorAverages = new SectorData
+            {
+                HSVData = new List<(int, int, int)>(),
+                FileName = filename.Substring(filename.LastIndexOf(@"\") + 1),
+            };
+
             int imageWidth = image.Width;
             int sectorWidth = image.Width / WidthSectors;
             int sectorheight = image.Height / HeightSectors;
@@ -201,11 +210,16 @@ namespace Image_comparer_test_project__.net_framework_
                             totalSaturationValues += colors[pos].Item3;
                         }
                     }
-                    sectorAverages.Item1.Add(((int)(TotalHueValues / totalPixelsPerSector * weight), (int)(totalBrightnessValues / totalPixelsPerSector * weight), (int)(totalSaturationValues / totalPixelsPerSector * weight)));
+                    //for data analysis only
+                    g.FillRectangle(new SolidBrush(ColorFromHSV(TotalHueValues / totalPixelsPerSector, totalSaturationValues / totalPixelsPerSector / 100.0, totalBrightnessValues / totalPixelsPerSector / 100.0)),
+                        new Rectangle(sectorWidth * a, sectorheight * b, sectorWidth, sectorheight));
+
+                    sectorAverages.HSVData.Add(((int)(TotalHueValues / totalPixelsPerSector * weight), (int)(totalBrightnessValues / totalPixelsPerSector * weight), (int)(totalSaturationValues / totalPixelsPerSector * weight)));
                 }
             }
 
             colors = null;
+            nb.Save(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\prep\" + filename.Substring(filename.LastIndexOf(@"\") + 1), ImageFormat.Jpeg);
 
             if (firstImg)
             {
@@ -213,6 +227,38 @@ namespace Image_comparer_test_project__.net_framework_
                 return;
             }
             SecondimgListSectors[secondImagePos] = sectorAverages;
+        }
+
+        /// <summary>
+        /// This function get's the color from HSV values. This is only for data alalysis
+        /// </summary>
+        /// <param name="hue"></param>
+        /// <param name="saturation"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static Color ColorFromHSV(double hue, double saturation, double value)
+        {
+            int hi = Convert.ToInt32(Math.Floor(hue / 60)) % 6;
+            double f = hue / 60 - Math.Floor(hue / 60);
+
+            value = value * 255;
+            int v = Convert.ToInt32(value);
+            int p = Convert.ToInt32(value * (1 - saturation));
+            int q = Convert.ToInt32(value * (1 - f * saturation));
+            int t = Convert.ToInt32(value * (1 - (1 - f) * saturation));
+
+            if (hi == 0)
+                return Color.FromArgb(255, v, t, p);
+            else if (hi == 1)
+                return Color.FromArgb(255, q, v, p);
+            else if (hi == 2)
+                return Color.FromArgb(255, p, v, t);
+            else if (hi == 3)
+                return Color.FromArgb(255, p, q, v);
+            else if (hi == 4)
+                return Color.FromArgb(255, t, p, v);
+            else
+                return Color.FromArgb(255, v, p, q);
         }
 
         private void ThreadRunPrep(string[] filenames, int startPos)
@@ -223,9 +269,9 @@ namespace Image_comparer_test_project__.net_framework_
             }
         }
 
-        private void ThreadRunCompare(int startPos, int length, (List<(int, int, int)>, string) firstimage)
+        private void ThreadRunCompare(int startPos, int length, SectorData firstimage)
         {
-            (int, int, int, string, string)[] resultsTemp = new (int, int, int, string, string)[length];
+            Results[] resultsTemp = new Results[length];
 
             for (int a = startPos, b = 0; a < startPos + length; a++, b++)
             {
@@ -238,56 +284,29 @@ namespace Image_comparer_test_project__.net_framework_
             }
         }
 
-        private (int, int, int, string, string) CompareImg((List<(int, int, int)>, string) firstImgSectorsCompare, (List<(int, int, int)>, string) secondImgSectorsCompare, int pos)
+        private Results CompareImg(SectorData firstImgSectorsCompare, SectorData secondImgSectorsCompare, int pos)
         {
             List<int> diffHue = new List<int>();
             List<int> diffBrightness = new List<int>();
             List<int> diffSaturation = new List<int>();
-            List<int> totalFirstImg = new List<int>();
-            List<int> totalSecondImg = new List<int>();
             List<int> diffTotal = new List<int>();
 
-            foreach (var item in firstImgSectorsCompare.Item1)
+            firstImgSectorsCompare.HSVData = firstImgSectorsCompare.HSVData.OrderBy(x => x.Item1).ToList();
+            secondImgSectorsCompare.HSVData = secondImgSectorsCompare.HSVData.OrderBy(x => x.Item1).ToList();
+
+            for (int a = 0; a < firstImgSectorsCompare.HSVData.Count; a++)
             {
-                totalFirstImg.Add(item.Item1 + item.Item2 + item.Item3);
+                diffHue.Add(ToUInt16(firstImgSectorsCompare.HSVData[a].Item1 - secondImgSectorsCompare.HSVData[a].Item1));
             }
 
-            totalFirstImg = totalFirstImg.OrderBy(x => x).ToList();
-
-            foreach (var item in secondImgSectorsCompare.Item1)
+            for (int a = 0; a < firstImgSectorsCompare.HSVData.Count; a++)
             {
-                totalSecondImg.Add(item.Item1 + item.Item2 + item.Item3);
+                diffBrightness.Add(ToUInt16(firstImgSectorsCompare.HSVData[a].Item2 - secondImgSectorsCompare.HSVData[a].Item2));
             }
 
-            totalSecondImg = totalSecondImg.OrderBy(x => x).ToList();
-
-            for (int f = 0; f < totalFirstImg.Count; f++)
+            for (int a = 0; a < firstImgSectorsCompare.HSVData.Count; a++)
             {
-                diffTotal.Add(ToUInt16(totalFirstImg[f] - totalSecondImg[f]));
-            }
-
-            firstImgSectorsCompare.Item1 = firstImgSectorsCompare.Item1.OrderBy(x => x.Item1).ToList();
-            secondImgSectorsCompare.Item1 = secondImgSectorsCompare.Item1.OrderBy(x => x.Item1).ToList();
-
-            for (int a = 0; a < firstImgSectorsCompare.Item1.Count; a++)
-            {
-                diffHue.Add(ToUInt16(firstImgSectorsCompare.Item1[a].Item1 - secondImgSectorsCompare.Item1[a].Item1));
-            }
-
-            firstImgSectorsCompare.Item1 = firstImgSectorsCompare.Item1.OrderBy(x => x.Item2).ToList();
-            secondImgSectorsCompare.Item1 = secondImgSectorsCompare.Item1.OrderBy(x => x.Item2).ToList();
-
-            for (int a = 0; a < firstImgSectorsCompare.Item1.Count; a++)
-            {
-                diffBrightness.Add(ToUInt16(firstImgSectorsCompare.Item1[a].Item2 - secondImgSectorsCompare.Item1[a].Item2));
-            }
-
-            firstImgSectorsCompare.Item1 = firstImgSectorsCompare.Item1.OrderBy(x => x.Item3).ToList();
-            secondImgSectorsCompare.Item1 = secondImgSectorsCompare.Item1.OrderBy(x => x.Item3).ToList();
-
-            for (int a = 0; a < firstImgSectorsCompare.Item1.Count; a++)
-            {
-                diffSaturation.Add(ToUInt16(firstImgSectorsCompare.Item1[a].Item3 - secondImgSectorsCompare.Item1[a].Item3));
+                diffSaturation.Add(ToUInt16(firstImgSectorsCompare.HSVData[a].Item3 - secondImgSectorsCompare.HSVData[a].Item3));
             }
 
             List<int> xAxisHue = new List<int>();
@@ -327,7 +346,7 @@ namespace Image_comparer_test_project__.net_framework_
             }
 
 
-            ds.Tables[pos].TableName = secondImgSectorsCompare.Item2;
+            ds.Tables[pos].TableName = secondImgSectorsCompare.FileName;
             ds.Tables[pos].Columns.Add("xAxisHue");
             ds.Tables[pos].Columns.Add("yAxisHue");
             ds.Tables[pos].Columns.Add("xAxisBrightness");
@@ -350,18 +369,25 @@ namespace Image_comparer_test_project__.net_framework_
                 BeginInvoke(new MethodInvoker(delegate
                 {
                     textBox11.Text = (diffHue.Average() / (diffHue.Max() / 100.0)).ToString() + "%";
-                    comboBox1.Items.Add(secondImgSectorsCompare.Item2);
+                    comboBox1.Items.Add(secondImgSectorsCompare.FileName);
                 }));
             }
             else
             {
                 textBox11.Text = (diffHue.Average() / (diffHue.Max() / 100.0)).ToString() + "%";
-                comboBox1.Items.Add(secondImgSectorsCompare.Item2);
+                comboBox1.Items.Add(secondImgSectorsCompare.FileName);
             }
 
-
-            //return ((int)diffHue.Average(), (int)diffBrightness.Average(), (int)diffSaturation.Average(), (diffHue.Average() / (diffHue.Max() / 100.0)).ToString() + "%", secondImgSectorsCompare.Item2);
-            return ((int)diffHue.Average(), (int)diffBrightness.Average(), (int)diffSaturation.Average(), (diffTotal.Average() / (diffTotal.Max() / 100.0)).ToString() + "%", secondImgSectorsCompare.Item2);
+            return new Results
+            {
+                HueDifference = (int)diffHue.Average(),
+                BrightnessDifference = (int)diffBrightness.Average(),
+                SaturationDifference = (int)diffSaturation.Average(),
+                HueDiffPercent = (diffHue.Average() / (diffHue.Max() / 100.0)).ToString() + "%",
+                BrightnessDiffPercent = (diffBrightness.Average() / (diffBrightness.Max() / 100.0)).ToString() + "%",
+                SaturationDiffPercent = (diffSaturation.Average() / (diffSaturation.Max() / 100.0)).ToString() + "%",
+                FileName = secondImgSectorsCompare.FileName,
+            };
         }
     }
 }
