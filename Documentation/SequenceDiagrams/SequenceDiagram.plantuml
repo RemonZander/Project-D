@@ -6,7 +6,7 @@ actor user as usr
 participant "Chrome extension" as ext
 control "Python Server" as psv
 database "Product database" as db
-participant "Image Segmentation NN (C#)" as sgm
+participant "Image Segmentation NN (Python)" as sgm
 participant "Image Classification NN (Python)" as obj
 participant "Image Comparer (C#)" as img
 
