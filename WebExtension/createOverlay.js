@@ -1,4 +1,5 @@
 if (!document.querySelector("#bolOverlay")) {
+	// Function that create a html element from a string.
 	const elementFromHtml = (html) => {
 		const template = document.createElement("template");
 
@@ -7,6 +8,7 @@ if (!document.querySelector("#bolOverlay")) {
 		return template.content.firstElementChild;
 	};
 
+	// Function that create the base extension overlay.
 	const bolElement = elementFromHtml(`
 		<div id="bolOverlay">
 			<div id="bolElement">
@@ -300,31 +302,31 @@ if (!document.querySelector("#bolOverlay")) {
 		},
 	];
 
-	// Sort items based on match, higher to lower
+	// Sort items based on match, higher to lower.
 	elementArray.sort((a, b) => {
 		return b.match - a.match;
 	});
 
+	// Function that removes all the <mark></mark> tags from a string.
+	const removeMarks = (string) => {
+		const removeMarkRegex = new RegExp(/(<mark>|<\/mark>)/, "gim");
+		string = string.replace(removeMarkRegex, "");
+
+		return string;
+	};
+
+	// Function that adds <mark></mark> tags to all the substrings that match the RegEx.
+	const markSubstring = (string, input) => {
+		if (!string || !input) return;
+
+		string = removeMarks(string);
+
+		const markRegex = new RegExp(input, "gim");
+		return string.replace(markRegex, "<mark>$&</mark>");
+	};
+
+	// Function that creates a bolItem element and adds it as a child element to the extension.
 	const createItem = (item) => {
-		let description = "";
-		let title = "";
-
-		if (this.regex) {
-			description = description.replace(
-				this.regex,
-				// `<span style="background-color: #FFFF00;">${regex}</span>`
-				"test"
-			);
-			title = title.replace(
-				this.regex,
-				// `<span style="background-color: #FFFF00;">${regex}</span>`
-				"test"
-			);
-		} else {
-			description = item.description;
-			title = item.title;
-		}
-
 		const imgLink = chrome.runtime.getURL(`images/${item.image}`);
 
 		const bolItem = elementFromHtml(`
@@ -332,15 +334,19 @@ if (!document.querySelector("#bolOverlay")) {
 				<img class="bolItemImg" src="${imgLink}">
 				<div class="bolItemBody">
 					<div class="bolItemHeader">
-						<div class="bolItemTitle titleWrap" title="${title}">${title}</div>
+						<div class="bolItemTitle titleWrap" title='${removeMarks(item.title)}'>${
+			item.title
+		}</div>
 						<div class="bolItemDropdownBtn"></div>
 					</div>
 					<div class="bolItemDescription">
 						<div class="bolItemDescImg"><img src="${imgLink}"></div>
-						${description}
+						${item.description}
 					</div>
 					<div class="bolItemDetails">
-						<div class="bolItemSubCategory noWrap" title="${item.subCategory}">${item.subCategory}</div>
+						<div class="bolItemSubCategory noWrap" title="${item.subCategory}">${
+			item.subCategory
+		}</div>
 						<div class="bolItemMatch">Match: ${item.match}%</div>
 					</div>
 				</div>
@@ -350,28 +356,25 @@ if (!document.querySelector("#bolOverlay")) {
 		bolElement.querySelector("#bolElBody").appendChild(bolItem);
 	};
 
-	const displayItems = (array, regex) => {
+	// Function that calls the createItem function for every item in an array.
+	const displayItems = (array) => {
 		bolElement.querySelector("#bolElBody").innerHTML = "";
-		array.map(createItem, {
-			regex: regex,
-		});
+		array.map(createItem);
 	};
 
-	displayItems(elementArray, "");
+	displayItems(elementArray);
 
-	// Appends the overlay element as a child element after the <head> element
+	// Appends the overlay element as a child element after the <head> element.
 	const htmlHead = document.querySelector("head");
 	htmlHead.parentNode.insertBefore(bolElement, htmlHead.nextSibling);
-	chrome.tabs;
 
 	// Removes the overlay element from the html
 	bolElement.querySelector("#bolElCloseBtn").addEventListener("click", () => {
 		htmlHead.parentNode.removeChild(document.querySelector("#bolOverlay"));
-		window.postMessage("closed", "*");
 	});
 
+	// Adds a "click" event listener to toggle the active class on the bolItem element to open it up or close it.
 	const addBtnClick = () => {
-		// Toggles the active class on the bol item to open it up or close it
 		document.querySelectorAll(".bolItemDropdownBtn").forEach((btn) => {
 			btn.addEventListener("click", () => {
 				btn.parentNode.parentNode.parentNode.classList.toggle("active");
@@ -383,17 +386,41 @@ if (!document.querySelector("#bolOverlay")) {
 
 	const bolInput = document.querySelector("#bolSearchInput");
 
-	// Add .toLowerCase() to input and to titles and descriptions if you dont want case sensitive
-	bolInput.addEventListener("keyup", (e) => {
+	// "input" event listener for filtering, sorting and marking the products based on the input given.
+	bolInput.addEventListener("input", (e) => {
 		// .replace(/\s\s+/g, ' ');
-		// ^ replaces multiple spaces with a single space
-		if (bolInput.value.toLowerCase() === "") {
-			displayItems(elementArray, "");
+		// ^ replaces multiple spaces with a single space.
+		if (e.target.value.toLowerCase() === "") {
+			elementArray.forEach((item) => {
+				item.title = removeMarks(item.title);
+				item.description = removeMarks(item.description);
+			});
+
+			displayItems(elementArray);
 			addBtnClick();
 		} else {
+			const filterItems = (item) => {
+				return (
+					removeMarks(item.title.toLowerCase()).includes(
+						e.target.value.toLowerCase()
+					) ||
+					removeMarks(item.description.toLowerCase()).includes(
+						e.target.value.toLowerCase()
+					)
+				);
+			};
+
 			const filteredElementArray = elementArray.filter(filterItems);
 
-			const regex = new RegExp(bolInput.value, "gi");
+			const regex = new RegExp(e.target.value, "gi");
+			filteredElementArray.forEach((item) => {
+				item.title = markSubstring(item.title, e.target.value);
+				item.description = markSubstring(
+					item.description,
+					e.target.value
+				);
+			});
+
 			filteredElementArray.sort((a, b) => {
 				return (
 					(b.title.match(regex) || []).length -
@@ -403,17 +430,8 @@ if (!document.querySelector("#bolOverlay")) {
 				);
 			});
 
-			displayItems(filteredElementArray, regex);
+			displayItems(filteredElementArray);
 			addBtnClick();
 		}
 	});
-
-	const filterItems = (item) => {
-		return (
-			item.title.toLowerCase().includes(bolInput.value.toLowerCase()) ||
-			item.description
-				.toLowerCase()
-				.includes(bolInput.value.toLowerCase())
-		);
-	};
 }
