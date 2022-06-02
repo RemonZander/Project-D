@@ -5,6 +5,7 @@
     pointer-events: none;
     font-family: 'Segoe UI';
     z-index: 2147483647;
+    font-size: initial;
 
     #bolElement {
         background-color: #0000A4;
@@ -214,4 +215,10 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+}
+
+.markedText {
+    background-color: #FFFF00;
+    padding: 0;
+    margin: 0;
 }

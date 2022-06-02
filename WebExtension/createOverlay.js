@@ -309,7 +309,10 @@ if (!document.querySelector("#bolOverlay")) {
 
 	// Function that removes all the <mark></mark> tags from a string.
 	const removeMarks = (string) => {
-		const removeMarkRegex = new RegExp(/(<mark>|<\/mark>)/, "gim");
+		const removeMarkRegex = new RegExp(
+			/(<mark class="markedText">|<\/mark>)/,
+			"gim"
+		);
 		string = string.replace(removeMarkRegex, "");
 
 		return string;
@@ -322,7 +325,7 @@ if (!document.querySelector("#bolOverlay")) {
 		string = removeMarks(string);
 
 		const markRegex = new RegExp(input, "gim");
-		return string.replace(markRegex, "<mark>$&</mark>");
+		return string.replace(markRegex, '<mark class="markedText">$&</mark>');
 	};
 
 	// Function that creates a bolItem element and adds it as a child element to the extension.
