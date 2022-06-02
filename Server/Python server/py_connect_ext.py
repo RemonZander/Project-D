@@ -2,46 +2,39 @@ from flask import Flask, request
 import concurrent.futures
 #from flask_socketio import SocketIO
 from enum import Enum
-import socket
-from tcp_server import *
+from flask_tcp_client import *
+from image_validation import *
 
 app = Flask(__name__)
 
 @app.route("/image", methods=["POST"])
-def postThreads():
+def handle_extension_post():
     if request.method == "POST":
+        #INPUT VALIDATION
+        if not validate_image(request.files["image"]):
+            return {"errorCode": 415, "message": "The media format of the requested data is not supported by the server, so the server is rejecting the request." }, 415
+
+        #CREATE THREAD FOR EACH USER
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            future = executor.submit(image, request.files["image"])
-            return future.result()
+            future = executor.submit(send_request_and_poll_json)
+            result = future.result()
+            #TODO: Build response string
+            #TODO: Return response string
 
-def image(uploaded_image):
-    if not check_file_type(uploaded_image.filename):
-        return {"errorCode": 415, "message": "The media format of the requested data is not supported by the server, so the server is rejecting the request." }, 415
-
-    # Add functional code to process image
-    
-    # Change errorCode to > 200 and change message to > Image successfully uploaded
-    return {"errorCode": 202, "message": "The request has been received but not yet acted upon. It is noncommittal, since there is no way in HTTP to later send an asynchronous response indicating the outcome of the request. It is intended for cases where another process or server handles the request, or for batch processing."}, 202
-
-def check_file_type(filename):
-    accepted_file_types = [".png", ".jpg", ".jpeg"]
-    for type in accepted_file_types:
-        if filename.endswith(type):
-            return True
-    return False
-
-@app.route("/tcp", methods=["GET"])
-def tcp():
-    if request.method == "GET":
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect(('localhost', 5001))
-        s.send(str.encode('Hello, world'))
-        data = s.recv(1024)
-        s.close()
-        print(repr(data))
-        return f'Received: {repr(data)}'
+def send_request_and_poll_json():
+    user_id = 1 #TODO: GENERATE RANDOM USER ID
+    get_search_results(user_id, request.files["image"]) #TODO: FIRE AND FORGET THIS REQUEST, CONTAINING USER I
+    #TODO: Poll json file every once in a while to see if user id in file
+    #TODO: If user id found, extract the results
+    pass
 
 
+def get_search_results(image):
+
+    #CALL FLASK TCP CLIENT
+    tcp_client.retrieve_results(image)
+    pass
 
 if __name__ == '__main__':
+    tcp_client = FlaskTCPClient()
     app.run()
