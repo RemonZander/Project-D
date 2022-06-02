@@ -1,6 +1,5 @@
-import threading
+import time
 
-import selenium.webdriver.remote.webelement
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from exif_data import ExifData
@@ -25,6 +24,7 @@ class BolWebScraper:
         self.driver: Chrome = webdriver.Chrome(service=Service(ChromeDriverManager().install()), chrome_options=self.chrome_options)
         self.webdriver_wait = WebDriverWait(self.driver, 10)
         self.__initiate_scraper()
+
         #self.driver.implicitly_wait(10)
 
     def scrape_starting_from_sub_menus(self, sub_menu_list):
@@ -36,9 +36,9 @@ class BolWebScraper:
             self.__scrape_lowest_categories(main_sub_cat, 20)
         self.__terminate_scraper()
 
-    def scrape_lowest_categories_and_save_in_same_folder(self, category_list, folder_name, amount_per_cat):
+    def scrape_lowest_categories_and_save_in_same_folder(self, category_list, folder_name, total_amount):
         amount_categories = len(category_list)
-        total_amount = amount_categories * amount_per_cat
+        amount_per_cat = -(total_amount // -amount_categories)
 
         print("\nCLASSNAME OF CATEGORY: {}\nTOTAL AMOUNT: {}\nAMOUNT OF CATEGORIES: {}\nAMOUNT OF IMAGES SCRAPED PER CATEGORY: {}\n".format(
             folder_name,
@@ -78,16 +78,23 @@ class BolWebScraper:
 
         self.webdriver_wait.until(EC.url_to_be(product_link))
 
-        image_link: str = self.driver.find_element(By.CSS_SELECTOR, "div.image-slot > img").get_attribute("src")
+        image_link: str = self.webdriver_wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.image-slot > img"))).get_attribute("src")
+
         product_description = self.driver.find_element(By.CSS_SELECTOR, "div.product-description").text
+
         product_categories: list[str] = list(
             map(lambda el: el.get_attribute("title"),
                 self.driver.find_elements(By.CSS_SELECTOR, "ul.specs__categories > li.specs__category > a"))
         )
 
+        product_specs: list[str] = list(
+            map(lambda el: el.text if "Maat & Pasvorm" in el.text else "",
+                self.driver.find_elements(By.CSS_SELECTOR, "div.specs:first-child"))
+        )
+
         self.driver.get(current_url)
 
-        return product_name, image_link, product_link, product_description, ",".join(product_categories)
+        return product_name, image_link, product_link, product_description + "\n\n" + ",".join(product_specs), ",".join(product_categories)
 
     # def __get_image_link(self, product_id) -> str:
     #     image_link: str = 'li[data-id="{}"] img'.format(product_id)
@@ -131,6 +138,9 @@ class BolWebScraper:
 
             product_element = self.driver.find_element(By.CSS_SELECTOR, "ul.product-list > li:nth-child({})".format(i + 1))
             product_id = product_element.get_attribute("data-id")
+
+            time.sleep(1)
+
             item_properties = self.__get_item_properties(current_url, product_element)
 
             if self.download_bool:
