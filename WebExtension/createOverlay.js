@@ -415,7 +415,6 @@ if (!document.querySelector("#bolOverlay")) {
 
 			const filteredElementArray = elementArray.filter(filterItems);
 
-			const regex = new RegExp(e.target.value, "gi");
 			filteredElementArray.forEach((item) => {
 				item.title = markSubstring(item.title, e.target.value);
 				item.description = markSubstring(
@@ -424,12 +423,22 @@ if (!document.querySelector("#bolOverlay")) {
 				);
 			});
 
+			const matchRegex = new RegExp(e.target.value, "gim");
 			filteredElementArray.sort((a, b) => {
+				const totalA =
+					(a.title.match(matchRegex) || []).length +
+					(a.description.match(matchRegex) || []).length;
+
+				const totalB =
+					(b.title.match(matchRegex) || []).length +
+					(b.description.match(matchRegex) || []).length;
+
 				return (
-					(b.title.match(regex) || []).length -
-						(a.title.match(regex) || []).length ||
-					(b.description.match(regex) || []).length -
-						(a.description.match(regex) || []).length
+					totalB - totalA ||
+					(b.title.match(matchRegex) || []).length -
+						(a.title.match(matchRegex) || []).length ||
+					(b.description.match(matchRegex) || []).length -
+						(a.description.match(matchRegex) || []).length
 				);
 			});
 
