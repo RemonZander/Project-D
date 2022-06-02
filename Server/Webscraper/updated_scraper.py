@@ -55,7 +55,10 @@ class BolWebScraper:
         self.driver.get(self.base_url)
 
         # accept cookies
-        self.driver.find_element(By.CSS_SELECTOR, "wsp-consent-modal > div > button").click()
+        try:
+            self.driver.find_element(By.CSS_SELECTOR, "wsp-consent-modal > div > button").click()
+        except :
+            pass       
 
     def __terminate_scraper(self):
         self.driver.close()
@@ -201,7 +204,7 @@ class BolWebScraper:
             for main_sub_cat in main_sub_cat_list:
                 title = main_sub_cat.text
                 if "alles" in title.lower() or "alle" in title.lower():
-                    passz
+                    pass
                 else:
                     sub_cats.append(main_sub_cat.get_attribute("href"))
             return sub_cats
@@ -220,29 +223,29 @@ if __name__ == '__main__':
                                       "https://www.bol.com/nl/nl/l/lange-broeken-jeans/46560/4295688522/",
                                       "https://www.bol.com/nl/nl/l/lange-broeken-jeans/46401/4295688522/",
                                       "https://www.bol.com/nl/nl/l/lange-broeken/47425/4295688522/",
-                                      "https://www.bol.com/nl/nl/l/lange-jeans/47416/4295688522/"], "lange broeken", 5)
+                                      "https://www.bol.com/nl/nl/l/lange-jeans/47416/4295688522/"], "lange broeken", 20)
 
         executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/heren-sneakers/37547/",
                                       "https://www.bol.com/nl/nl/l/dames-sneakers/37531/",
                                       "https://www.bol.com/nl/nl/l/meisjes-sneakers/46442/",
-                                      "https://www.bol.com/nl/nl/l/sneakers-jongens/46589/"], "sneakers", 5)
+                                      "https://www.bol.com/nl/nl/l/sneakers-jongens/46589/"], "sneakers", 20)
 
         executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/slippers-jongens/46600/",
                                       "https://www.bol.com/nl/nl/l/slippers-meisjes/46446/",
                                       "https://www.bol.com/nl/nl/l/heren-slippers/37549/",
-                                      "https://www.bol.com/nl/nl/l/dames-slippers/37534/"], "slippers", 5)
+                                      "https://www.bol.com/nl/nl/l/dames-slippers/37534/"], "slippers", 20)
 
         executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/jassen-dames/47203/",
                                       "https://www.bol.com/nl/nl/l/jassen/47445/",
                                       "https://www.bol.com/nl/nl/l/meisjes-jassen/46383/",
-                                      "https://www.bol.com/nl/nl/l/jongensjassen/46545/"], "jassen", 5)
+                                      "https://www.bol.com/nl/nl/l/jongensjassen/46545/"], "jassen", 20)
 
         executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/jongensshirts/46556/",
                                       "https://www.bol.com/nl/nl/l/t-shirts-meisjes/46394/",
                                       "https://www.bol.com/nl/nl/l/shirts-heren/47412/",
-                                      "https://www.bol.com/nl/nl/l/t-shirts-dames/47302/"], "t-shirts", 5)
+                                      "https://www.bol.com/nl/nl/l/t-shirts-dames/47302/"], "t-shirts", 20)
 
         executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/korte-broeken-jongens/46563/",
                                       "https://www.bol.com/nl/nl/l/korte-broeken-meisjes/46404/",
                                       "https://www.bol.com/nl/nl/l/korte-broeken-heren/47427/",
-                                      "https://www.bol.com/nl/nl/l/korte-broeken-dames/47275/"], "korte broeken", 5)
+                                      "https://www.bol.com/nl/nl/l/korte-broeken-dames/47275/"], "korte broeken", 20)
