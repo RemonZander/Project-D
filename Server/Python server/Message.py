@@ -1,13 +1,15 @@
 import json
 
 class Message():
-    def __init__(self, type, content):
+    def __init__(self, type, user_id, content):
         self.type = type
+        self.user_id = user_id
         self.content = content
 
     def __iter__(self):
         yield from {
             "type": self.type,
+            "user_id" : self.user_id,
             "content": self.content,
         }.items()
 
