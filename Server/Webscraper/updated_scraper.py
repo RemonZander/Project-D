@@ -15,17 +15,25 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 
+image_download_failed = 0
+
+
 class BolWebScraper:
     def __init__(self, download_bool):
         self.download_bool = download_bool
         self.base_url = "https://www.bol.com"
         self.chrome_options = webdriver.ChromeOptions()
-        self.chrome_options.add_argument('headless')
-        self.driver: Chrome = webdriver.Chrome(service=Service(ChromeDriverManager().install()), chrome_options=self.chrome_options)
+        # self.chrome_options.add_argument('headless')
+        try:
+            self.driver: Chrome = webdriver.Chrome(service=Service(ChromeDriverManager().install()), chrome_options=self.chrome_options)
+        except Exception as e:
+            print(e)
         self.webdriver_wait = WebDriverWait(self.driver, 10)
         self.__initiate_scraper()
 
-        #self.driver.implicitly_wait(10)
+        self.driver.implicitly_wait(10)
+
+        self.current_url = ""
 
     def scrape_starting_from_sub_menus(self, sub_menu_list):
         self.__initiate_scraper()
@@ -38,7 +46,9 @@ class BolWebScraper:
 
     def scrape_lowest_categories_and_save_in_same_folder(self, category_list, folder_name, total_amount):
         amount_categories = len(category_list)
-        amount_per_cat = -(total_amount // -amount_categories)
+        amount_per_cat = total_amount // amount_categories
+
+        self.directory = folder_name
 
         print("\nCLASSNAME OF CATEGORY: {}\nTOTAL AMOUNT: {}\nAMOUNT OF CATEGORIES: {}\nAMOUNT OF IMAGES SCRAPED PER CATEGORY: {}\n".format(
             folder_name,
@@ -58,101 +68,126 @@ class BolWebScraper:
         try:
             self.driver.find_element(By.CSS_SELECTOR, "wsp-consent-modal > div > button").click()
         except :
-            pass       
+            pass
 
     def __terminate_scraper(self):
         self.driver.close()
+
+    def __get_el_by_css_selector(self, selector: str, parent_element=None):
+        if parent_element is not None:
+            element: WebElement = self.webdriver_wait.until(EC.visibility_of(parent_element))
+
+            return element.find_element(By.CSS_SELECTOR, selector)
+        else:
+            try:
+                return self.webdriver_wait.until((EC.visibility_of_element_located((By.CSS_SELECTOR, selector))))
+            except:
+                raise Exception("TIMEOUT EXCEPTION: ELEMENT WITH SELECTOR {} NOT FOUND IN CATEGORY {}\nURL: {}".format(selector, self.directory, self.current_url))
+
+    def __get_els_by_css_selector(self, selector: str, parent_element=None):
+        if parent_element is not None:
+            element: WebElement = self.webdriver_wait.until(EC.visibility_of(parent_element))
+
+            return element.find_elements(By.CSS_SELECTOR, selector)
+        else:
+            try:
+                return self.webdriver_wait.until((EC.visibility_of_all_elements_located((By.CSS_SELECTOR, selector))))
+            except:
+                raise Exception("TIMEOUT EXCEPTION: ELEMENTS WITH SELECTOR {} NOT FOUND IN CATEGORY {}\nURL: {}".format(selector, self.directory, self.current_url))
 
     """
     TODO: Turn some (or all) find_element statements into waits
     """
     def __get_item_properties(self, current_url, product: WebElement) -> tuple[str, ...]:
-        self.webdriver_wait.until(EC.url_to_be(current_url))
+        product_link: str = "LINK NOT FOUND"
+        product_name: str = "NAME NOT FOUND"
+        image_link: str = "IMAGE NOT FOUND"
+        product_description: str = "DESCRIPTION NOT FOUND"
+        product_categories: list[str] = ["DESCRIPTION NOT FOUND"]
+        product_size_specs: list[str] = ["SPECS NOT FOUND"]
 
-        product_element: WebElement = self.webdriver_wait.until(EC.visibility_of(product))
-
-        product_link: str = product_element.find_element(By.CSS_SELECTOR, "a.product-title").get_attribute("href")
-        product_name: str = product_element.find_element(By.CSS_SELECTOR, "a.product-title").text
-
-        self.driver.get(product_link)
-
-        self.webdriver_wait.until(EC.url_to_be(product_link))
-
-        image_link: str = self.webdriver_wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.image-slot > img"))).get_attribute("src")
-
-        product_description = self.driver.find_element(By.CSS_SELECTOR, "div.product-description").text
-
-        product_categories: list[str] = list(
-            map(lambda el: el.get_attribute("title"),
-                self.driver.find_elements(By.CSS_SELECTOR, "ul.specs__categories > li.specs__category > a"))
-        )
-
-        product_specs: list[str] = list(
-            map(lambda el: el.text if "Maat & Pasvorm" in el.text else "",
-                self.driver.find_elements(By.CSS_SELECTOR, "div.specs:first-child"))
-        )
-
-        self.driver.get(current_url)
-
-        return product_name, image_link, product_link, product_description + "\n\n" + ",".join(product_specs), ",".join(product_categories)
-
-    # def __get_image_link(self, product_id) -> str:
-    #     image_link: str = 'li[data-id="{}"] img'.format(product_id)
-    #
-    #     try:
-    #         image_link = self.webdriver_wait.until(EC.presence_of_element_located(
-    #             (By.CSS_SELECTOR, 'li[data-id="{}"] img'.format(product_id)))).get_attribute("src")
-    #     except TimeoutError:
-    #         print("TIMEOUT ERROR")
-    #     finally:
-    #         return image_link
-
-    def __get_product_description(self, product_link):
-        self.driver.get(product_link)
-
-        product_description = "NOT FOUND"
+        self.current_url = current_url
 
         try:
-            product_description = self.driver.find_element(By.CSS_SELECTOR, "div.product-description").text
-        except Exception:
-            print("Description element not found.")
+            self.webdriver_wait.until(EC.url_to_be(current_url))
 
-        self.driver.back()
+            product_link: str = self.__get_el_by_css_selector("a.product-title", product).get_attribute("href")
+            product_name: str = self.__get_el_by_css_selector("a.product-title", product).text
 
-        return product_description
+            self.driver.get(product_link)
+
+            self.webdriver_wait.until(EC.url_to_be(product_link))
+
+            image_link: str = self.__get_el_by_css_selector("div.image-slot > img").get_attribute("src")
+
+            product_description: str = self.__get_el_by_css_selector("div.product-description").text
+
+            product_specs = self.__get_el_by_css_selector("div[data-test='specifications']")
+
+            product_categories: list[str] = list(
+                map(lambda el: el.get_attribute("title"),
+                    self.__get_els_by_css_selector("ul.specs__categories > li.specs__category > a", product_specs))
+            )
+
+            product_size_specs: list[str] = list(
+                map(lambda el: el.text if "Maat & Pasvorm" in el.text else "",
+                    self.__get_els_by_css_selector("div.specs:first-child", product_specs))
+            )
+        except Exception as e:
+            print("CURRENT URL: {}".format(current_url))
+            print(e)
+        finally:
+            self.driver.get(current_url)
+
+            return product_name, image_link, product_link, product_description + "\n\n" + ",".join(product_size_specs), ",".join(product_categories)
 
     """
     Function that scrapes a page by recursively going on every product and getting the right properties.
     """
     def __scrape_page(self, current_url, n, max_items, directory):
-        products = self.driver.find_elements(By.CSS_SELECTOR, "li.product-item--row")
+        products_amount = len(self.__get_els_by_css_selector("li.product-item--row"))
 
-        for i, product in enumerate(products):
+        i = 0
+
+        while i < products_amount:
             if n >= max_items:
                 return n
 
             print("CLASS: {}".format(directory))
-            print("AMOUNT PRODUCTS: " + str(len(products)))
+            print("AMOUNT PRODUCTS: " + str(products_amount))
             print("MAX ITEMS = " + str(max_items))
             print("N = " + str(n))
 
-            product_element = self.driver.find_element(By.CSS_SELECTOR, "ul.product-list > li:nth-child({})".format(i + 1))
+            product_element = self.__get_el_by_css_selector("ul.product-list > li:nth-child({})".format(i + 1))
             product_id = product_element.get_attribute("data-id")
 
             time.sleep(1)
 
             item_properties = self.__get_item_properties(current_url, product_element)
 
-            if self.download_bool:
-                path_file = f"{directory}/{product_id}.jpg"
+            if self.download_bool and item_properties[1] != "IMAGE NOT FOUND":
+                try:
+                    path_file = f"{directory}/{product_id}.jpg"
 
-                with open(path_file, "wb") as file:
-                    r = requests.get(item_properties[1], allow_redirects=True)
-                    file.write(r.content)
+                    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:24.0) Gecko/20100101 Firefox/24.0'}
 
-                square_image(path_file)
-                ExifData(path_file).SaveData(item_properties[0], item_properties[4], item_properties[3])
+                    r = requests.get(item_properties[1], headers=headers, allow_redirects=True)
+
+                    with open(path_file, "wb") as file:
+                        file.write(r.content)
+
+                    square_image(path_file)
+                    ExifData(path_file).SaveData(item_properties[0], item_properties[4], item_properties[3])
+                except Exception as e:
+                    print("ERROR DOWNLOAD IMAGE:")
+                    print(e)
+                    print("\n")
+
+                    global image_download_failed
+                    image_download_failed = image_download_failed + 1
             n = n + 1
+            i = i + 1
+
         return n
 
     def __iterate_lowest_category(self, start_url, directory, max_items) -> None:
@@ -222,8 +257,10 @@ class BolWebScraper:
 
 # Function added for concurrency
 def scrape_cats(categories, folder_name, amount):
+    print("THREAD WITH CLASS: {} STARTED".format(folder_name))
     bol_web_scraper = BolWebScraper(True)
     bol_web_scraper.scrape_lowest_categories_and_save_in_same_folder(categories, folder_name, amount)
+    print("AMOUNT OF IMAGES FAILED TO DOWNLOAD: {}".format(self.image_download_failed))
 
 
 if __name__ == '__main__':
@@ -233,7 +270,7 @@ if __name__ == '__main__':
                                       "https://www.bol.com/nl/nl/l/lange-broeken-jeans/46560/4295688522/",
                                       "https://www.bol.com/nl/nl/l/lange-broeken-jeans/46401/4295688522/",
                                       "https://www.bol.com/nl/nl/l/lange-broeken/47425/4295688522/",
-                                      "https://www.bol.com/nl/nl/l/lange-jeans/47416/4295688522/"], "lange broeken", 20)
+                                      "https://www.bol.com/nl/nl/l/lange-jeans/47416/4295688522/"], "lange broeken", 30)
 
         executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/heren-sneakers/37547/",
                                       "https://www.bol.com/nl/nl/l/dames-sneakers/37531/",
@@ -243,7 +280,7 @@ if __name__ == '__main__':
         executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/slippers-jongens/46600/",
                                       "https://www.bol.com/nl/nl/l/slippers-meisjes/46446/",
                                       "https://www.bol.com/nl/nl/l/heren-slippers/37549/",
-                                      "https://www.bol.com/nl/nl/l/dames-slippers/37534/"], "slippers", 20)
+                                      "https://www.bol.com/nl/nl/l/dames-slippers/37534/"], "slippers", 25)
 
         executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/jassen-dames/47203/",
                                       "https://www.bol.com/nl/nl/l/jassen/47445/",
