@@ -1,3 +1,4 @@
+from multiprocessing import Queue
 import socket
 import threading
 import json
@@ -12,52 +13,42 @@ from Message import Message
 #TCP CONTROLLER     -      IMAGE COMPARER           :   5053
 
 
-HEADER_MAX = 128 #TODO: CHECK IF THIS SIZE IS SUITABLE FOR THIS PROJECT
-PORT_FLASK_TCP = 5050
-SERVER = socket.gethostbyname(socket.gethostname())
-ADDRESS_FLASK_TCP = (SERVER, PORT_FLASK_TCP)
-FORMAT = "utf-8"
+class TCPController():
+    PORT_FLASK_TCP = 5050
+    PORT_IMAGE_SEGMENTATION = 5051
+    SERVER = socket.gethostbyname(socket.gethostname())
+    ADDRESS_FLASK_TCP = (SERVER, PORT_FLASK_TCP)
+    ADDRESS_IMAGE_SEGMENTATION = (SERVER, PORT_IMAGE_SEGMENTATION)
+    FORMAT = "utf-8"
+    q = Queue()
 
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(ADDRESS_FLASK_TCP)
+    def __init__(self):
+        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server.bind(self.ADDRESS_FLASK_TCP)
 
-def handle_client(conn, addr):
-    print(f"NEW CONNECTION ESTABLISHED: {addr}")
-    connected = True
-    while connected:
-        #INITIAL MSG FROM ClIENT MUST BE OF TYPE "HEADER" AND CONTAIN LENGTH OF ACTUAL MSG
-        init_msg = conn.recv(HEADER_MAX).decode(FORMAT)
-        if init_msg:
-            print(f"MESSAGE {init_msg}")
-            #DESERIALIZE FROM STR TO "Message" OBJ
-            init_msg = json.loads(init_msg)
-            msg_obj = Message.from_json(init_msg)
-            if msg_obj.type != MessageType.HEADER:
-                #TODO: NOT VALID INPUT - ADD ERROR HANDLING
-                pass
-            msg_len = int(msg_obj.content)
-            print(f"msg len: {msg_len}")
-            #NOW WAIT FOR CONTENT WITH THE DEFINED LENGTH
-            msg = conn.recv(msg_len).decode(FORMAT)
-            #ACTUAL MESSAGE
-            print("MESSAGE RECEIVED: " + msg)
+    def StartServer(self):
+        conn, addr = self.server.accept()
+        print(f"NEW CONNECTION ESTABLISHED: {addr}")
+        connected = True
+        thread = threading.Thread(target=self.Listen, args=(conn,addr))
+        while connected:
+            if thread.is_alive() != True:
+                thread.start()
+                print(f"ACTIVE CONNECTIONS: {threading.activeCount() - 1}")
+            msg_obj = Message.from_json(self.q.get())
+            self.q.task_done()
+            
 
-           #TODO: IF SWITCHES (OR MATCH CASE IF PYTHON 3.10) FOR DIFFERENT MESSAGE TYPES
+    def Listen(self, conn, addr):
+        self.q.put(conn.recv(128).decode(self.FORMAT))
 
-    conn.close()
-
-def start():
-    server.listen()
-    while True:
-        #WHEN NEW CONNECTION, STORE ADDRESS TUPLE IN "addr" AND THE CONNECTION OBJECT IN "conn"
-        conn, addr = server.accept()
-
-        #CREATE NEW THREAD TO HANDLE CONNECTION
-        thread = threading.Thread(target=handle_client, args=(conn,addr))
-        thread.start()
-        print(f"ACTIVE CONNECTIONS: {threading.activeCount() - 1}")
+    def ImageSegmentationClient(self):
+        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client.connect(self.ADDRESS_IMAGE_SEGMENTATION)
+        
 
 
 if __name__ == "__main__":
     print("SERVER IS STARTING...")
-    start()
+    tcpController = TCPController()
+    tcpController.StartServer()

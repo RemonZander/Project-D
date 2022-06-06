@@ -14,6 +14,7 @@
     <Name>Flask Service</Name>
     <RootNamespace>Flask Service</RootNamespace>
     <InterpreterId>MSBuild|TenserFlow|D:\school bestanden\HBO\Informatica\2020-2025\Projecten\Project D\Server\ImageClassifier\ImageClassifier.pyproj</InterpreterId>
+    <SuppressEnvironmentCreationPrompt>True</SuppressEnvironmentCreationPrompt>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>

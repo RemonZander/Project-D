@@ -20,7 +20,7 @@ class FlaskTCPClient:
         self.FORMAT = FORMAT
 
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.client.connect(self.ADDRESS)
+        self.client.connect(self.ADDRESS_FLASK_TCP)
         self.user_list = []
 
     def retrieve_results(self, user_id, image):
