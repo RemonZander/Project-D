@@ -79,7 +79,7 @@
 }
 
 #bolOverlay #bolElement #bolElHeader #bolSearchBar #bolSearchInput {
-  width: 125px;
+  width: 155px;
   border: none;
   color: #000000;
   padding: 6.5px;
@@ -89,28 +89,7 @@
           box-sizing: border-box;
   border-radius: 0px;
   font-family: 'Segoe UI';
-}
-
-#bolOverlay #bolElement #bolElHeader #bolSearchBar #bolSearchBtn {
-  background-color: #FFFFFF;
-  height: 30px;
-  width: 30px;
-  cursor: pointer;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-}
-
-#bolOverlay #bolElement #bolElHeader #bolSearchBar #bolSearchBtn #bolSearchIcon {
   margin: 0;
-  padding: 0;
-  font-size: 14px;
 }
 
 #bolOverlay #bolElement #bolElHeader #bolElCloseBtn {
@@ -246,6 +225,10 @@
   display: none;
 }
 
+#bolOverlay #bolElement #bolElBody .bolItem.active .bolItemBody .bolItemHeader {
+  margin-top: 3.5%;
+}
+
 #bolOverlay #bolElement #bolElBody .bolItem.active .bolItemBody .bolItemHeader .bolItemDropdownBtn::before {
   content: "-";
 }
@@ -255,7 +238,14 @@
   padding: 5%;
   border-top: solid 1px #020202;
   border-bottom: solid 1px #020202;
+}
+
+#bolOverlay #bolElement #bolElBody .bolItem.active .bolItemBody .bolItemDescription .bolItemDescText {
   white-space: pre-line;
+}
+
+#bolOverlay #bolElement #bolElBody .bolItem.active .bolItemBody .bolItemDetails {
+  margin-bottom: 3.5%;
 }
 
 .noWrap {

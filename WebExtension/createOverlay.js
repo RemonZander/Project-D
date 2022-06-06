@@ -19,7 +19,6 @@ if (!document.querySelector("#bolOverlay")) {
 					</div>
 					<div id="bolSearchBar">
 						<input id="bolSearchInput" class="noWrap" placeholder="Filter"/>
-						<div id="bolSearchBtn"><p id="bolSearchIcon">🔍</p></div>
 					</div>
 					<div id="bolElCloseBtn">
 						<svg width="15" height="15">
@@ -330,6 +329,7 @@ if (!document.querySelector("#bolOverlay")) {
 
 	// Function that creates a bolItem element and adds it as a child element to the extension.
 	const createItem = (item) => {
+		// Gets the correct image url to display the image in the extension
 		const imgLink = chrome.runtime.getURL(`images/${item.image}`);
 
 		const bolItem = elementFromHtml(`
@@ -344,7 +344,7 @@ if (!document.querySelector("#bolOverlay")) {
 					</div>
 					<div class="bolItemDescription">
 						<div class="bolItemDescImg"><img src="${imgLink}"></div>
-						${item.description}
+						<div class="bolItemDescText">${item.description}</div>
 					</div>
 					<div class="bolItemDetails">
 						<div class="bolItemSubCategory noWrap" title="${item.subCategory}">${

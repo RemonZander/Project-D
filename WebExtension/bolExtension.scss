@@ -53,7 +53,7 @@
                 justify-content: center;
 
                 #bolSearchInput {
-                    width: 125px;
+                    width: 155px;
                     border: none;
                     color: #000000;
                     padding: 6.5px;
@@ -62,22 +62,7 @@
                     box-sizing: border-box;
                     border-radius: 0px;
                     font-family: 'Segoe UI';
-                }
-                
-                #bolSearchBtn {
-                    background-color: #FFFFFF;
-                    height: 30px;
-                    width: 30px;
-                    cursor: pointer;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-
-                    #bolSearchIcon {
-                        margin: 0;
-                        padding: 0;
-                        font-size: 14px;
-                    }
+                    margin: 0;
                 }
             }
 
@@ -193,8 +178,12 @@
                     }
 
                     .bolItemBody {
-                        .bolItemHeader .bolItemDropdownBtn::before {
-                            content: "-";
+                        .bolItemHeader {
+                            margin-top: 3.5%;
+
+                            .bolItemDropdownBtn::before {
+                                content: "-";
+                            }
                         }
     
                         .bolItemDescription {
@@ -202,7 +191,14 @@
                             padding: 5%;
                             border-top: solid 1px #020202;
                             border-bottom: solid 1px #020202;
-                            white-space: pre-line;
+
+                            .bolItemDescText {
+                                white-space: pre-line;
+                            }
+                        }
+
+                        .bolItemDetails {
+                            margin-bottom: 3.5%;
                         }
                     } 
                 }
