@@ -17,13 +17,16 @@ class TCPController():
     PORT_FLASK_TCP = 5050
     PORT_IMAGE_SEGMENTATION = 5051
     PORT_IMAGE_CLASSIFICATION = 5052
+    PORT_IMAGE_Comparer = 5053
     SERVER = socket.gethostbyname(socket.gethostname())
     ADDRESS_FLASK_TCP = (SERVER, PORT_FLASK_TCP)
     ADDRESS_IMAGE_SEGMENTATION = (SERVER, PORT_IMAGE_SEGMENTATION)
     ADDRESS_IMAGE_CLASSIFICATION = (SERVER, PORT_IMAGE_CLASSIFICATION)
+    ADDRESS_IMAGE_COMPARER = (SERVER, PORT_IMAGE_Comparer)
     FORMAT = "utf-8"
     q = Queue()
     processingUser = False
+    Processed_Results = []
 
     def __init__(self):
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -38,12 +41,11 @@ class TCPController():
             if listenThread.is_alive() != True:
                 listenThread.start()
                 print(f"ACTIVE CONNECTIONS: {threading.activeCount() - 1}")
-            if len(self.q) > 0:
+            if len(self.q) > 0 and self.processingUser == False:
                 msg_obj = Message.from_json(self.q.get())
                 self.q.task_done()
                 ImageSegmentationClientThread = threading.Thread(target=self.ImageSegmentationClient, args=(msg_obj))
                 ImageSegmentationClientThread.start()
-                #if len(self.q) == 0: self.processingUser = False
             
 
     def Listen(self, conn, addr):
@@ -60,7 +62,6 @@ class TCPController():
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client.connect(self.ADDRESS_IMAGE_SEGMENTATION)
         converted_msg = msg.encode(self.FORMAT)
-        #msg_length = str(len(converted_msg))
         client.send(converted_msg)
         msg = client.recv(128).decode(self.FORMAT)
         self.ImageClassificationClient(msg)
@@ -71,8 +72,31 @@ class TCPController():
         converted_msg = msg.encode(self.FORMAT)
         client.send(converted_msg)
         msg = Message.from_json(client.recv(128).decode(self.FORMAT))
+        if msg.complex_case:
+            self.ImageComparerClient(msg)
+            return
+
+        if len(self.q) == 0: 
+            self.processingUser = False
+            return
+
+        Processed_Results = msg;
+
+    def ImageComparerClient(self, msg):
+        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client.connect(self.ADDRESS_IMAGE_COMPARER)
+        converted_msg = msg.encode(self.FORMAT)
+        client.send(converted_msg)
+        msg = Message.from_json(client.recv(128).decode(self.FORMAT))
+
+        if len(self.q) == 0: 
+            self.processingUser = False
+            return
+
+        Processed_Results = msg;
         
-        
+
+
 
 if __name__ == "__main__":
     print("SERVER IS STARTING...")
