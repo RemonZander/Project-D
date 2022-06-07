@@ -42,6 +42,8 @@ class TCPController():
                 listenThread.start()
                 print(f"ACTIVE CONNECTIONS: {threading.activeCount() - 1}")
             if len(self.q) > 0 and self.processingUser == False:
+                if self.Processed_Results != None:
+                    conn.send(self.Processed_Results)
                 msg_obj = Message.from_json(self.q.get())
                 self.q.task_done()
                 ImageSegmentationClientThread = threading.Thread(target=self.ImageSegmentationClient, args=(msg_obj))
@@ -80,7 +82,7 @@ class TCPController():
             self.processingUser = False
             return
 
-        Processed_Results = msg;
+        self.Processed_Results = msg;
 
     def ImageComparerClient(self, msg):
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -93,10 +95,8 @@ class TCPController():
             self.processingUser = False
             return
 
-        Processed_Results = msg;
+        self.Processed_Results = msg;
         
-
-
 
 if __name__ == "__main__":
     print("SERVER IS STARTING...")
