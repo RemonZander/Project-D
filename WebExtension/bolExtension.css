@@ -2,7 +2,6 @@
   width: 100%;
   height: 100%;
   position: fixed;
-  pointer-events: none;
   font-family: 'Segoe UI';
   z-index: 2147483647;
   font-size: initial;
@@ -97,6 +96,10 @@
   top: 7.5px;
   right: 15px;
   cursor: pointer;
+}
+
+#bolOverlay #bolElement #bolElHeader #bolElCloseBtn svg {
+  pointer-events: none;
 }
 
 #bolOverlay #bolElement #bolElBody {

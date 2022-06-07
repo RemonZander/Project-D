@@ -371,9 +371,16 @@ if (!document.querySelector("#bolOverlay")) {
 	const htmlHead = document.querySelector("head");
 	htmlHead.parentNode.insertBefore(bolElement, htmlHead.nextSibling);
 
-	// Removes the overlay element from the html
-	bolElement.querySelector("#bolElCloseBtn").addEventListener("click", () => {
-		htmlHead.parentNode.removeChild(document.querySelector("#bolOverlay"));
+	// Removes the overlay element from the html, when clicked outside the bolElement or clicking the bolElCloseBtn
+	bolElement.addEventListener("click", (e) => {
+		if (
+			e.target.matches("#bolElCloseBtn") ||
+			e.target.matches("#bolOverlay")
+		) {
+			htmlHead.parentNode.removeChild(
+				document.getElementById("bolOverlay")
+			);
+		}
 	});
 
 	// Adds a "click" event listener to toggle the active class on the bolItem element to open it up or close it.
@@ -446,4 +453,8 @@ if (!document.querySelector("#bolOverlay")) {
 			addBtnClick();
 		}
 	});
+} else {
+	// Removes the overlay element when the extension icon is clicked, if the overlay is open.
+	const htmlHead = document.querySelector("head");
+	htmlHead.parentNode.removeChild(document.querySelector("#bolOverlay"));
 }
