@@ -1,5 +1,5 @@
-#bolOverlay, #bolElement, #bolElHeader, #bolLogo, #bolLogoMainText, #bolLogoExtText, #bolSearchBar, #bolSearchInput, #bolElCloseBtn, #bolElBody,
-.bolItem, .bolItemImg, .bolItemBody, .bolItemHeader, .bolItemTitle, .bolItemDropdownBtn, .bolItemDropdownBtn::before, .bolItemDescription, .bolItemDescImg, img,
+#bolOverlay, #bolElement, #bolElHeader, #bolLogo, #bolLogoMainText, #bolLogoExtText, #bolSearchBar, #bolSearchInput, #bolElCloseBtn, #bolElCloseBtn svg, #bolElBody,
+.bolItem, .bolItemImg, .bolItemBody, .bolItemHeader, .bolItemTitle, .bolItemDropdownBtn, .bolItemDropdownBtn::before, .bolItemDescription, .bolItemDescImg, .bolItemDescImg img,
 .bolItemDetails, .bolItemSubCategory, .bolItemMatch, .active, .bolItemImg, .bolItemBody, .bolItemHeader, .bolItemDropdownBtn::before, .bolItemDescription, .bolItemDescText, .bolItemDetails,
 .noWrap, .markedText {
   all: unset;
