@@ -20,7 +20,7 @@ class BolWebScraper:
         self.download_bool = download_bool
         self.base_url = "https://www.bol.com"
         self.chrome_options = webdriver.ChromeOptions()
-        # self.chrome_options.add_argument('headless')
+        self.chrome_options.add_argument('headless')
 
         self.image_download_failed = 0
 
@@ -43,6 +43,8 @@ class BolWebScraper:
         self.current_url = ""
 
         self.image_index = 1
+
+        self.screen_blocked_amount = 0
 
     def scrape_starting_from_sub_menus(self, sub_menu_list):
         self.__initiate_scraper()
@@ -95,7 +97,7 @@ class BolWebScraper:
             try:
                 return self.webdriver_wait.until((EC.visibility_of_element_located((By.CSS_SELECTOR, selector))))
             except Exception as e:
-                raise Exception("TIMEOUT EXCEPTION: ELEMENT WITH SELECTOR {} NOT FOUND IN CATEGORY {}\nURL: {}".format(selector, self.directory, self.current_url))
+                print("TIMEOUT EXCEPTION: ELEMENT WITH SELECTOR {} NOT FOUND IN CATEGORY {}\nURL: {}".format(selector, self.directory, self.current_url))
 
     def __get_els_by_css_selector(self, selector: str, parent_element=None):
         if parent_element is not None:
@@ -106,7 +108,9 @@ class BolWebScraper:
             try:
                 return self.webdriver_wait.until((EC.visibility_of_all_elements_located((By.CSS_SELECTOR, selector))))
             except Exception as e:
-                raise Exception("TIMEOUT EXCEPTION: ELEMENTS WITH SELECTOR {} NOT FOUND IN CATEGORY {}\nURL: {}".format(selector, self.directory, self.current_url))
+                print("TIMEOUT EXCEPTION: ELEMENTS WITH SELECTOR {} NOT FOUND IN CATEGORY {}\nURL: {}".format(selector, self.directory, self.current_url))
+
+                # raise Exception("TIMEOUT EXCEPTION: ELEMENTS WITH SELECTOR {} NOT FOUND IN CATEGORY {}\nURL: {}".format(selector, self.directory, self.current_url)) from None
 
     """
     TODO: Turn some (or all) find_element statements into waits
@@ -151,7 +155,7 @@ class BolWebScraper:
             print("CURRENT URL: {}".format(current_url))
             print(e)
 
-            self.logs.append("CURRENT URL: {}\nEXCEPTION MESSAGE: {}\n".format(current_url, str(e)))
+            # self.logs.append("CURRENT URL: {}\nEXCEPTION MESSAGE: {}\n".format(current_url, str(e)))
         finally:
             self.driver.get(current_url)
 
@@ -163,6 +167,15 @@ class BolWebScraper:
     def __scrape_page(self, current_url, n, max_items, directory):
         products_amount = len(self.__get_els_by_css_selector("li.product-item--row"))
 
+        try:
+            self.webdriver_wait.until_not(EC.presence_of_element_located((By.CSS_SELECTOR, "div.rwd-error-screen")))
+        except Exception as e: 
+            print("IP BLOCK DETECTED, WAITED 10 SECONDS. REFRESHING PAGE...")
+
+            self.screen_blocked_amount = self.screen_blocked_amount + 1
+
+            return n
+
         i = 0
 
         while i < products_amount:
@@ -173,6 +186,13 @@ class BolWebScraper:
             print("AMOUNT PRODUCTS: " + str(products_amount))
             print("MAX ITEMS = " + str(max_items))
             print("N = " + str(n))
+
+            if path.exists(f"{directory}/{self.image_index}.jpg"):
+                print("IMAGE ALREADY EXISTS... SKIPPING")
+                n = n + 1
+                i = i + 1
+                self.image_index = self.image_index + 1
+                continue
 
             product_element = self.__get_el_by_css_selector("ul.product-list > li:nth-child({})".format(i + 1))
 
@@ -215,6 +235,14 @@ class BolWebScraper:
             makedirs(directory)
 
         self.driver.get(start_url + f"?page={page_num}&view=list")
+
+        try:
+            self.webdriver_wait.until_not(EC.presence_of_element_located((By.CSS_SELECTOR, "div.rwd-error-screen")))
+        except Exception as e: 
+            print("IP BLOCK DETECTED, WAITED 10 SECONDS. REFRESHING PAGE...")
+
+            self.screen_blocked_amount = self.screen_blocked_amount + 1
+
         pages_element = self.driver.find_element(By.CSS_SELECTOR, ".pagination")
         children = pages_element.find_elements(By.XPATH, "./*")
 
@@ -228,9 +256,16 @@ class BolWebScraper:
 
             self.driver.get(current_url)
 
-            current_items = self.__scrape_page(current_url, current_items, max_items, directory)
+            new_items = self.__scrape_page(current_url, current_items, max_items, directory)
+            
+            if new_items > current_items:
+                page_num += 1
+            elif new_items == current_items:
+                self.driver.refresh()
+                print("PAGE REFRESHED, CONTINUEING")
+            else:
+                print("Somehow new items is lower than current item?????")
 
-            page_num += 1
 
     def __scrape_lowest_categories(self, start_url, amount, path=""):
         # CHANGE DRIVER LOCATION TO URL
@@ -283,7 +318,7 @@ def scrape_cats(categories, folder_name, amount):
 
     print(bol_web_scraper.logs)
 
-    return folder_name, bol_web_scraper.image_download_failed, second_counter - first_counter, bol_web_scraper.actual_total_amount
+    return folder_name, bol_web_scraper.image_download_failed, second_counter - first_counter, bol_web_scraper.actual_total_amount, bol_web_scraper.screen_blocked_amount
 
 
 if __name__ == '__main__':
@@ -294,32 +329,32 @@ if __name__ == '__main__':
                                           "https://www.bol.com/nl/nl/l/lange-broeken-jeans/46560/4295688522/",
                                           "https://www.bol.com/nl/nl/l/lange-broeken-jeans/46401/4295688522/",
                                           "https://www.bol.com/nl/nl/l/lange-broeken/47425/4295688522/",
-                                          "https://www.bol.com/nl/nl/l/lange-jeans/47416/4295688522/"], "lange broeken", 10),
+                                          "https://www.bol.com/nl/nl/l/lange-jeans/47416/4295688522/"], "lange broeken", 10000),
 
            executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/heren-sneakers/37547/",
                                          "https://www.bol.com/nl/nl/l/dames-sneakers/37531/",
                                          "https://www.bol.com/nl/nl/l/meisjes-sneakers/46442/",
-                                         "https://www.bol.com/nl/nl/l/sneakers-jongens/46589/"], "sneakers", 10),
+                                         "https://www.bol.com/nl/nl/l/sneakers-jongens/46589/"], "sneakers", 10000),
 
            executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/slippers-jongens/46600/",
                                          "https://www.bol.com/nl/nl/l/slippers-meisjes/46446/",
                                          "https://www.bol.com/nl/nl/l/heren-slippers/37549/",
-                                         "https://www.bol.com/nl/nl/l/dames-slippers/37534/"], "slippers", 10),
+                                         "https://www.bol.com/nl/nl/l/dames-slippers/37534/"], "slippers", 10000),
 
            executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/jassen-dames/47203/",
                                          "https://www.bol.com/nl/nl/l/jassen/47445/",
                                          "https://www.bol.com/nl/nl/l/meisjes-jassen/46383/",
-                                         "https://www.bol.com/nl/nl/l/jongensjassen/46545/"], "jassen", 10),
+                                         "https://www.bol.com/nl/nl/l/jongensjassen/46545/"], "jassen", 10000),
 
            executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/jongensshirts/46556/",
                                          "https://www.bol.com/nl/nl/l/t-shirts-meisjes/46394/",
                                          "https://www.bol.com/nl/nl/l/shirts-heren/47412/",
-                                         "https://www.bol.com/nl/nl/l/t-shirts-dames/47302/"], "t-shirts", 10),
+                                         "https://www.bol.com/nl/nl/l/t-shirts-dames/47302/"], "t-shirts", 10000),
 
            executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/korte-broeken-jongens/46563/",
                                          "https://www.bol.com/nl/nl/l/korte-broeken-meisjes/46404/",
                                          "https://www.bol.com/nl/nl/l/korte-broeken-heren/47427/",
-                                         "https://www.bol.com/nl/nl/l/korte-broeken-dames/47275/"], "korte broeken", 10)
+                                         "https://www.bol.com/nl/nl/l/korte-broeken-dames/47275/"], "korte broeken", 10000)
         ]
 
         results = concurrent.futures.wait(futures)
@@ -327,11 +362,11 @@ if __name__ == '__main__':
         print("DONE SCRAPING")
         with open("webscraper_log.txt", "w") as file:
             for future in results[0]:
-                file.write("CLASS: {}\nIMAGES DOWNLOAD FAILED: {}\nTIME SPEND SCRAPING: {} minutes\nEXPECT TOTAL IMAGES: {}\nACTUAL TOTAL IMAGES: {}\n\nLOGS:\nNONE\n\n".format(
+                file.write("CLASS: {}\nIMAGES DOWNLOAD FAILED: {}\nTIME SPEND SCRAPING: {} minutes\nEXPECT TOTAL IMAGES: {}\nACTUAL TOTAL IMAGES: {}\nAMOUNT IP BLOCKED: {}\n\nLOGS:\WIP\n\n".format(
                     future.result()[0],
                     future.result()[1],
                     future.result()[2] / 60,
                     future.result()[3],
                     len(os.listdir(future.result()[0])),
-                    # future.result()[4]
+                    future.result()[4]
                 ))
