@@ -167,15 +167,6 @@ class BolWebScraper:
     def __scrape_page(self, current_url, n, max_items, directory):
         products_amount = len(self.__get_els_by_css_selector("li.product-item--row"))
 
-        try:
-            self.webdriver_wait.until_not(EC.presence_of_element_located((By.CSS_SELECTOR, "div.rwd-error-screen")))
-        except Exception as e: 
-            print("IP BLOCK DETECTED, WAITED 10 SECONDS. REFRESHING PAGE...")
-
-            self.screen_blocked_amount = self.screen_blocked_amount + 1
-
-            return n
-
         i = 0
 
         while i < products_amount:
@@ -236,13 +227,6 @@ class BolWebScraper:
 
         self.driver.get(start_url + f"?page={page_num}&view=list")
 
-        try:
-            self.webdriver_wait.until_not(EC.presence_of_element_located((By.CSS_SELECTOR, "div.rwd-error-screen")))
-        except Exception as e: 
-            print("IP BLOCK DETECTED, WAITED 10 SECONDS. REFRESHING PAGE...")
-
-            self.screen_blocked_amount = self.screen_blocked_amount + 1
-
         pages_element = self.driver.find_element(By.CSS_SELECTOR, ".pagination")
         children = pages_element.find_elements(By.XPATH, "./*")
 
@@ -260,6 +244,7 @@ class BolWebScraper:
             
             if new_items > current_items:
                 page_num += 1
+                current_items = current_items + new_items;
             elif new_items == current_items:
                 self.driver.refresh()
                 print("PAGE REFRESHED, CONTINUEING")
@@ -316,8 +301,6 @@ def scrape_cats(categories, folder_name, amount):
 
     second_counter = time.perf_counter()
 
-    print(bol_web_scraper.logs)
-
     return folder_name, bol_web_scraper.image_download_failed, second_counter - first_counter, bol_web_scraper.actual_total_amount, bol_web_scraper.screen_blocked_amount
 
 
@@ -341,15 +324,15 @@ if __name__ == '__main__':
                                          "https://www.bol.com/nl/nl/l/heren-slippers/37549/",
                                          "https://www.bol.com/nl/nl/l/dames-slippers/37534/"], "slippers", 10000),
 
-           executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/jassen-dames/47203/",
-                                         "https://www.bol.com/nl/nl/l/jassen/47445/",
-                                         "https://www.bol.com/nl/nl/l/meisjes-jassen/46383/",
-                                         "https://www.bol.com/nl/nl/l/jongensjassen/46545/"], "jassen", 10000),
+           # executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/jassen-dames/47203/",
+           #                               "https://www.bol.com/nl/nl/l/jassen/47445/",
+           #                               "https://www.bol.com/nl/nl/l/meisjes-jassen/46383/",
+           #                               "https://www.bol.com/nl/nl/l/jongensjassen/46545/"], "jassen", 10000),
 
-           executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/jongensshirts/46556/",
-                                         "https://www.bol.com/nl/nl/l/t-shirts-meisjes/46394/",
-                                         "https://www.bol.com/nl/nl/l/shirts-heren/47412/",
-                                         "https://www.bol.com/nl/nl/l/t-shirts-dames/47302/"], "t-shirts", 10000),
+           # executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/jongensshirts/46556/",
+           #                               "https://www.bol.com/nl/nl/l/t-shirts-meisjes/46394/",
+           #                               "https://www.bol.com/nl/nl/l/shirts-heren/47412/",
+           #                               "https://www.bol.com/nl/nl/l/t-shirts-dames/47302/"], "t-shirts", 10000),
 
            executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/korte-broeken-jongens/46563/",
                                          "https://www.bol.com/nl/nl/l/korte-broeken-meisjes/46404/",
