@@ -12,6 +12,8 @@ import json
 from MessageType import MessageType
 from Message import Message
 
+
+
 #USER CONNECTS
 #NEW THREAD
 #SEE IF THERE ARE ANY GAPS IN GIVEN INDEXES (TRACKED BY AVAILABLE INDEXES)
@@ -39,16 +41,31 @@ from Message import Message
 #USER DISCONNECTS
 
 #GLOBAL VARIABLES
-event_list = []
-result_list = []
+event_list = [] #list[tuple(int, threading.Event)] 
+tcp_result = ""
 index_gap_list: int = []
 highest_user_index: int = -1
 
 event_list_lock = threading.Lock()
-result_list_lock = threading.Lock()
+tcp_result_lock = threading.Lock()
 index_gap_list_lock = threading.Lock()
 highest_user_index_lock = threading.Lock()
 tcp_client_lock = threading.Lock()
+
+def search_event_by_user_index(user_index) -> threading.Event:
+    global event_list
+    for event in event_list:
+        if event[0] == user_index:
+            return event[1]
+
+def remove_event_by_user_index(user_index) -> threading.Event:
+    global event_list
+    event_to_remove = ""
+    for event in event_list:
+        if event[0] == user_index:
+            event_to_remove = event
+            break
+    event_list.remove(event_to_remove)
 
 class FlaskHTTPServer():
 
@@ -73,17 +90,27 @@ class FlaskHTTPServer():
 
             return self.handle_request(request.files["image"], complex_case)
 
+    def debug_func(self):
+        #with concurrent.futures.ThreadPoolExecutor() as executor:
+            #executor.submit(self.handle_request, "payload", True)
+
+        thread = threading.Thread(target=self.handle_request, args=("payload", True))
+        thread.start()
+
     def handle_request(self, image, complex_case: bool):
         print("FLASK SERVER: HANDLING REQUEST...")
+        print(f"FLASK SERVER: ACTIVE CONNECTIONS: {threading.activeCount() - 1}")
         user_index = self.allocate_user_index()
 
-        #event_list_lock.acquire()
-        event_list.insert(user_index, threading.Event())
-        #event_list[user_index] = threading.Event()
-        #event_list_lock.release()
+        event_list_lock.acquire()
+        event_list.append((user_index, threading.Event()))
+        #event_list.insert(user_index, threading.Event())
+        event_list_lock.release()
 
         self.send_request_to_tcp(user_index, image, complex_case)
         msg = self.wait_for_event(user_index)
+        self.deallocate_user_index(user_index)
+        print(f"FLASK SERVER: USER {user_index} DONE.")
         return {"Code": 200, "message": "Message succesfully processed" }, 200 #TODO: Add msg in payload
 
     def allocate_user_index(self) -> int:
@@ -92,8 +119,8 @@ class FlaskHTTPServer():
         global index_gap_list
         user_index = -1
 
-        #index_gap_list_lock.acquire()
-       # highest_user_index_lock.acquire()
+        index_gap_list_lock.acquire()
+        highest_user_index_lock.acquire()
 
         if len(index_gap_list) > 0:
             user_index = index_gap_list[0]
@@ -102,20 +129,20 @@ class FlaskHTTPServer():
             user_index = highest_user_index + 1
             highest_user_index = user_index
 
-       # index_gap_list_lock.release()
-        #highest_user_index_lock.release()
+        index_gap_list_lock.release()
+        highest_user_index_lock.release()
         print(f"FLASK SERVER: GIVEN USER INDEX IS {str(user_index)}")
         return user_index
 
     def deallocate_user_index(self, user_index: int) -> None:
-        print("DEALLOCATING USER_INDEX...")
+        print("FLASK SERVER: DEALLOCATING USER_INDEX...")
         global highest_user_index
         global index_gap_list
         global event_list
 
-       # highest_user_index_lock.acquire()
-       # event_list_lock.acquire()
-       # index_gap_list_lock.acquire()
+        highest_user_index_lock.acquire()
+        event_list_lock.acquire()
+        index_gap_list_lock.acquire()
 
         if user_index == highest_user_index:
             for index in range(1, len(event_list)):
@@ -129,32 +156,35 @@ class FlaskHTTPServer():
         else:
             index_gap_list.append(user_index)
 
-       # highest_user_index_lock.release()
-       # event_list_lock.release()
-       # index_gap_list_lock.release()
+        highest_user_index_lock.release()
+        event_list_lock.release()
+        index_gap_list_lock.release()
 
     def send_request_to_tcp(self, user_index, image, complex_case):
         print("FLASK SERVER: SENDING REQUEST TO TCP...")
-        #tcp_client_lock.acquire()
+        tcp_client_lock.acquire()
         tcp_client.send_request(user_index, image, complex_case)
-        #tcp_client_lock.release()
+        tcp_client_lock.release()
 
     def wait_for_event(self, user_index) -> None:
+        global tcp_result
+        global event_list
+
         print("FLASK SERVER: WAITING FOR EVENT...")
-      #  event_list_lock.acquire()
-        event = event_list[user_index]
-       # event_list_lock.release()
+        event_list_lock.acquire()
+        event = search_event_by_user_index(user_index)
+        event_list_lock.release()
 
         event.wait() #TODO: Time-out period?
         print("FLASK SERVER: EVENT PROCESSED...")
-      #  event_list_lock.acquire()
-        event_list[user_index] = None
-      #  event_list_lock.release()
+        event_list_lock.acquire()
+        remove_event_by_user_index(user_index)
+        event_list_lock.release()
 
-      #  result_list_lock.acquire()
-        msg = result_list[user_index]
-        result_list[user_index] = None
-      #  result_list_lock.release()
+        tcp_result_lock.acquire()
+        msg = tcp_result
+        tcp_result = "" #Empty result for security
+        tcp_result_lock.release()
 
         return msg
 
@@ -186,12 +216,13 @@ class FlaskTCPClient:
 
     def send_request(self, user_index: int, image, complex_case: bool) -> None:
         print("TCP CLIENT: SENDING REQUEST...")
-        #self.lock.acquire()
+        self.lock.acquire()
         if self.client_amount == 0:
             thread = threading.Thread(target=self.listen) #args=(None))
             thread.start()
         self.client_amount += 1
-        #self.lock.release()
+        self.lock.release()
+
         msg = Message(user_index, image, complex_case) #TODO: Create message from image
         msg = msg.to_json()
         #CONVERT MSG TO BYTES
@@ -202,6 +233,9 @@ class FlaskTCPClient:
         self.client.send(converted_msg)
 
     def listen(self) -> None:
+        global tcp_result
+        global event_list
+
         print("TCP CLIENT: LISTENING TO RESPONSE...")
         #WAIT FOR RESPONSE
         while self.client_amount > 0:
@@ -210,29 +244,35 @@ class FlaskTCPClient:
                 print("TCP CLIENT: RESPONSE RECEIVED...")
                 #TODO: Error handling, validation
                 msg = response.decode(self.FORMAT)
+                print(f"TCP CLIENT: RESPONSE RECEIVED: {msg}")
                 msg_json = json.loads(msg)
                 msg_object = Message.from_json(msg_json)
 
                 user_index = msg_object.user_index
 
-                #result_list_lock.acquire()
-                result_list.insert(user_index, msg_object)
-                event_list[user_index].set()
-                #result_list_lock.release()
+                tcp_result_lock.acquire()
+                tcp_result = msg_object
+                tcp_result_lock.release()
 
-                #self.lock.acquire()
+                event_list_lock.acquire()
+                event = search_event_by_user_index(user_index)
+                event.set()
+                event_list_lock.release()
+
+                self.lock.acquire()
                 self.client_amount -= 1
-                #self.lock.release()
+                self.lock.release()
 
 
 
 if __name__ == '__main__':
     tcp_client = FlaskTCPClient()
     tcp_client.start_tcp_client()
-
     flask_server = FlaskHTTPServer()
-    flask_server.handle_request("image", True)
-    #msg = Message(MessageType.INIT_COMM, "yeeet")
-    #msg = msg.to_json()
-    #tcp_client.send(msg)
-    #tcp_client = FlaskTCPClient()
+    for _ in range(5):
+        flask_server.debug_func()
+
+    #list = []
+    #list.insert(4, "test")
+    #print(list[0])
+    #print(list[3])

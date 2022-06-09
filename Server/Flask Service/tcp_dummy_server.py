@@ -2,6 +2,8 @@ import socket
 import threading
 from Message import Message
 import json
+import time
+import random
 
 class DummyServer():
     def __init__(self, BUFFER_MAX=128, PORT_FLASK_TCP=5050, SERVER=socket.gethostbyname(socket.gethostname()), FORMAT="utf-8"):
@@ -36,9 +38,8 @@ class DummyServer():
                 resp_msg = Message(user_index, "RESPONSE MESSAGE!", complex_case)
                 msg_str = resp_msg.to_json()
                 msg_bytes = msg_str.encode(self.FORMAT)
+                time.sleep(float(random.randint(2,3)))
                 conn.send(msg_bytes)
-                conn.close()
-                connected = False
 
 if __name__ == "__main__":
     dummy_server = DummyServer()
