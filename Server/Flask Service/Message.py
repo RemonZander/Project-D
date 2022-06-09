@@ -1,7 +1,7 @@
 import json
 
 class Message():
-    def __init__(self, user_index, content, complex_case):
+    def __init__(self, user_index: int, content, complex_case: bool):
         self.user_index = user_index
         self.content = content
         self.complex_case = complex_case

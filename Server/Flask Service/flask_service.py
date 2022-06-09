@@ -41,14 +41,14 @@ from Message import Message
 #GLOBAL VARIABLES
 event_list = []
 result_list = []
-index_gap_list = []
-highest_user_index = -1
+index_gap_list: int = []
+highest_user_index: int = -1
 
-event_list_lock = threading.lock()
-result_list_lock = threading.lock()
-index_gap_list_lock = threading.lock()
-highest_user_index_lock = threading.lock()
-tcp_client_lock = threading.lock()
+event_list_lock = threading.Lock()
+result_list_lock = threading.Lock()
+index_gap_list_lock = threading.Lock()
+highest_user_index_lock = threading.Lock()
+tcp_client_lock = threading.Lock()
 
 class FlaskHTTPServer():
 
@@ -58,35 +58,42 @@ class FlaskHTTPServer():
 
     def handle_extension_post(self):
         if request.method == "POST":
+            print("FLASK SERVER: NEW CLIENT CONNECTING...")
             #INPUT VALIDATION
             if not validate_image(request.files["image"]):
                 return {"errorCode": 415, "message": "The media format of the requested data is not supported by the server, so the server is rejecting the request." }, 415
             #CREATE THREAD FOR EACH USER
             #thread = threading.Thread(target=self.handle_request, args=request.files["image"])
             #thread.start()
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                future = executor.submit(self.handle_request, request.files["image"])
-                result = future.result()
-                return result
+            complex_case = request.form["complex_case"]
+            #with concurrent.futures.ThreadPoolExecutor() as executor:
+                #future = executor.submit(self.handle_request, request.files["image"])
+               #result = future.result()
+                #return result
+
+            return self.handle_request(request.files["image"], complex_case)
 
     def handle_request(self, image, complex_case: bool):
+        print("FLASK SERVER: HANDLING REQUEST...")
         user_index = self.allocate_user_index()
 
-        event_list_lock.acquire()
-        event_list[user_index] = threading.Event()
-        event_list_lock.release()
+        #event_list_lock.acquire()
+        event_list.insert(user_index, threading.Event())
+        #event_list[user_index] = threading.Event()
+        #event_list_lock.release()
 
         self.send_request_to_tcp(user_index, image, complex_case)
         msg = self.wait_for_event(user_index)
         return {"Code": 200, "message": "Message succesfully processed" }, 200 #TODO: Add msg in payload
 
     def allocate_user_index(self) -> int:
+        print("FLASK SERVER: ALLOCATING USER_INDEX...")
         global highest_user_index
         global index_gap_list
         user_index = -1
 
-        index_gap_list_lock.acquire()
-        highest_user_index_lock.acquire()
+        #index_gap_list_lock.acquire()
+       # highest_user_index_lock.acquire()
 
         if len(index_gap_list) > 0:
             user_index = index_gap_list[0]
@@ -95,19 +102,20 @@ class FlaskHTTPServer():
             user_index = highest_user_index + 1
             highest_user_index = user_index
 
-        index_gap_list_lock.release()
-        highest_user_index_lock.release()
-
+       # index_gap_list_lock.release()
+        #highest_user_index_lock.release()
+        print(f"FLASK SERVER: GIVEN USER INDEX IS {str(user_index)}")
         return user_index
 
     def deallocate_user_index(self, user_index: int) -> None:
+        print("DEALLOCATING USER_INDEX...")
         global highest_user_index
         global index_gap_list
         global event_list
 
-        highest_user_index_lock.acquire()
-        event_list_lock.acquire()
-        index_gap_list_lock.acquire()
+       # highest_user_index_lock.acquire()
+       # event_list_lock.acquire()
+       # index_gap_list_lock.acquire()
 
         if user_index == highest_user_index:
             for index in range(1, len(event_list)):
@@ -121,30 +129,32 @@ class FlaskHTTPServer():
         else:
             index_gap_list.append(user_index)
 
-        highest_user_index_lock.release()
-        event_list_lock.release()
-        index_gap_list_lock.release()
+       # highest_user_index_lock.release()
+       # event_list_lock.release()
+       # index_gap_list_lock.release()
 
     def send_request_to_tcp(self, user_index, image, complex_case):
-        tcp_client_lock.acquire()
+        print("FLASK SERVER: SENDING REQUEST TO TCP...")
+        #tcp_client_lock.acquire()
         tcp_client.send_request(user_index, image, complex_case)
-        tcp_client_lock.release()
+        #tcp_client_lock.release()
 
     def wait_for_event(self, user_index) -> None:
-        event_list_lock.acquire()
+        print("FLASK SERVER: WAITING FOR EVENT...")
+      #  event_list_lock.acquire()
         event = event_list[user_index]
-        event_list_lock.release()
+       # event_list_lock.release()
 
         event.wait() #TODO: Time-out period?
-
-        event_list_lock.acquire()
+        print("FLASK SERVER: EVENT PROCESSED...")
+      #  event_list_lock.acquire()
         event_list[user_index] = None
-        event_list_lock.release()
+      #  event_list_lock.release()
 
-        result_list_lock.acquire()
+      #  result_list_lock.acquire()
         msg = result_list[user_index]
         result_list[user_index] = None
-        result_list_lock.release()
+      #  result_list_lock.release()
 
         return msg
 
@@ -155,58 +165,74 @@ class FlaskHTTPServer():
 #TCP CONTROLLER     -      IMAGE CLASSIFICATION     :   5052
 #TCP CONTROLLER     -      IMAGE COMPARER           :   5053
 
+#ADDRESS_FLASK_TCP = (socket.gethostbyname(socket.gethostname()), 5050)
+
 class FlaskTCPClient:
     def __init__(self, BUFFER_MAX=128, PORT_FLASK_TCP=5050, SERVER=socket.gethostbyname(socket.gethostname()), FORMAT="utf-8"):
-        self.BUFFER_MAX = BUFFER_MAX,
-        self.PORT_FLASK_TCP = PORT_FLASK_TCP,
-        self.SERVER = SERVER,
-        self.ADDRESS_FLASK_TCP = (self.SERVER, self.PORT_FLASK_TCP),
+        self.BUFFER_MAX = BUFFER_MAX
+        self.PORT_FLASK_TCP = PORT_FLASK_TCP #TODO: SEE IF 
+        self.SERVER = SERVER
+        self.ADDRESS_FLASK_TCP = (self.SERVER, self.PORT_FLASK_TCP)
         self.FORMAT = FORMAT
         self.client_amount = 0
-        self.lock = threading.lock()
+        self.lock = threading.Lock()
 
-        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    def start_tcp_client(self) -> None:
+        print("TCP CLIENT: STARTING...")
+        print(socket.gethostbyname(socket.gethostname()))
         self.client.connect(self.ADDRESS_FLASK_TCP)
 
     def send_request(self, user_index: int, image, complex_case: bool) -> None:
-        self.lock.acquire()
+        print("TCP CLIENT: SENDING REQUEST...")
+        #self.lock.acquire()
         if self.client_amount == 0:
-            thread = threading.Thread(target=self.listen, args=(user_index))
+            thread = threading.Thread(target=self.listen) #args=(None))
             thread.start()
         self.client_amount += 1
-        self.lock.release()
-        
+        #self.lock.release()
         msg = Message(user_index, image, complex_case) #TODO: Create message from image
         msg = msg.to_json()
         #CONVERT MSG TO BYTES
         converted_msg = msg.encode(self.FORMAT)
+        print(f"TCP CLIENT: MESSAGE LENGTH: {len(converted_msg)}")
         #ADD PADDING TO MAKE MSG SIZE 128
         converted_msg += b" " * (self.BUFFER_MAX - len(converted_msg))
         self.client.send(converted_msg)
 
     def listen(self) -> None:
+        print("TCP CLIENT: LISTENING TO RESPONSE...")
         #WAIT FOR RESPONSE
         while self.client_amount > 0:
             response = self.client.recv(self.BUFFER_MAX)
             if response:
+                print("TCP CLIENT: RESPONSE RECEIVED...")
                 #TODO: Error handling, validation
                 msg = response.decode(self.FORMAT)
-                msg_object = Message.from_json(msg)
+                msg_json = json.loads(msg)
+                msg_object = Message.from_json(msg_json)
 
                 user_index = msg_object.user_index
 
-                result_list_lock.acquire()
-                result_list[user_index] = msg_object
+                #result_list_lock.acquire()
+                result_list.insert(user_index, msg_object)
                 event_list[user_index].set()
-                result_list_lock.release()
+                #result_list_lock.release()
 
-                self.lock.acquire()
+                #self.lock.acquire()
                 self.client_amount -= 1
-                self.lock.release()
+                #self.lock.release()
+
+
 
 if __name__ == '__main__':
     tcp_client = FlaskTCPClient()
-    msg = Message(MessageType.INIT_COMM, "yeeet")
-    msg = msg.to_json()
-    tcp_client.send(msg)
-    tcp_client = FlaskTCPClient()
+    tcp_client.start_tcp_client()
+
+    flask_server = FlaskHTTPServer()
+    flask_server.handle_request("image", True)
+    #msg = Message(MessageType.INIT_COMM, "yeeet")
+    #msg = msg.to_json()
+    #tcp_client.send(msg)
+    #tcp_client = FlaskTCPClient()
