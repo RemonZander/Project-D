@@ -155,7 +155,7 @@ class BolWebScraper:
     Function that scrapes a page by recursively going on every product and getting the right properties.
     """
     def __scrape_page(self, directory):
-        products = self.__get_els_by_css_selector("li.product-item--row")
+        products = self.__get_els_by_css_selector("li.product-item--row:not(.js_sponsored_product)")
         product_links = []
 
         if products is None:
