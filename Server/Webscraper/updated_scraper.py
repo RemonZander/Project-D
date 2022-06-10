@@ -115,25 +115,18 @@ class BolWebScraper:
     """
     TODO: Turn some (or all) find_element statements into waits
     """
-    def __get_item_properties(self, current_url, product: WebElement) -> tuple[str, ...]:
-        product_link: str = "LINK NOT FOUND"
+    def __get_item_properties(self, product_url) -> tuple[str, ...]:
         product_name: str = "NAME NOT FOUND"
         image_link: str = "IMAGE NOT FOUND"
         product_description: str = "DESCRIPTION NOT FOUND"
-        product_categories: list[str] = ["DESCRIPTION NOT FOUND"]
         product_size_specs: list[str] = ["SPECS NOT FOUND"]
 
-        self.current_url = current_url
+        self.driver.get(product_url)
 
         try:
-            self.webdriver_wait.until(EC.url_to_be(current_url))
+            self.webdriver_wait.until(EC.url_to_be(product_url))
 
-            product_link: str = self.__get_el_by_css_selector("a.product-title", product).get_attribute("href")
-            product_name: str = self.__get_el_by_css_selector("a.product-title", product).text
-
-            self.driver.get(product_link)
-
-            self.webdriver_wait.until(EC.url_to_be(product_link))
+            product_name: str = self.__get_el_by_css_selector("a.product-title").text
 
             image_link: str = self.__get_el_by_css_selector("div.image-slot > img").get_attribute("src")
 
@@ -141,10 +134,10 @@ class BolWebScraper:
 
             product_specs = self.__get_el_by_css_selector("div[data-test='specifications']")
 
-            product_categories: list[str] = list(
-                map(lambda el: el.get_attribute("title"),
-                    self.__get_els_by_css_selector("ul.specs__categories > li.specs__category > a", product_specs))
-            )
+            # product_categories: list[str] = list(
+            #     map(lambda el: el.get_attribute("title"),
+            #         self.__get_els_by_css_selector("ul.specs__categories > li.specs__category > a", product_specs))
+            # )
 
             product_size_specs: list[str] = list(
                 map(lambda el: el.text if "Maat & Pasvorm" in el.text else "",
@@ -152,44 +145,47 @@ class BolWebScraper:
             )
 
         except Exception as e:
-            print("CURRENT URL: {}".format(current_url))
+            print("CURRENT URL: {}".format(product_url))
             print(e)
-
-            # self.logs.append("CURRENT URL: {}\nEXCEPTION MESSAGE: {}\n".format(current_url, str(e)))
         finally:
-            self.driver.get(current_url)
-
-            return product_name, image_link, product_link, product_description + "\n\n" + ",".join(product_size_specs), ",".join(product_categories)
+            return product_name, image_link, product_description + "\n\n" + ",".join(product_size_specs)
 
     """
     Function that scrapes a page by recursively going on every product and getting the right properties.
     """
-    def __scrape_page(self, current_url, n, max_items, directory):
-        products_amount = len(self.__get_els_by_css_selector("li.product-item--row"))
+    def __scrape_page(self, n, max_items, directory):
+        products = self.__get_els_by_css_selector("li.product-item--row")
+        product_links = []
 
         i = 0
+        j = 0
 
-        while i < products_amount:
+        while i < len(products):
+            product_link: str = self.__get_el_by_css_selector("a.product-title", products[i]).get_attribute("href")
+
+            product_links.append(product_link)
+
+            i += 1
+
+        while j < len(product_links):
             if n >= max_items:
                 break
 
             print("CLASS: {}".format(directory))
-            print("AMOUNT PRODUCTS: " + str(products_amount))
+            print("AMOUNT PRODUCTS: " + str(len(products)))
             print("MAX ITEMS = " + str(max_items))
             print("N = " + str(n))
 
             if path.exists(f"{directory}/{self.image_index}.jpg"):
                 print("IMAGE ALREADY EXISTS... SKIPPING")
-                n = n + 1
-                i = i + 1
+                n += 1
+                j += 1
                 self.image_index = self.image_index + 1
                 continue
 
-            product_element = self.__get_el_by_css_selector("ul.product-list > li:nth-child({})".format(i + 1))
+            # time.sleep(1)
 
-            time.sleep(1)
-
-            item_properties = self.__get_item_properties(current_url, product_element)
+            item_properties = self.__get_item_properties(product_links[j])
 
             if self.download_bool and item_properties[1] != "IMAGE NOT FOUND":
                 try:
@@ -203,7 +199,7 @@ class BolWebScraper:
                         file_img.write(r.content)
 
                     square_image(path_file)
-                    ExifData(path_file).SaveData(item_properties[0], item_properties[4], item_properties[3])
+                    ExifData(path_file).SaveData(item_properties[0], product_links[j], item_properties[2])
 
                     self.image_index = self.image_index + 1
                 except Exception as e:
@@ -213,8 +209,8 @@ class BolWebScraper:
 
                     self.image_download_failed = self.image_download_failed + 1
 
-            n = n + 1
-            i = i + 1
+            n += 1
+            j += 1
 
         return n
 
@@ -240,7 +236,7 @@ class BolWebScraper:
 
             self.driver.get(current_url)
 
-            new_items = self.__scrape_page(current_url, current_items, max_items, directory)
+            new_items = self.__scrape_page(current_items, max_items, directory)
             
             if new_items > current_items:
                 page_num += 1
@@ -312,17 +308,17 @@ if __name__ == '__main__':
                                           "https://www.bol.com/nl/nl/l/lange-broeken-jeans/46560/4295688522/",
                                           "https://www.bol.com/nl/nl/l/lange-broeken-jeans/46401/4295688522/",
                                           "https://www.bol.com/nl/nl/l/lange-broeken/47425/4295688522/",
-                                          "https://www.bol.com/nl/nl/l/lange-jeans/47416/4295688522/"], "lange broeken", 10000),
+                                          "https://www.bol.com/nl/nl/l/lange-jeans/47416/4295688522/"], "lange broeken", 3600),
 
-           executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/heren-sneakers/37547/",
-                                         "https://www.bol.com/nl/nl/l/dames-sneakers/37531/",
-                                         "https://www.bol.com/nl/nl/l/meisjes-sneakers/46442/",
-                                         "https://www.bol.com/nl/nl/l/sneakers-jongens/46589/"], "sneakers", 10000),
+           # executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/heren-sneakers/37547/",
+           #                               "https://www.bol.com/nl/nl/l/dames-sneakers/37531/",
+           #                               "https://www.bol.com/nl/nl/l/meisjes-sneakers/46442/",
+           #                               "https://www.bol.com/nl/nl/l/sneakers-jongens/46589/"], "sneakers", 10000),
 
-           executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/slippers-jongens/46600/",
-                                         "https://www.bol.com/nl/nl/l/slippers-meisjes/46446/",
-                                         "https://www.bol.com/nl/nl/l/heren-slippers/37549/",
-                                         "https://www.bol.com/nl/nl/l/dames-slippers/37534/"], "slippers", 10000),
+           # executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/slippers-jongens/46600/",
+           #                               "https://www.bol.com/nl/nl/l/slippers-meisjes/46446/",
+           #                               "https://www.bol.com/nl/nl/l/heren-slippers/37549/",
+           #                               "https://www.bol.com/nl/nl/l/dames-slippers/37534/"], "slippers", 10000),
 
            # executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/jassen-dames/47203/",
            #                               "https://www.bol.com/nl/nl/l/jassen/47445/",
@@ -334,10 +330,10 @@ if __name__ == '__main__':
            #                               "https://www.bol.com/nl/nl/l/shirts-heren/47412/",
            #                               "https://www.bol.com/nl/nl/l/t-shirts-dames/47302/"], "t-shirts", 10000),
 
-           executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/korte-broeken-jongens/46563/",
-                                         "https://www.bol.com/nl/nl/l/korte-broeken-meisjes/46404/",
-                                         "https://www.bol.com/nl/nl/l/korte-broeken-heren/47427/",
-                                         "https://www.bol.com/nl/nl/l/korte-broeken-dames/47275/"], "korte broeken", 10000)
+           # executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/korte-broeken-jongens/46563/",
+           #                               "https://www.bol.com/nl/nl/l/korte-broeken-meisjes/46404/",
+           #                               "https://www.bol.com/nl/nl/l/korte-broeken-heren/47427/",
+           #                               "https://www.bol.com/nl/nl/l/korte-broeken-dames/47275/"], "korte broeken", 10000)
         ]
 
         results = concurrent.futures.wait(futures)
