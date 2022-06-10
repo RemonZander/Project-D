@@ -21,6 +21,7 @@ class BolWebScraper:
         self.base_url = "https://www.bol.com"
         self.chrome_options = webdriver.ChromeOptions()
         self.chrome_options.add_argument('headless')
+        self.chrome_options.add_argument('log-level=3')
 
         self.image_download_failed = 0
 
@@ -153,9 +154,12 @@ class BolWebScraper:
     """
     Function that scrapes a page by recursively going on every product and getting the right properties.
     """
-    def __scrape_page(self, n, max_items, directory):
+    def __scrape_page(self, directory):
         products = self.__get_els_by_css_selector("li.product-item--row")
         product_links = []
+
+        if products is None:
+            return n
 
         i = 0
         j = 0
@@ -167,23 +171,20 @@ class BolWebScraper:
 
             i += 1
 
+        print("\n")
+        print("CLASS: {}".format(directory))
+        print("AMOUNT PRODUCTS ON PAGE (NON SPONSORED): " + str(len(products)))
+        print("\n")
+
         while j < len(product_links):
-            if n >= max_items:
-                break
-
-            print("CLASS: {}".format(directory))
-            print("AMOUNT PRODUCTS: " + str(len(products)))
-            print("MAX ITEMS = " + str(max_items))
-            print("N = " + str(n))
-
             if path.exists(f"{directory}/{self.image_index}.jpg"):
                 print("IMAGE ALREADY EXISTS... SKIPPING")
-                n += 1
                 j += 1
                 self.image_index = self.image_index + 1
                 continue
 
             # time.sleep(1)
+            print("SCRAPING URL: {}".format(product_links[j]))
 
             item_properties = self.__get_item_properties(product_links[j])
 
@@ -209,10 +210,9 @@ class BolWebScraper:
 
                     self.image_download_failed = self.image_download_failed + 1
 
-            n += 1
             j += 1
 
-        return n
+        return i
 
     def __iterate_lowest_category(self, start_url, directory, max_items) -> None:
         current_items = 0
@@ -231,21 +231,22 @@ class BolWebScraper:
         else:
             max_pages = children[-2].find_element(By.CSS_SELECTOR, ".js_pagination_item").get_attribute("data-page-number")
 
+        restartSamePageAmount = 0
+
+        if restartSamePageAmount > 10:
+            raise Exception("Tried scraping page same page 10 times.\nUrl: {}".format(start_url + f"?page={page_num}&view=list"))
+
         while current_items < max_items and page_num <= int(max_pages):
             current_url = start_url + f"?page={page_num}&view=list"
 
             self.driver.get(current_url)
 
-            new_items = self.__scrape_page(current_items, max_items, directory)
+            new_items = self.__scrape_page(directory)
             
-            if new_items > current_items:
+            if new_items != 0:
                 page_num += 1
-                current_items = current_items + new_items;
-            elif new_items == current_items:
-                self.driver.refresh()
-                print("PAGE REFRESHED, CONTINUEING")
-            else:
-                print("Somehow new items is lower than current item?????")
+                current_items += new_items
+                restartSamePageAmount += 1
 
 
     def __scrape_lowest_categories(self, start_url, amount, path=""):
