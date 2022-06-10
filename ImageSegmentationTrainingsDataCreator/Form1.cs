@@ -81,7 +81,7 @@ namespace ImageSegmentationTrainingsDataCreator
                 {
                     Color color = image.GetPixel(a, b);
 
-                    if (color.R > 245 && color.G > 245 && color.B > 245)
+                    if ((color.R > 245 && color.G > 245 && color.B > 245) || (a >= 240 && b >= 208))
                     {
                         image.SetPixel(a, b, backgroundColor);
                     }
