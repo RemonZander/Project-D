@@ -25,10 +25,16 @@ class BolWebScraper:
 
         self.image_download_failed = 0
 
+        # Can now also run in vscode debug mode
         try:
             self.driver: Chrome = webdriver.Chrome(service=ChromeService(os.path.realpath("./driver/chromedriver.exe")), options=self.chrome_options)
         except Exception as e:
             print(e)
+
+            try:
+                self.driver: Chrome = webdriver.Chrome(service=ChromeService("./Project-D/Server/Webscraper/driver/chromedriver.exe"), options=self.chrome_options)
+            except Exception as e:
+                print(e)
 
         self.logs = []
 
@@ -46,15 +52,6 @@ class BolWebScraper:
         self.image_index = 1
 
         self.screen_blocked_amount = 0
-
-    def scrape_starting_from_sub_menus(self, sub_menu_list):
-        self.__initiate_scraper()
-
-        sub_cats = self.__extract_sub_categories(sub_menu_list)
-
-        for main_sub_cat in sub_cats:
-            self.__scrape_lowest_categories(main_sub_cat, 20)
-        self.__terminate_scraper()
 
     def scrape_lowest_categories_and_save_in_same_folder(self, category_list, folder_name, total_amount):
         amount_categories = len(category_list)
@@ -85,9 +82,6 @@ class BolWebScraper:
             self.driver.find_element(By.CSS_SELECTOR, "wsp-consent-modal > div > button").click()
         except Exception as e:
             pass
-
-    def __terminate_scraper(self):
-        self.driver.close()
 
     def __get_el_by_css_selector(self, selector: str, parent_element=None):
         if parent_element is not None:
@@ -154,17 +148,17 @@ class BolWebScraper:
     """
     Function that scrapes a page by recursively going on every product and getting the right properties.
     """
-    def __scrape_page(self, directory):
+    def __scrape_page(self, directory, max_items):
         products = self.__get_els_by_css_selector("li.product-item--row:not(.js_sponsored_product)")
         product_links = []
 
         if products is None:
-            return n
+            return 0
 
         i = 0
         j = 0
 
-        while i < len(products):
+        while i < len(products) and i < max_items:
             product_link: str = self.__get_el_by_css_selector("a.product-title", products[i]).get_attribute("href")
 
             product_links.append(product_link)
@@ -241,53 +235,12 @@ class BolWebScraper:
 
             self.driver.get(current_url)
 
-            new_items = self.__scrape_page(directory)
+            new_items = self.__scrape_page(directory, max_items - current_items)
             
             if new_items != 0:
                 page_num += 1
                 current_items += new_items
                 restartSamePageAmount += 1
-
-
-    def __scrape_lowest_categories(self, start_url, amount, path=""):
-        # CHANGE DRIVER LOCATION TO URL
-        self.driver.get(start_url)
-
-        sub_categories = self.driver.find_elements(By.CSS_SELECTOR, ".facet-control__filter.facet-control__filter--no-padding > a")
-
-        # NO MORE SUB-CATEGORIES? THEN START SCRAPING DATA (BASE CASE)
-        if len(sub_categories) == 0:
-            # TODO: Separate function needed for clarity and modularity
-            print("\n\nURL: " + start_url)
-            print("PATH: " + path)
-            self.__iterate_lowest_category(start_url, start_url.split("/")[6], amount)
-            return
-
-        # Extract hrefs from categories
-        extracted_url_list = []
-
-        ##ALL CATEGORIES
-        for sub_cat in sub_categories:
-            extracted_url_list.append(sub_cat.get_attribute("href"))
-
-        # Else call function with next sub-category url
-        # For each sub-category -> find_lowest_categories(sub_category.url)
-        for url in extracted_url_list:
-            self.__scrape_lowest_categories(url, amount, f"{start_url}>{path}")  # Delimeter is ">"
-
-    def __extract_sub_categories(self, main_category_urls):
-        for cat_url in main_category_urls:
-            self.driver.get(cat_url)
-            main_sub_cat_list = self.driver.find_elements(By.CSS_SELECTOR, "main > div > div > ul > li > a")
-            sub_cats = []
-            for main_sub_cat in main_sub_cat_list:
-                title = main_sub_cat.text
-                if "alles" in title.lower() or "alle" in title.lower():
-                    pass
-                else:
-                    sub_cats.append(main_sub_cat.get_attribute("href"))
-            return sub_cats
-
 
 # Function added for concurrency
 def scrape_cats(categories, folder_name, amount):
@@ -304,12 +257,12 @@ def scrape_cats(categories, folder_name, amount):
 if __name__ == '__main__':
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = [
-            executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/lange-jeans/47200/4295688522/",
-                                          "https://www.bol.com/nl/nl/l/lange-broeken/47205/4295688522/",
-                                          "https://www.bol.com/nl/nl/l/lange-broeken-jeans/46560/4295688522/",
-                                          "https://www.bol.com/nl/nl/l/lange-broeken-jeans/46401/4295688522/",
-                                          "https://www.bol.com/nl/nl/l/lange-broeken/47425/4295688522/",
-                                          "https://www.bol.com/nl/nl/l/lange-jeans/47416/4295688522/"], "lange broeken", 3600),
+            # executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/lange-jeans/47200/4295688522/",
+            #                               "https://www.bol.com/nl/nl/l/lange-broeken/47205/4295688522/",
+            #                               "https://www.bol.com/nl/nl/l/lange-broeken-jeans/46560/4295688522/",
+            #                               "https://www.bol.com/nl/nl/l/lange-broeken-jeans/46401/4295688522/",
+            #                               "https://www.bol.com/nl/nl/l/lange-broeken/47425/4295688522/",
+            #                               "https://www.bol.com/nl/nl/l/lange-jeans/47416/4295688522/"], "lange broeken", 3600),
 
            # executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/heren-sneakers/37547/",
            #                               "https://www.bol.com/nl/nl/l/dames-sneakers/37531/",
@@ -326,15 +279,15 @@ if __name__ == '__main__':
            #                               "https://www.bol.com/nl/nl/l/meisjes-jassen/46383/",
            #                               "https://www.bol.com/nl/nl/l/jongensjassen/46545/"], "jassen", 10000),
 
-           # executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/jongensshirts/46556/",
-           #                               "https://www.bol.com/nl/nl/l/t-shirts-meisjes/46394/",
-           #                               "https://www.bol.com/nl/nl/l/shirts-heren/47412/",
-           #                               "https://www.bol.com/nl/nl/l/t-shirts-dames/47302/"], "t-shirts", 10000),
+           executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/jongensshirts/46556/",
+                                         "https://www.bol.com/nl/nl/l/t-shirts-meisjes/46394/",
+                                         "https://www.bol.com/nl/nl/l/shirts-heren/47412/",
+                                         "https://www.bol.com/nl/nl/l/t-shirts-dames/47302/"], "t-shirts", 100),
 
-           # executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/korte-broeken-jongens/46563/",
-           #                               "https://www.bol.com/nl/nl/l/korte-broeken-meisjes/46404/",
-           #                               "https://www.bol.com/nl/nl/l/korte-broeken-heren/47427/",
-           #                               "https://www.bol.com/nl/nl/l/korte-broeken-dames/47275/"], "korte broeken", 10000)
+           executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/korte-broeken-jongens/46563/",
+                                         "https://www.bol.com/nl/nl/l/korte-broeken-meisjes/46404/",
+                                         "https://www.bol.com/nl/nl/l/korte-broeken-heren/47427/",
+                                         "https://www.bol.com/nl/nl/l/korte-broeken-dames/47275/"], "korte broeken", 100)
         ]
 
         results = concurrent.futures.wait(futures)
