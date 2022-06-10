@@ -46,7 +46,16 @@ namespace Image_comparer_test_project__.net_framework_
 
         private void Prepimage(string filename, bool firstImg, int secondImagePos)
         {
-            Bitmap image = (Bitmap)Bitmap.FromFile(filename);
+            Bitmap image = new Bitmap(1, 1);
+            try
+            {
+                image = (Bitmap)Bitmap.FromFile(filename);
+            }
+            catch (Exception e)
+            {
+                //MessageBox.Show(e.ToString());
+            }
+            
 
             double ratio = image.Height * 1.0 / image.Width;
             image = CropAtRect(image, new Rectangle(0, 0, 200, (int)(200 * ratio)));
@@ -360,7 +369,7 @@ namespace Image_comparer_test_project__.net_framework_
             ds.Tables[pos].Columns.Add("xAxisSaturation");
             ds.Tables[pos].Columns.Add("yAxisSaturation");
 
-            var t = Task.Run(() => {
+/*            var t = Task.Run(() => {
                 for (int c = 0; c < xAxisHue.Count; c++)
                 {
                     ds.Tables[pos].Rows.Add(xAxisHue[c], yAxisHue[c], xAxisBrightness.Count > c ? xAxisBrightness[c] : 0,
@@ -368,7 +377,7 @@ namespace Image_comparer_test_project__.net_framework_
                         xAxisSaturation.Count > c ? xAxisSaturation[c] : 0,
                         yAxisSaturation.Count > c ? yAxisSaturation[c] : 0);
                 }
-            });
+            });*/
 
             if (mode == Modes.Folder)
             {

@@ -74,6 +74,8 @@
             this.label8 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.textBox18 = new System.Windows.Forms.TextBox();
+            this.label22 = new System.Windows.Forms.Label();
             this.textBox17 = new System.Windows.Forms.TextBox();
             this.label21 = new System.Windows.Forms.Label();
             this.textBox16 = new System.Windows.Forms.TextBox();
@@ -159,7 +161,7 @@
             this.chart1.Series.Add(series1);
             this.chart1.Series.Add(series2);
             this.chart1.Series.Add(series3);
-            this.chart1.Size = new System.Drawing.Size(1051, 584);
+            this.chart1.Size = new System.Drawing.Size(1051, 612);
             this.chart1.TabIndex = 6;
             this.chart1.Text = "chart1";
             // 
@@ -483,6 +485,8 @@
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.textBox18);
+            this.panel2.Controls.Add(this.label22);
             this.panel2.Controls.Add(this.textBox17);
             this.panel2.Controls.Add(this.label21);
             this.panel2.Controls.Add(this.textBox16);
@@ -512,8 +516,26 @@
             this.panel2.Controls.Add(this.textBox1);
             this.panel2.Location = new System.Drawing.Point(12, 205);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(326, 406);
+            this.panel2.Size = new System.Drawing.Size(326, 434);
             this.panel2.TabIndex = 21;
+            // 
+            // textBox18
+            // 
+            this.textBox18.Enabled = false;
+            this.textBox18.Location = new System.Drawing.Point(189, 405);
+            this.textBox18.Name = "textBox18";
+            this.textBox18.Size = new System.Drawing.Size(134, 20);
+            this.textBox18.TabIndex = 42;
+            this.textBox18.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox18_KeyDown);
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(3, 408);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(180, 13);
+            this.label22.TabIndex = 41;
+            this.label22.Text = "Data dump boven totaal verhouding:";
             // 
             // textBox17
             // 
@@ -704,7 +726,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1407, 618);
+            this.ClientSize = new System.Drawing.Size(1407, 647);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.chart1);
@@ -788,6 +810,8 @@
         private System.Windows.Forms.Label label19;
         private System.Windows.Forms.TextBox textBox17;
         private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.TextBox textBox18;
+        private System.Windows.Forms.Label label22;
     }
 }
 
