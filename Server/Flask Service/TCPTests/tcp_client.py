@@ -1,8 +1,8 @@
 import socket
 import threading
 import json
-from MessageType import MessageType
-from Message import Message
+#from MessageType import MessageType
+#from Message import Message
 
 HEADER_MAX = 128 #TODO: CHECK IF THIS SIZE IS SUITABLE FOR THIS PROJECT
 PORT = 5050

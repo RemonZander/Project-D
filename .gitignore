@@ -27,6 +27,7 @@
 /Server/ImageClassifier/TenserFlow
 /Server/ImageClassifier/ImageSegmentation/test data
 *.jpg
+*.pyc
 /ImageSegmentationTrainingsDataCreator\bin
 /ImageSegmentationTrainingsDataCreator\obj
 /ImageSegmentationTrainingsDataCreator/bin/Debug
