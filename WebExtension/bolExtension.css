@@ -1,0 +1,273 @@
+#bolOverlay, #bolElement, #bolElHeader, #bolLogo, #bolLogoMainText, #bolLogoExtText, #bolSearchBar, #bolSearchInput, #bolElCloseBtn, #bolElCloseBtn svg, #bolElBody,
+.bolItem, .bolItemImg, .bolItemBody, .bolItemHeader, .bolItemTitle, .bolItemDropdownBtn, .bolItemDropdownBtn::before, .bolItemDescription, .bolItemDescImg, .bolItemDescImg img,
+.bolItemDetails, .bolItemSubCategory, .bolItemMatch, .active, .bolItemImg, .bolItemBody, .bolItemHeader, .bolItemDropdownBtn::before, .bolItemDescription, .bolItemDescText, .bolItemDetails,
+.noWrap, .markedText {
+  all: unset;
+}
+
+#bolOverlay {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  font-family: 'Segoe UI';
+  z-index: 2147483647;
+  font-size: initial;
+  color: #000000;
+}
+
+#bolOverlay #bolElement {
+  background-color: #0000A4;
+  height: 450px;
+  width: 400px;
+  position: absolute;
+  pointer-events: all;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  top: 25px;
+  right: 0;
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.6);
+  -webkit-box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.6);
+  -moz-box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.6);
+}
+
+#bolOverlay #bolElement #bolElHeader {
+  min-height: 65px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  padding: 0px 12% 0px 10%;
+}
+
+#bolOverlay #bolElement #bolElHeader #bolLogo {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+
+#bolOverlay #bolElement #bolElHeader #bolLogo #bolLogoMainText {
+  font-size: 22px;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+#bolOverlay #bolElement #bolElHeader #bolLogo #bolLogoExtText {
+  font-size: 16px;
+  font-weight: 500;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+#bolOverlay #bolElement #bolElHeader #bolSearchBar {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+
+#bolOverlay #bolElement #bolElHeader #bolSearchBar #bolSearchInput {
+  width: 155px;
+  border: none;
+  padding: 6.5px;
+  line-height: 0px;
+  font-size: 13px;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  border-radius: 0px;
+  font-family: 'Segoe UI';
+  margin: 0;
+  background-color: #FFFFFF;
+}
+
+#bolOverlay #bolElement #bolElHeader #bolElCloseBtn {
+  position: absolute;
+  top: 7.5px;
+  right: 15px;
+  cursor: pointer;
+}
+
+#bolOverlay #bolElement #bolElHeader #bolElCloseBtn svg {
+  pointer-events: none;
+}
+
+#bolOverlay #bolElement #bolElBody {
+  overflow-y: auto;
+}
+
+#bolOverlay #bolElement #bolElBody .bolItem {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  background-color: #FFFFFF;
+  border: solid 1px #020202;
+}
+
+#bolOverlay #bolElement #bolElBody .bolItem .bolItemImg {
+  cursor: pointer;
+  width: 45px;
+  height: auto;
+  max-height: 100%;
+  -o-object-fit: contain;
+     object-fit: contain;
+}
+
+#bolOverlay #bolElement #bolElBody .bolItem .bolItemBody {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  width: 100%;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+
+#bolOverlay #bolElement #bolElBody .bolItem .bolItemBody .bolItemHeader {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  padding: 0px 5% 0px 5%;
+  height: 50px;
+  margin-bottom: 3.5%;
+}
+
+#bolOverlay #bolElement #bolElBody .bolItem .bolItemBody .bolItemHeader .bolItemTitle {
+  line-height: 25px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0px 15px 0px 0px;
+}
+
+#bolOverlay #bolElement #bolElBody .bolItem .bolItemBody .bolItemHeader .bolItemDropdownBtn {
+  cursor: pointer;
+  font-size: 32px;
+  height: 25px;
+  line-height: 18px;
+  min-width: 25px;
+  max-width: 25px;
+  text-align: center;
+}
+
+#bolOverlay #bolElement #bolElBody .bolItem .bolItemBody .bolItemHeader .bolItemDropdownBtn::before {
+  content: "+";
+  display: inline-block;
+  height: 100%;
+  width: 100%;
+}
+
+#bolOverlay #bolElement #bolElBody .bolItem .bolItemBody .bolItemDescription {
+  height: 0px;
+  padding: 0px;
+  border-top: solid 1px #020202;
+  border-bottom: none;
+  overflow: hidden;
+  -webkit-transition: all 0.25s ease-out;
+  transition: all 0.25s ease-out;
+}
+
+#bolOverlay #bolElement #bolElBody .bolItem .bolItemBody .bolItemDescription .bolItemDescImg {
+  float: left;
+  padding: 0px 10px 0px 0px;
+}
+
+#bolOverlay #bolElement #bolElBody .bolItem .bolItemBody .bolItemDescription .bolItemDescImg img {
+  height: 150px;
+}
+
+#bolOverlay #bolElement #bolElBody .bolItem .bolItemBody .bolItemDetails {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  padding: 0px 5% 0px 5%;
+  margin-top: 3.5%;
+}
+
+#bolOverlay #bolElement #bolElBody .bolItem .bolItemBody .bolItemDetails .bolItemSubCategory {
+  width: 100px;
+  padding: 5px;
+  cursor: pointer;
+}
+
+#bolOverlay #bolElement #bolElBody .bolItem .bolItemBody .bolItemDetails .bolItemMatch {
+  padding: 5px;
+}
+
+#bolOverlay #bolElement #bolElBody .bolItem.active .bolItemImg {
+  display: none;
+}
+
+#bolOverlay #bolElement #bolElBody .bolItem.active .bolItemBody .bolItemHeader {
+  margin-top: 3.5%;
+}
+
+#bolOverlay #bolElement #bolElBody .bolItem.active .bolItemBody .bolItemHeader .bolItemDropdownBtn::before {
+  content: "-";
+}
+
+#bolOverlay #bolElement #bolElBody .bolItem.active .bolItemBody .bolItemDescription {
+  height: auto;
+  padding: 5%;
+  border-top: solid 1px #020202;
+  border-bottom: solid 1px #020202;
+}
+
+#bolOverlay #bolElement #bolElBody .bolItem.active .bolItemBody .bolItemDescription .bolItemDescText {
+  white-space: pre-line;
+}
+
+#bolOverlay #bolElement #bolElBody .bolItem.active .bolItemBody .bolItemDetails {
+  margin-bottom: 3.5%;
+}
+
+.noWrap {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.markedText {
+  background-color: #FFFF00;
+  padding: 0;
+  margin: 0;
+}
+/*# sourceMappingURL=bolExtension.css.map */
