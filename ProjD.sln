@@ -13,7 +13,7 @@ Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "WebExtension", "WebExtensio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Image comparer test project (.net framework)", "Server\Image comparer test project (.net framework)\Image comparer test project (.net framework).csproj", "{DEA38624-2C93-40AC-8CCD-0183790CBD5B}"
 EndProject
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "NeuralNets", "Server\NeuralNets\NeuralNets.pyproj", "{CEB0CE3F-6990-4A92-8F2A-05DB5E03A4FE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageSegmentationTrainingsDataCreator", "ImageSegmentationTrainingsDataCreator\ImageSegmentationTrainingsDataCreator.csproj", "{DBD745E2-C486-43F6-8651-30D21745F4B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -73,12 +73,18 @@ Global
 		{DEA38624-2C93-40AC-8CCD-0183790CBD5B}.Release|x64.Build.0 = Release|x64
 		{DEA38624-2C93-40AC-8CCD-0183790CBD5B}.Release|x86.ActiveCfg = Release|x86
 		{DEA38624-2C93-40AC-8CCD-0183790CBD5B}.Release|x86.Build.0 = Release|x86
-		{CEB0CE3F-6990-4A92-8F2A-05DB5E03A4FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CEB0CE3F-6990-4A92-8F2A-05DB5E03A4FE}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{CEB0CE3F-6990-4A92-8F2A-05DB5E03A4FE}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{CEB0CE3F-6990-4A92-8F2A-05DB5E03A4FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CEB0CE3F-6990-4A92-8F2A-05DB5E03A4FE}.Release|x64.ActiveCfg = Release|Any CPU
-		{CEB0CE3F-6990-4A92-8F2A-05DB5E03A4FE}.Release|x86.ActiveCfg = Release|Any CPU
+		{DBD745E2-C486-43F6-8651-30D21745F4B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBD745E2-C486-43F6-8651-30D21745F4B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBD745E2-C486-43F6-8651-30D21745F4B8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DBD745E2-C486-43F6-8651-30D21745F4B8}.Debug|x64.Build.0 = Debug|Any CPU
+		{DBD745E2-C486-43F6-8651-30D21745F4B8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DBD745E2-C486-43F6-8651-30D21745F4B8}.Debug|x86.Build.0 = Debug|Any CPU
+		{DBD745E2-C486-43F6-8651-30D21745F4B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBD745E2-C486-43F6-8651-30D21745F4B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBD745E2-C486-43F6-8651-30D21745F4B8}.Release|x64.ActiveCfg = Release|Any CPU
+		{DBD745E2-C486-43F6-8651-30D21745F4B8}.Release|x64.Build.0 = Release|Any CPU
+		{DBD745E2-C486-43F6-8651-30D21745F4B8}.Release|x86.ActiveCfg = Release|Any CPU
+		{DBD745E2-C486-43F6-8651-30D21745F4B8}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
