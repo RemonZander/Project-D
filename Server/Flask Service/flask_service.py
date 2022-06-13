@@ -1,6 +1,6 @@
 from re import U
 from unittest import result
-from flask import Flask, request
+from flask import Flask, request, Response
 import concurrent.futures
 #from flask_socketio import SocketIO
 from enum import Enum
@@ -68,27 +68,39 @@ def remove_event_by_user_index(user_index) -> threading.Event:
     event_list.remove(event_to_remove)
 
 class FlaskHTTPServer():
-
     def __init__(self):
         self.app = Flask(__name__)
-        self.app.add_url_rule("/", "image", self.handle_extension_post, methods=["POST"])
+        self.app.add_url_rule("/image", "image", self.handle_extension_post, methods=["POST"])
+        self.app.add_url_rule("/test", "test", self.test_handle, methods=["GET"])
+        self.app.run(debug=True)
 
     def handle_extension_post(self):
         if request.method == "POST":
             print("FLASK SERVER: NEW CLIENT CONNECTING...")
             #INPUT VALIDATION
-            if not validate_image(request.files["image"]):
+
+            image = request.files["image"]
+            if not validate_image(image):
                 return {"errorCode": 415, "message": "The media format of the requested data is not supported by the server, so the server is rejecting the request." }, 415
+
             #CREATE THREAD FOR EACH USER
             #thread = threading.Thread(target=self.handle_request, args=request.files["image"])
             #thread.start()
+
             complex_case = request.form["complex_case"]
+            print(f"IMAGE TYPE: {type(image)}")
+
             #with concurrent.futures.ThreadPoolExecutor() as executor:
                 #future = executor.submit(self.handle_request, request.files["image"])
                #result = future.result()
                 #return result
 
-            return self.handle_request(request.files["image"], complex_case)
+            #return self.handle_request(image, complex_case)
+            return "yeet"
+
+    def test_handle(self):
+        if request.method == "GET":
+            return "Get"
 
     def debug_func(self):
         #with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -269,8 +281,8 @@ if __name__ == '__main__':
     tcp_client = FlaskTCPClient()
     tcp_client.start_tcp_client()
     flask_server = FlaskHTTPServer()
-    for _ in range(5):
-        flask_server.debug_func()
+    #for _ in range(5):
+        #flask_server.debug_func()
 
     #list = []
     #list.insert(4, "test")
