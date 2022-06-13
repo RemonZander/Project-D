@@ -2,15 +2,23 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading;
 namespace ImageSegmentationTrainingsDataCreator
 {
     public partial class Form1 : Form
     {
-        const string backgrounds = @"../backgrounds/";
+        const string backgrounds = @"C:\Users\remon\Desktop\backgrounds\";
+        Thread calc;
 
         public Form1()
         {
             InitializeComponent();
+        }
+
+        private Bitmap ResizeBitmap(Bitmap original, Size size)
+        {
+            using (original)
+            return new Bitmap(original, size);
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -19,6 +27,16 @@ namespace ImageSegmentationTrainingsDataCreator
 
             if (string.IsNullOrEmpty(folderBrowserDialog1.SelectedPath)) return;
 
+
+
+            calc = new Thread(() => runThread());
+            button1.Enabled = false;
+            timer1.Enabled = true;
+            calc.Start();
+        }
+
+        private void runThread()
+        {
             string[] files = Directory.GetFiles(folderBrowserDialog1.SelectedPath);
             try
             {
@@ -28,21 +46,23 @@ namespace ImageSegmentationTrainingsDataCreator
             catch (Exception)
             {
             }
-            progressBar1.Minimum = 0;
-            progressBar1.Maximum = files.Length;
-            progressBar1.Value = 0;
-            label2.Text = "0 van de " + files.Length;
+            BeginInvoke((MethodInvoker)delegate
+            {
+                progressBar1.Minimum = 0;
+                progressBar1.Maximum = files.Length;
+                progressBar1.Value = 0;
+                label2.Text = "0 van de " + files.Length;
+            });
+            string[] backgroundFiles = Directory.GetFiles(backgrounds);
+            Random random = new Random();
 
             for (int a = 0; a < files.Length; a++)
             {
-                Bitmap image = (Bitmap)Image.FromFile(files[a]);
-
-                string[] backgroundFiles = Directory.GetFiles(backgrounds);
-
-                Random random = new Random();
+                using Bitmap image = (Bitmap)Image.FromFile(files[a]);                           
                 int randomBackground = random.Next(0, backgroundFiles.Length);
-                Bitmap currentBackground = new Bitmap(Image.FromFile(backgroundFiles[randomBackground]), new Size(250, 250));
-                Graphics bg = Graphics.FromImage(currentBackground);
+                using Bitmap currentBackground = ResizeBitmap((Bitmap)Image.FromFile(backgroundFiles[randomBackground]), new Size(250, 250));
+
+                using Graphics bg = Graphics.FromImage(currentBackground);
                 (Bitmap image, int maxHeightObject, int maxWidthObject, int topOffset, int leftOffset) ObjectCutout = MakeMask(image, Color.FromArgb(0, 0, 0, 0), Color.FromArgb(0, 0, 0, 0), Color.FromArgb(0, 0, 0, 0), false);
                 int newSize = random.Next(80, 128);
                 ObjectCutout.image = new Bitmap(ObjectCutout.image, new Size(newSize, newSize));
@@ -53,17 +73,21 @@ namespace ImageSegmentationTrainingsDataCreator
 
                 currentBackground.Save(folderBrowserDialog1.SelectedPath + @"/.data/" + a + ".jpg");
 
-                currentBackground = new Bitmap(Image.FromFile(@"../Mask_background.jpg"));
-                bg = Graphics.FromImage(currentBackground);
-                bg.DrawImage(new Bitmap(Image.FromFile(files[a]), new Size(newSize, newSize)), xPos, yPos);
-                bg.Save();
-                Bitmap ObjectCutoutMask = MakeMask(currentBackground, Color.FromArgb(32, 143, 140), Color.FromArgb(68, 1, 84), Color.FromArgb(253, 231, 36), true).image;
+                using Bitmap currentBackgroundNew = (Bitmap)Image.FromFile(@"../Mask_background.jpg");
+                using Graphics bg2 = Graphics.FromImage(currentBackgroundNew);
+                bg2.DrawImage(ResizeBitmap((Bitmap)Image.FromFile(files[a]), new Size(newSize, newSize)), xPos, yPos);
+                bg2.Save();
+                using Bitmap ObjectCutoutMask = MakeMask(currentBackgroundNew, Color.FromArgb(32, 143, 140), Color.FromArgb(68, 1, 84), Color.FromArgb(253, 231, 36), true).image;
                 ObjectCutoutMask.Save(folderBrowserDialog1.SelectedPath + @"/.masks/" + a + ".jpg");
 
-                progressBar1.Value += 1;
-                progressBar1.Update();
-                label2.Text = a + 1 + " van de " + files.Length;
-                label2.Update();
+                BeginInvoke((MethodInvoker)delegate
+                {
+                    progressBar1.Value += 1;
+                    progressBar1.Update();
+                    label2.Text = a + 1 + " van de " + files.Length;
+                    label2.Update();
+                    this.Update();
+                });
             }
 
             MessageBox.Show("Klaar!");
@@ -183,6 +207,14 @@ namespace ImageSegmentationTrainingsDataCreator
         private void label2_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            if (calc.ThreadState == ThreadState.Stopped)
+            {
+                button1.Enabled = true;
+            }
         }
     }
 }
