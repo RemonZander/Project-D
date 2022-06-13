@@ -3,12 +3,13 @@
     "name":    "bol.com image search",
     "version": "0.1",
     "background": {
-        "service_worker": "searchImage.js"
+        "service_worker": "serviceWorker.js"
     },
     "permissions": [
         "contextMenus",
         "activeTab",
-        "scripting"
+        "scripting",
+        "storage"
     ],
     "host_permissions": [
         "https://*/",

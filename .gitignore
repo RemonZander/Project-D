@@ -20,8 +20,8 @@
 /Server/Image comparer test project (.net framework)/obj
 /Server/Webscraper/scraped_jeans
 /Server/Exif test project/obj
+/Server/Exif test project/bin
 /packages
-/Server/Exif test project/bin/Release/net6.0-windows
 /Server/Image comparer test project (.net framework)/bin
 /test data/scraped_jeans
 /Server/ImageClassifier/TenserFlow

@@ -116,7 +116,6 @@ class FlaskHTTPServer():
 
         event_list_lock.acquire()
         event_list.append((user_index, threading.Event()))
-        #event_list.insert(user_index, threading.Event())
         event_list_lock.release()
 
         self.send_request_to_tcp(user_index, image, complex_case)
@@ -193,7 +192,6 @@ class FlaskHTTPServer():
         remove_event_by_user_index(user_index)
         event_list_lock.release()
 
-        tcp_result_lock.acquire()
         msg = tcp_result
         tcp_result = "" #Empty result for security
         tcp_result_lock.release()
@@ -264,7 +262,6 @@ class FlaskTCPClient:
 
                 tcp_result_lock.acquire()
                 tcp_result = msg_object
-                tcp_result_lock.release()
 
                 event_list_lock.acquire()
                 event = search_event_by_user_index(user_index)
