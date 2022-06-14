@@ -105,8 +105,6 @@ class BolWebScraper:
             except Exception as e:
                 print("TIMEOUT EXCEPTION: ELEMENTS WITH SELECTOR {} NOT FOUND IN CATEGORY {}\nURL: {}".format(selector, self.directory, self.current_url))
 
-                # raise Exception("TIMEOUT EXCEPTION: ELEMENTS WITH SELECTOR {} NOT FOUND IN CATEGORY {}\nURL: {}".format(selector, self.directory, self.current_url)) from None
-
     """
     TODO: Turn some (or all) find_element statements into waits
     """
@@ -128,11 +126,6 @@ class BolWebScraper:
             product_description: str = self.__get_el_by_css_selector("div.product-description").text
 
             product_specs = self.__get_el_by_css_selector("div[data-test='specifications']")
-
-            # product_categories: list[str] = list(
-            #     map(lambda el: el.get_attribute("title"),
-            #         self.__get_els_by_css_selector("ul.specs__categories > li.specs__category > a", product_specs))
-            # )
 
             product_size_specs: list[str] = list(
                 map(lambda el: el.text if "Maat & Pasvorm" in el.text else "",
@@ -177,7 +170,6 @@ class BolWebScraper:
                 self.image_index = self.image_index + 1
                 continue
 
-            # time.sleep(1)
             print("SCRAPING URL: {}".format(product_links[j]))
 
             item_properties = self.__get_item_properties(product_links[j])
@@ -225,9 +217,9 @@ class BolWebScraper:
         else:
             max_pages = children[-2].find_element(By.CSS_SELECTOR, ".js_pagination_item").get_attribute("data-page-number")
 
-        restartSamePageAmount = 0
+        restart_same_page_amount = 0
 
-        if restartSamePageAmount > 10:
+        if restart_same_page_amount > 10:
             raise Exception("Tried scraping page same page 10 times.\nUrl: {}".format(start_url + f"?page={page_num}&view=list"))
 
         while current_items < max_items and page_num <= int(max_pages):
@@ -240,7 +232,7 @@ class BolWebScraper:
             if new_items != 0:
                 page_num += 1
                 current_items += new_items
-                restartSamePageAmount += 1
+                restart_same_page_amount += 1
 
 # Function added for concurrency
 def scrape_cats(categories, folder_name, amount):
@@ -257,37 +249,37 @@ def scrape_cats(categories, folder_name, amount):
 if __name__ == '__main__':
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = [
-            # executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/lange-jeans/47200/4295688522/",
-            #                               "https://www.bol.com/nl/nl/l/lange-broeken/47205/4295688522/",
-            #                               "https://www.bol.com/nl/nl/l/lange-broeken-jeans/46560/4295688522/",
-            #                               "https://www.bol.com/nl/nl/l/lange-broeken-jeans/46401/4295688522/",
-            #                               "https://www.bol.com/nl/nl/l/lange-broeken/47425/4295688522/",
-            #                               "https://www.bol.com/nl/nl/l/lange-jeans/47416/4295688522/"], "lange broeken", 3600),
+            executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/lange-jeans/47200/4295688522/",
+                                          "https://www.bol.com/nl/nl/l/lange-broeken/47205/4295688522/",
+                                          "https://www.bol.com/nl/nl/l/lange-broeken-jeans/46560/4295688522/",
+                                          "https://www.bol.com/nl/nl/l/lange-broeken-jeans/46401/4295688522/",
+                                          "https://www.bol.com/nl/nl/l/lange-broeken/47425/4295688522/",
+                                          "https://www.bol.com/nl/nl/l/lange-jeans/47416/4295688522/"], "lange broeken", 10),
 
-           # executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/heren-sneakers/37547/",
-           #                               "https://www.bol.com/nl/nl/l/dames-sneakers/37531/",
-           #                               "https://www.bol.com/nl/nl/l/meisjes-sneakers/46442/",
-           #                               "https://www.bol.com/nl/nl/l/sneakers-jongens/46589/"], "sneakers", 10000),
+           executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/heren-sneakers/37547/",
+                                         "https://www.bol.com/nl/nl/l/dames-sneakers/37531/",
+                                         "https://www.bol.com/nl/nl/l/meisjes-sneakers/46442/",
+                                         "https://www.bol.com/nl/nl/l/sneakers-jongens/46589/"], "sneakers", 10),
 
-           # executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/slippers-jongens/46600/",
-           #                               "https://www.bol.com/nl/nl/l/slippers-meisjes/46446/",
-           #                               "https://www.bol.com/nl/nl/l/heren-slippers/37549/",
-           #                               "https://www.bol.com/nl/nl/l/dames-slippers/37534/"], "slippers", 10000),
+           executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/slippers-jongens/46600/",
+                                         "https://www.bol.com/nl/nl/l/slippers-meisjes/46446/",
+                                         "https://www.bol.com/nl/nl/l/heren-slippers/37549/",
+                                         "https://www.bol.com/nl/nl/l/dames-slippers/37534/"], "slippers", 10),
 
-           # executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/jassen-dames/47203/",
-           #                               "https://www.bol.com/nl/nl/l/jassen/47445/",
-           #                               "https://www.bol.com/nl/nl/l/meisjes-jassen/46383/",
-           #                               "https://www.bol.com/nl/nl/l/jongensjassen/46545/"], "jassen", 10000),
+           executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/jassen-dames/47203/",
+                                         "https://www.bol.com/nl/nl/l/jassen/47445/",
+                                         "https://www.bol.com/nl/nl/l/meisjes-jassen/46383/",
+                                         "https://www.bol.com/nl/nl/l/jongensjassen/46545/"], "jassen", 10),
 
            executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/jongensshirts/46556/",
                                          "https://www.bol.com/nl/nl/l/t-shirts-meisjes/46394/",
                                          "https://www.bol.com/nl/nl/l/shirts-heren/47412/",
-                                         "https://www.bol.com/nl/nl/l/t-shirts-dames/47302/"], "t-shirts", 100),
+                                         "https://www.bol.com/nl/nl/l/t-shirts-dames/47302/"], "t-shirts", 10),
 
            executor.submit(scrape_cats, ["https://www.bol.com/nl/nl/l/korte-broeken-jongens/46563/",
                                          "https://www.bol.com/nl/nl/l/korte-broeken-meisjes/46404/",
                                          "https://www.bol.com/nl/nl/l/korte-broeken-heren/47427/",
-                                         "https://www.bol.com/nl/nl/l/korte-broeken-dames/47275/"], "korte broeken", 100)
+                                         "https://www.bol.com/nl/nl/l/korte-broeken-dames/47275/"], "korte broeken", 10)
         ]
 
         results = concurrent.futures.wait(futures)
