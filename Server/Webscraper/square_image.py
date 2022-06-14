@@ -12,7 +12,7 @@ def square_image(image_path_name, fill_color=(255, 255, 255, 0)):
     #paste old image into the new one, y start position is 200 - x , 200 - y
     new_im.paste(im, (int((max_size - x) / 2), int((max_size - y) / 2)))
     #resize it down to 200 x 200 pixels
-    resized_img = new_im.resize((128, 128))
+    resized_img = new_im.resize((250, 250))
     #save image
     resized_img.save(image_path_name, "jpeg")
     #return resized_img
