@@ -27,8 +27,6 @@ namespace ImageSegmentationTrainingsDataCreator
 
             if (string.IsNullOrEmpty(folderBrowserDialog1.SelectedPath)) return;
 
-
-
             calc = new Thread(() => runThread());
             button1.Enabled = false;
             timer1.Enabled = true;
@@ -58,27 +56,27 @@ namespace ImageSegmentationTrainingsDataCreator
 
             for (int a = 0; a < files.Length; a++)
             {
-                using Bitmap image = (Bitmap)Image.FromFile(files[a]);                           
+                using Bitmap image = ResizeBitmap((Bitmap)Image.FromFile(files[a]), new Size(128, 128));
                 int randomBackground = random.Next(0, backgroundFiles.Length);
                 using Bitmap currentBackground = ResizeBitmap((Bitmap)Image.FromFile(backgroundFiles[randomBackground]), new Size(250, 250));
 
                 using Graphics bg = Graphics.FromImage(currentBackground);
-                (Bitmap image, int maxHeightObject, int maxWidthObject, int topOffset, int leftOffset) ObjectCutout = MakeMask(image, Color.FromArgb(0, 0, 0, 0), Color.FromArgb(0, 0, 0, 0), Color.FromArgb(0, 0, 0, 0), false);
-                int newSize = random.Next(80, 128);
+                (Bitmap image, int maxHeightObject, int maxWidthObject, int topOffset, int leftOffset) ObjectCutout = MakeCutout(image, Color.FromArgb(0, 0, 0, 0), Color.FromArgb(0, 0, 0, 0), Color.FromArgb(0, 0, 0, 0), false);
+                int newSize = random.Next(80, 128);               
                 ObjectCutout.image = new Bitmap(ObjectCutout.image, new Size(newSize, newSize));
                 int xPos = random.Next(0, 250 - ObjectCutout.maxWidthObject + 20);
                 int yPos = random.Next(0, 250 - ObjectCutout.maxHeightObject + 20);
                 bg.DrawImage(ObjectCutout.image, xPos, yPos);
                 bg.Save();
 
-                currentBackground.Save(folderBrowserDialog1.SelectedPath + @"/.data/" + a + ".jpg");
+                currentBackground.Save(folderBrowserDialog1.SelectedPath + @"/.data/" + files[a].Replace(folderBrowserDialog1.SelectedPath, ""));
 
                 using Bitmap currentBackgroundNew = (Bitmap)Image.FromFile(@"../Mask_background.jpg");
                 using Graphics bg2 = Graphics.FromImage(currentBackgroundNew);
-                bg2.DrawImage(ResizeBitmap((Bitmap)Image.FromFile(files[a]), new Size(newSize, newSize)), xPos, yPos);
+                var test = makeMask(ObjectCutout.image, Color.FromArgb(68, 1, 84), Color.FromArgb(32, 143, 140));
+                bg2.DrawImage(test, xPos, yPos);
                 bg2.Save();
-                using Bitmap ObjectCutoutMask = MakeMask(currentBackgroundNew, Color.FromArgb(32, 143, 140), Color.FromArgb(68, 1, 84), Color.FromArgb(253, 231, 36), true).image;
-                ObjectCutoutMask.Save(folderBrowserDialog1.SelectedPath + @"/.masks/" + a + ".jpg");
+                currentBackgroundNew.Save(folderBrowserDialog1.SelectedPath + @"/.masks/" + files[a].Replace(folderBrowserDialog1.SelectedPath, ""));
 
                 BeginInvoke((MethodInvoker)delegate
                 {
@@ -86,14 +84,33 @@ namespace ImageSegmentationTrainingsDataCreator
                     progressBar1.Update();
                     label2.Text = a + 1 + " van de " + files.Length;
                     label2.Update();
-                    this.Update();
+                    Update();
                 });
             }
 
             MessageBox.Show("Klaar!");
         }
 
-        private (Bitmap image, int maxHeightObject, int maxWidthObject, int topOffset, int leftOffset) MakeMask(Bitmap image, Color backgroundColor, Color objectColor, Color borderColor, bool colorObject)
+        private Bitmap makeMask(Bitmap cutout, Color backgroundColor, Color objectColor)
+        {
+            //using (cutout)
+            for (int a = 0; a < cutout.Width; a++)
+            {
+                for (int b = 0; b < cutout.Height; b++)
+                {
+                    if (cutout.GetPixel(a, b).A > 0)
+                    {
+                        cutout.SetPixel(a, b, backgroundColor);
+                        continue;
+                    }
+
+                    cutout.SetPixel(a, b, objectColor);
+                }
+            }
+            return cutout;
+        }
+
+        private (Bitmap image, int maxHeightObject, int maxWidthObject, int topOffset, int leftOffset) MakeCutout(Bitmap image, Color backgroundColor, Color objectColor, Color borderColor, bool colorObject)
         {
             int leftOffset = 128;
             int topOffset = 128;
@@ -214,6 +231,7 @@ namespace ImageSegmentationTrainingsDataCreator
             if (calc.ThreadState == ThreadState.Stopped)
             {
                 button1.Enabled = true;
+                timer1.Enabled = false;
             }
         }
     }
