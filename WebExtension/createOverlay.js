@@ -78,9 +78,10 @@ if (!document.querySelector("#bolOverlay")) {
 		const createItem = (item) => {
 			// Gets the correct image url to display the image in the extension
 			const imgLink = chrome.runtime.getURL(`images/${item.image}`);
+			console.log(item);
 
 			const bolItem = elementFromHtml(`
-				<div class="bolItem">
+				<div class="bolItem" data-link="${item.link}">
 					<img class="bolItemImg" src="${imgLink}">
 					<div class="bolItemBody">
 						<div class="bolItemHeader">
@@ -92,11 +93,6 @@ if (!document.querySelector("#bolOverlay")) {
 						<div class="bolItemDescription">
 							<div class="bolItemDescImg"><img src="${imgLink}"></div>
 							<div class="bolItemDescText">${item.description}</div>
-						</div>
-						<div class="bolItemDetails">
-							<div class="bolItemSubCategory noWrap" title="${item.subCategory}">${
-				item.subCategory
-			}</div>
 							<div class="bolItemMatch">Match: ${item.match}%</div>
 						</div>
 					</div>
@@ -126,6 +122,24 @@ if (!document.querySelector("#bolOverlay")) {
 			) {
 				htmlHead.parentNode.removeChild(
 					document.getElementById("bolOverlay")
+				);
+			}
+		});
+
+		// Adds the onClick event on the title and the images to go to the product page on bol.com
+		bolElement.addEventListener("click", (e) => {
+			if (e.target.matches(".bolItemImg")) {
+				window.open(e.target.parentNode.dataset.link, "_blank");
+			} else if (e.target.matches(".bolItemTitle")) {
+				window.open(
+					e.target.parentNode.parentNode.parentNode.dataset.link,
+					"_blank"
+				);
+			} else if (e.target.matches(".bolItemDescImg img")) {
+				window.open(
+					e.target.parentNode.parentNode.parentNode.parentNode.dataset
+						.link,
+					"_blank"
 				);
 			}
 		});
