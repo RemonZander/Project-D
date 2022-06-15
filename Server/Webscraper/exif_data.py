@@ -126,7 +126,7 @@ class ExifData():
         subjectBytes.append(0)
         exifEnd = self.EndExifIndex(2);
 
-        imageBytes = bytearray(self.byteArray[exifEnd:len(self.byteArray) - exifEnd])
+        imageBytes = bytearray(self.byteArray[exifEnd:len(self.byteArray) - exifEnd + 20])
         mainCategoryPos = self.ToHex(62 + len(titleBytes) - 3 - 9, "")
         Titlepos = self.ToHex(60 + len(titleBytes) + len(subjectBytes) + 1 - 12, "")                           
         subCategoryPos = self.ToHex(62 + len(titleBytes) + len(subjectBytes) + 29 - 12, "")                        
