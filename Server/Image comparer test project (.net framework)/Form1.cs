@@ -86,6 +86,7 @@ namespace Image_comparer_test_project__.net_framework_
             comboBox1.Sorted = true;
             comboBox1.Enabled = true;
             textBox14.Enabled = true;
+            textBox18.Enabled = true;
         }
 
         private void button4_Click(object sender, EventArgs e)
@@ -327,6 +328,28 @@ namespace Image_comparer_test_project__.net_framework_
         private void textBox14_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void textBox18_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter && !string.IsNullOrEmpty(textBox18.Text) && Convert.ToInt32(textBox18.Text) > -1)
+            {
+
+                Directory.Delete(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\foto's", true);
+                Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\foto's");
+                for (int a = 0; a < results.Count; a++)
+                {
+                    double totalDiff = (Convert.ToDouble(results[a].HueDiffPercent.Replace("%", "")) +
+                        Convert.ToDouble(results[a].BrightnessDiffPercent.Replace("%", "")) +
+                        Convert.ToDouble(results[a].SaturationDiffPercent.Replace("%", ""))) / 3;
+                    if (totalDiff >= Convert.ToDouble(textBox18.Text))
+                    {
+                        string fileName = results.Where(r => r.FileName == results[a].FileName).Select(r => r.FileName).ToList()[0];
+
+                        File.Copy(folder + @"\" + fileName, Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\foto's\" + totalDiff + " " + fileName);
+                    }
+                }
+            }
         }
     }
 }

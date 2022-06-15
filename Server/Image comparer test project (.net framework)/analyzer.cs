@@ -46,7 +46,16 @@ namespace Image_comparer_test_project__.net_framework_
 
         private void Prepimage(string filename, bool firstImg, int secondImagePos)
         {
-            Bitmap image = (Bitmap)Bitmap.FromFile(filename);
+            Bitmap image = new Bitmap(1, 1);
+            try
+            {
+                image = (Bitmap)Bitmap.FromFile(filename);
+            }
+            catch (Exception e)
+            {
+                //MessageBox.Show(e.ToString());
+            }
+            
 
             double ratio = image.Height * 1.0 / image.Width;
             image = CropAtRect(image, new Rectangle(0, 0, 200, (int)(200 * ratio)));
@@ -317,15 +326,21 @@ namespace Image_comparer_test_project__.net_framework_
                 xAxisHue.Add(b);
             }
 
+            if (xAxisHue.Count == 1) xAxisHue.Add(1);
+
             for (int d = 0; d <= diffBrightness.Max(); d++)
             {
                 xAxisBrightness.Add(d);
             }
 
+            if (xAxisBrightness.Count == 1) xAxisBrightness.Add(1);
+
             for (int d = 0; d <= diffSaturation.Max(); d++)
             {
                 xAxisSaturation.Add(d);
             }
+
+            if (xAxisSaturation.Count == 1) xAxisSaturation.Add(1);
 
             List<int> yAxisHue = new List<int>();
             List<int> yAxisBrightness = new List<int>();
@@ -354,7 +369,7 @@ namespace Image_comparer_test_project__.net_framework_
             ds.Tables[pos].Columns.Add("xAxisSaturation");
             ds.Tables[pos].Columns.Add("yAxisSaturation");
 
-            var t = Task.Run(() => {
+/*            var t = Task.Run(() => {
                 for (int c = 0; c < xAxisHue.Count; c++)
                 {
                     ds.Tables[pos].Rows.Add(xAxisHue[c], yAxisHue[c], xAxisBrightness.Count > c ? xAxisBrightness[c] : 0,
@@ -362,7 +377,7 @@ namespace Image_comparer_test_project__.net_framework_
                         xAxisSaturation.Count > c ? xAxisSaturation[c] : 0,
                         yAxisSaturation.Count > c ? yAxisSaturation[c] : 0);
                 }
-            });
+            });*/
 
             if (mode == Modes.Folder)
             {
@@ -378,14 +393,18 @@ namespace Image_comparer_test_project__.net_framework_
                 comboBox1.Items.Add(secondImgSectorsCompare.FileName);
             }
 
+
+            string HueDiffPercent = (diffHue.Average() / (diffHue.Max() / 100.0)).ToString();
+            string BrightnessDiffPercent = (diffBrightness.Average() / (diffBrightness.Max() / 100.0)).ToString();
+            string SaturationDiffPercent = (diffSaturation.Average() / (diffSaturation.Max() / 100.0)).ToString();
             return new Results
             {
                 HueDifference = (int)diffHue.Average(),
                 BrightnessDifference = (int)diffBrightness.Average(),
                 SaturationDifference = (int)diffSaturation.Average(),
-                HueDiffPercent = (diffHue.Average() / (diffHue.Max() / 100.0)).ToString() + "%",
-                BrightnessDiffPercent = (diffBrightness.Average() / (diffBrightness.Max() / 100.0)).ToString() + "%",
-                SaturationDiffPercent = (diffSaturation.Average() / (diffSaturation.Max() / 100.0)).ToString() + "%",
+                HueDiffPercent = HueDiffPercent == "NaN" ? "0%" : HueDiffPercent + "%",
+                BrightnessDiffPercent = BrightnessDiffPercent == "NaN" ? "0%" : BrightnessDiffPercent + "%",
+                SaturationDiffPercent = SaturationDiffPercent == "NaN" ? "0%" : SaturationDiffPercent + "%",
                 FileName = secondImgSectorsCompare.FileName,
             };
         }
