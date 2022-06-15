@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>ceb0ce3f-6990-4a92-8f2a-05db5e03a4fe</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>ImageSegmentation\run.py</StartupFile>
+    <StartupFile>ImageSegmentation.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -25,6 +25,7 @@
     <Compile Include="ImageClassifier.py" />
     <Compile Include="ImageClassifier\run.py" />
     <Compile Include="ImageSegmentation.py" />
+    <Compile Include="ImageSegmentation\dataset.py" />
     <Compile Include="ImageSegmentation\run.py" />
     <Compile Include="TransferLearning.py" />
     <Compile Include="TransferLearning\IC+Save.py" />
