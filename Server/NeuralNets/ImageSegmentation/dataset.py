@@ -29,17 +29,15 @@ _CITATION = """\
 no...
 """
 
-_BASE_URL = "http://www.robots.ox.ac.uk/~vgg/data/pets/data"
-
 _LABEL_CLASSES = [
     "jassen", "korte_broeken", "lange_broeken",
     "slippers", "sneakers", "t-shirts"
 ]
 
-class OxfordIIITPet(tfds.core.GeneratorBasedBuilder):
+class boldataset(tfds.core.GeneratorBasedBuilder):
   """Oxford-IIIT pet dataset."""
 
-  VERSION = tfds.core.Version("3.2.0")
+  VERSION = tfds.core.Version("1.0.0")
 
   def _info(self):
     return tfds.core.DatasetInfo(
@@ -60,18 +58,10 @@ class OxfordIIITPet(tfds.core.GeneratorBasedBuilder):
         citation=_CITATION,
     )
 
-  def _split_generators(self, dl_manager):
+  def _split_generators(self, unknown):
     """Returns splits."""
-    # Download images and annotations that come in separate archives.
-    # Note, that the extension of archives is .tar.gz even though the actual
-    # archives format is uncompressed tar.
-    dl_paths = dl_manager.download_and_extract({
-        "images": _BASE_URL + "/images.tar.gz",
-        "annotations": _BASE_URL + "/annotations.tar.gz",
-    })
-
-    images_path_dir = os.path.join(dl_paths["images"], "images")
-    annotations_path_dir = os.path.join(dl_paths["annotations"], "annotations")
+    images_path_dir = "E:\\school bestanden\\HBO\\Informatica\\2020-2025\\Projecten\\Project D\\segmentation dataset\\images"
+    annotations_path_dir = "E:\\school bestanden\\HBO\\Informatica\\2020-2025\\Projecten\\Project D\\segmentation dataset\\masks"
 
     # Setup train and test splits
     train_split = tfds.core.SplitGenerator(
@@ -82,7 +72,7 @@ class OxfordIIITPet(tfds.core.GeneratorBasedBuilder):
             "annotations_dir_path":
                 annotations_path_dir,
             "images_list_file":
-                os.path.join(annotations_path_dir, "trainval.txt"),
+                os.path.join("E:\\school bestanden\\HBO\\Informatica\\2020-2025\\Projecten\\Project D\\segmentation dataset", "train.txt"),
         },
     )
     test_split = tfds.core.SplitGenerator(
@@ -90,7 +80,7 @@ class OxfordIIITPet(tfds.core.GeneratorBasedBuilder):
         gen_kwargs={
             "images_dir_path": images_path_dir,
             "annotations_dir_path": annotations_path_dir,
-            "images_list_file": os.path.join(annotations_path_dir, "test.txt")
+            "images_list_file": os.path.join("E:\\school bestanden\\HBO\\Informatica\\2020-2025\\Projecten\\Project D\\segmentation dataset", "test.txt")
         },
     )
 
@@ -100,11 +90,13 @@ class OxfordIIITPet(tfds.core.GeneratorBasedBuilder):
                          images_list_file):
     with tf.io.gfile.GFile(images_list_file, "r") as images_list:
       for line in images_list:
-        image_name, label, _ = line.strip().split(" ")
+        #image_name, label = line.strip().split(" ")
+        temp = line.split()
+        image_name, label = temp[0], temp[1]
 
-        trimaps_dir_path = os.path.join(annotations_dir_path, "trimaps")
+        #trimaps_dir_path = os.path.join(annotations_dir_path, "masks")
 
-        trimap_name = image_name + ".png"
+        trimap_name = image_name + ".jpg"
         image_name += ".jpg"
         label = int(label) - 1
 
@@ -112,6 +104,6 @@ class OxfordIIITPet(tfds.core.GeneratorBasedBuilder):
             "image": os.path.join(images_dir_path, image_name),
             "label": int(label),
             "file_name": image_name,
-            "segmentation_mask": os.path.join(trimaps_dir_path, trimap_name)
+            "segmentation_mask": os.path.join("E:\\school bestanden\\HBO\\Informatica\\2020-2025\\Projecten\\Project D\\segmentation dataset\\masks", trimap_name)
         }
         yield image_name, record

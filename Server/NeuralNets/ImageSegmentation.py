@@ -8,7 +8,7 @@ import os
 import PIL
 
 ####GLOBAL VARIABLES AND FUNCTIONS
-dataset, info = tfds.load('oxford_iiit_pet:3.*.*', with_info=True)
+dataset, info = tfds.load('boldataset', with_info=True)
 TRAIN_LENGTH = info.splits['train'].num_examples
 BATCH_SIZE = 64
 BUFFER_SIZE = 1000
@@ -33,7 +33,6 @@ def load_image(datapoint):
   return input_image, input_mask
 
 train_images = dataset['train'].map(load_image, num_parallel_calls=tf.data.AUTOTUNE)
-test = train_images.element_spec
 test_images = dataset['test'].map(load_image, num_parallel_calls=tf.data.AUTOTUNE)
 test_batches = test_images.batch(BATCH_SIZE)
 
@@ -57,7 +56,7 @@ class trainModel():
     train_batches = ""
     down_stack = ""
     model = "";
-    OUTPUT_CLASSES = 3
+    OUTPUT_CLASSES = 6
     EPOCHS = 20
     VAL_SUBSPLITS = 5
     model_history = ""
