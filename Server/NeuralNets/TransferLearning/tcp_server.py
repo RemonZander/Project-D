@@ -2,7 +2,7 @@ import socket
 import threading
 from Message import Message
 import json
-#import time
+import time
 #import random
 
 class ImageClassificationServer():
@@ -30,14 +30,14 @@ class ImageClassificationServer():
             recv_msg = conn.recv(self.BUFFER_MAX).decode(self.FORMAT)
             if recv_msg:
                 print(f"DUMMY SERVER: DUMMY SERVER: MESSAGE RECEIVED: {recv_msg}")
-                msg_string = json.loads(recv_msg)
-                msg_obj = Message.from_json(msg_string)
-                user_index = msg_obj.user_index
-                complex_case = msg_obj.complex_case
-                resp_msg = Message(user_index, "RESPONSE MESSAGE!", complex_case)
+                #msg_string = json.loads(recv_msg)
+                #msg_obj = Message.from_json(msg_string)
+                user_index = 1
+                complex_case = True
+                resp_msg = Message(user_index, "RESPONSE MESSAGE classification!", complex_case)
                 msg_str = resp_msg.to_json()
                 msg_bytes = msg_str.encode(self.FORMAT)
-                #time.sleep(float(random.randint(2,3)))
+                time.sleep(5)
                 msg_bytes += b" " * (self.BUFFER_MAX - len(msg_bytes))
                 conn.send(msg_bytes)
 

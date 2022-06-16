@@ -11,7 +11,7 @@ import socket
 import json
 from MessageType import MessageType
 from Message import Message
-
+import time
 
 
 #USER CONNECTS
@@ -223,6 +223,15 @@ class FlaskTCPClient:
         print("TCP CLIENT: STARTING...")
         print(socket.gethostbyname(socket.gethostname()))
         self.client.connect(self.ADDRESS_FLASK_TCP)
+
+        print("TCP CLIENT: SENDING REQUEST...")
+        converted_msg = "your mom".encode(self.FORMAT)
+        converted_msg += b" " * (self.BUFFER_MAX - len(converted_msg))
+        self.client.send(converted_msg)
+        time.sleep(2)
+        converted_msg = "your mom".encode(self.FORMAT)
+        converted_msg += b" " * (self.BUFFER_MAX - len(converted_msg))
+        self.client.send(converted_msg)
 
     def send_request(self, user_index: int, image, complex_case: bool) -> None:
         print("TCP CLIENT: SENDING REQUEST...")

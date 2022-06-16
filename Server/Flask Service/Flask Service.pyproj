@@ -30,6 +30,7 @@
     <Compile Include="image_validation.py" />
     <Compile Include="Message.py" />
     <Compile Include="MessageType.py" />
+    <Compile Include="tcp_dummy_server.py" />
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="CondaEnv|CondaEnv|SimpleNeuralNet" />
