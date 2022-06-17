@@ -2,13 +2,10 @@ import tensorflow as tf
 import tensorflow_datasets as tfds
 
 ####GLOBAL VARIABLES AND FUNCTIONS
-#dataset, info = tfds.load('oxford_iiit_pet:3.*.*', with_info=True)
-#TRAIN_LENGTH = info.splits['train'].num_examples
-#BATCH_SIZE = 64
 
 def normalize(input_image, input_mask):
   input_image = tf.cast(input_image, tf.float32) / 255.0
-  input_mask -= 1
+  #input_mask -= 1
   return input_image, input_mask
 
 def load_image(datapoint):
@@ -18,9 +15,6 @@ def load_image(datapoint):
   input_image, input_mask = normalize(input_image, input_mask)
 
   return input_image, input_mask
-
-#test_images = dataset['test'].map(load_image, num_parallel_calls=tf.data.AUTOTUNE)
-#test_batches = test_images.batch(BATCH_SIZE)
 
 def create_mask(pred_mask):
   pred_mask = tf.argmax(pred_mask, axis=-1)
@@ -55,7 +49,7 @@ def show_predictions(dataset=None, num=1):
       
         cutout.save('newImage.jpg')
 
-model = tf.keras.models.load_model('ImageSegmentation/model.h5')
+model = tf.keras.models.load_model('ImageSegmentation/background only.h5')
 
 testImages = []
 testImg = tf.keras.preprocessing.image.load_img('ImageSegmentation/test.jpg')
