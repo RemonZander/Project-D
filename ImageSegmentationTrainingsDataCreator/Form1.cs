@@ -38,14 +38,6 @@ namespace ImageSegmentationTrainingsDataCreator
         private void RunThread()
         {
             string[] files = Directory.GetFiles(folderBrowserDialog1.SelectedPath);
-            try
-            {
-                Directory.CreateDirectory(folderBrowserDialog1.SelectedPath + @"/.masks");
-                Directory.CreateDirectory(folderBrowserDialog1.SelectedPath + @"/.data");
-            }
-            catch (Exception)
-            {
-            }
             BeginInvoke((MethodInvoker)delegate
             {
                 progressBar1.Minimum = 0;
@@ -59,7 +51,8 @@ namespace ImageSegmentationTrainingsDataCreator
             using StreamWriter trainFile = File.CreateText(folderBrowserDialog1.SelectedPath + "/train.txt");
             using StreamWriter testFile = File.CreateText(folderBrowserDialog1.SelectedPath + "/test.txt");
             int testCount = 0;
-            for (int a = Convert.ToInt32(textBox3.Text); a < (files.Length + Convert.ToInt32(textBox3.Text)); a++)
+            int offset = Convert.ToInt32(textBox3.Text);
+            for (int a = offset; a < (files.Length + offset); a++)
             {
                 if (background)
                 {
@@ -77,8 +70,8 @@ namespace ImageSegmentationTrainingsDataCreator
                     bg.DrawImage(ObjectCutout.image, xPos, yPos);
                     bg.Save();
 
-                    currentBackground.Save(folderBrowserDialog1.SelectedPath + @"/.data/" + textBox1.Text + a + ".jpg");
-                    if ((a - Convert.ToInt32(textBox3.Text)) % 2 == 0 && testCount < 100)
+                    currentBackground.Save(@"C:\Users\remon\Desktop\images\" + textBox1.Text + a + ".png", ImageFormat.Png);
+                    if ((a - offset) % 2 == 0 && testCount < 2000)
                     {
                         testFile.WriteLine(textBox1.Text + a + " " + textBox2.Text);
                         testCount += 1;
@@ -94,17 +87,18 @@ namespace ImageSegmentationTrainingsDataCreator
                     using Bitmap mask = makeMask(ObjectCutout.image, Color.FromArgb(1, 1, 1), Color.FromArgb(2, 2, 2));
                     bg2.DrawImage(mask, xPos, yPos);
                     bg2.Save();
-                    currentBackgroundNew.Save(folderBrowserDialog1.SelectedPath + @"/.masks/" + textBox1.Text + a + ".png", ImageFormat.Png);
+                    currentBackgroundNew.Save(@"C:\Users\remon\Desktop\masks\" + textBox1.Text + a + ".png", ImageFormat.Png);
                 }
                 else
                 {
-                    File.Copy(files[a - Convert.ToInt32(textBox3.Text)], folderBrowserDialog1.SelectedPath + @"/.data/" + textBox1.Text + a + ".jpg");
+                    using Bitmap image = (Bitmap)Image.FromFile(files[a - offset]);
+                    image.Save(@"C:\Users\remon\Desktop\images\" + textBox1.Text + a + ".png", ImageFormat.Png);
 
-                    using Bitmap maskImage = (Bitmap)Image.FromFile(files[a - Convert.ToInt32(textBox3.Text)]);
+                    using Bitmap maskImage = (Bitmap)Image.FromFile(files[a - offset]);
                     using Bitmap mask = makeMask(maskImage, Color.FromArgb(1, 1, 1), Color.FromArgb(2, 2, 2));
-                    mask.Save(folderBrowserDialog1.SelectedPath + @"/.masks/" + textBox1.Text + a + ".png", ImageFormat.Png);
+                    mask.Save(@"C:\Users\remon\Desktop\masks\" + textBox1.Text + a + ".png", ImageFormat.Png);
 
-                    if ((a - Convert.ToInt32(textBox3.Text)) % 2 == 0 && testCount < 100)
+                    if ((a - offset) % 2 == 0 && testCount < 2000)
                     {
                         testFile.WriteLine(textBox1.Text + a + " " + textBox2.Text);
                         testCount += 1;
@@ -119,7 +113,7 @@ namespace ImageSegmentationTrainingsDataCreator
                 {
                     progressBar1.Value += 1;
                     progressBar1.Update();
-                    label2.Text = a - Convert.ToInt32(textBox3.Text) + 1 + " van de " + files.Length + " afbeeldingen";
+                    label2.Text = a - offset + 1 + " van de " + files.Length + " afbeeldingen";
                     label2.Update();
                     Update();
                 });
@@ -130,7 +124,6 @@ namespace ImageSegmentationTrainingsDataCreator
 
         private Bitmap makeMask(Bitmap cutout, Color backgroundColor, Color objectColor)
         {
-            //using (cutout)
             for (int a = 0; a < cutout.Width; a++)
             {
                 for (int b = 0; b < cutout.Height; b++)
