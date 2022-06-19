@@ -29,10 +29,19 @@ class TCPController():
     q = Queue()
     processingUser = False
     Processed_Results = []
+    segmentationClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    classificationClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    comparerClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def __init__(self):
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind(self.ADDRESS_FLASK_TCP)
+        print("CONNECTING TO SEGMENTATION SERVER...")
+        self.segmentationClient.connect(self.ADDRESS_IMAGE_SEGMENTATION)
+        print("CONNECTING TO CLASSIFICATION SERVER...")
+        self.classificationClient.connect(self.ADDRESS_IMAGE_CLASSIFICATION)
+        print("CONNECTING TO COMPARER SERVER...")
+        self.comparerClient.connect(self.ADDRESS_IMAGE_COMPARER)
 
     def StartServer(self):
         self.server.listen()
@@ -70,24 +79,18 @@ class TCPController():
             
 
     def ImageSegmentationClient(self, msg):
-        print("CONNECTING TO SEGMENTATION SERVER...")
-        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client.connect(self.ADDRESS_IMAGE_SEGMENTATION)
         converted_msg = msg.encode(self.FORMAT)
         print("SENDING MESSAGE...")
-        client.send(converted_msg)
-        msg = client.recv(128).decode(self.FORMAT)
+        self.segmentationClient.send(converted_msg)
+        msg = self.segmentationClient.recv(128).decode(self.FORMAT)
         print("RECEIVED MESAGE FROM SEGMENTATION SERVER. MESSAGE: " + msg)
         self.ImageClassificationClient(msg)
 
     def ImageClassificationClient(self, msg):
-        print("CONNECTING TO CLASSIFICATION SERVER...")
-        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client.connect(self.ADDRESS_IMAGE_CLASSIFICATION)
         converted_msg = msg.encode(self.FORMAT)
         print("SENDING MESSAGE...")
-        client.send(converted_msg)
-        msg = client.recv(128).decode(self.FORMAT)
+        self.classificationClient.send(converted_msg)
+        msg = self.classificationClient.recv(128).decode(self.FORMAT)
         #msg = Message.from_json(client.recv(128).decode(self.FORMAT))
         print("RECEIVED MESAGE FROM CLASSIFICATION SERVER. MESSAGE: " + msg)
         #if msg.complex_case:
@@ -101,13 +104,10 @@ class TCPController():
         self.Processed_Results = msg;
 
     def ImageComparerClient(self, msg):
-        print("CONNECTING TO COMPARER SERVER...")
-        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client.connect(self.ADDRESS_IMAGE_COMPARER)
         converted_msg = msg.encode(self.FORMAT)
         print("SENDING MESSAGE...")
-        client.send(converted_msg)
-        msg = client.recv(128).decode(self.FORMAT)
+        self.comparerClient.send(converted_msg)
+        msg = self.comparerClient.recv(128).decode(self.FORMAT)
         #msg = Message.from_json(client.recv(128).decode(self.FORMAT))
         print("RECEIVED MESAGE FROM COMPARER SERVER. MESSAGE: " + msg)
 

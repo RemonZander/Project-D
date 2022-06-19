@@ -3,6 +3,7 @@ import threading
 import json
 from MessageType import MessageType
 from Message import Message
+import time
 
 #PORT MAPPINGS:
 #CLIENT             -      SERVER                   :   PORT
@@ -66,5 +67,9 @@ class FlaskTCPClient:
 if __name__ == "__main__":
     tcp_client = FlaskTCPClient()
     msg = Message(MessageType.INIT_COMM, "yeeet")
+    msg = msg.to_json()
+    tcp_client.send(msg)
+    time.sleep(2)
+    msg = Message(MessageType.INIT_COMM, "yeeet2")
     msg = msg.to_json()
     tcp_client.send(msg)

@@ -14,7 +14,7 @@ namespace Image_comparer_test_project__.net_framework_
         public static void Main()
         {
             TcpClient client;
-            TcpListener server = new TcpListener(IPAddress.Parse("192.168.1.5"), 5053);
+            TcpListener server = new TcpListener(IPAddress.Parse("192.168.1.200"), 5053);
 
             server.Start();
             Byte[] bytes = new Byte[128];
