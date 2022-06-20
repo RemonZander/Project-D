@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
+using System.Drawing.Imaging;
 namespace ImageSegmentationTrainingsDataCreator
 {
     public partial class Form1 : Form
@@ -28,34 +29,30 @@ namespace ImageSegmentationTrainingsDataCreator
 
             if (string.IsNullOrEmpty(folderBrowserDialog1.SelectedPath)) return;
 
-            calc = new Thread(() => runThread());
+            calc = new Thread(() => RunThread());
             button1.Enabled = false;
             timer1.Enabled = true;
             calc.Start();
         }
 
-        private void runThread()
+        private void RunThread()
         {
             string[] files = Directory.GetFiles(folderBrowserDialog1.SelectedPath);
-            try
-            {
-                Directory.CreateDirectory(folderBrowserDialog1.SelectedPath + @"/.masks");
-                Directory.CreateDirectory(folderBrowserDialog1.SelectedPath + @"/.data");
-            }
-            catch (Exception)
-            {
-            }
             BeginInvoke((MethodInvoker)delegate
             {
                 progressBar1.Minimum = 0;
                 progressBar1.Maximum = files.Length;
                 progressBar1.Value = 0;
-                label2.Text = "0 van de " + files.Length;
+                label2.Text = "0 van de " + files.Length + " afbeeldingen";
             });
             string[] backgroundFiles = Directory.GetFiles(backgrounds);
             Random random = new Random();
 
-            for (int a = 0; a < files.Length; a++)
+            using StreamWriter trainFile = File.CreateText(folderBrowserDialog1.SelectedPath + "/train.txt");
+            using StreamWriter testFile = File.CreateText(folderBrowserDialog1.SelectedPath + "/test.txt");
+            int testCount = 0;
+            int offset = Convert.ToInt32(textBox3.Text);
+            for (int a = offset; a < (files.Length + offset); a++)
             {
                 if (background)
                 {
@@ -64,6 +61,7 @@ namespace ImageSegmentationTrainingsDataCreator
                     using Bitmap currentBackground = ResizeBitmap((Bitmap)Image.FromFile(backgroundFiles[randomBackground]), new Size(250, 250));
 
                     using Graphics bg = Graphics.FromImage(currentBackground);
+                    bg.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
                     (Bitmap image, int maxHeightObject, int maxWidthObject, int topOffset, int leftOffset) ObjectCutout = MakeCutout(image, Color.FromArgb(0, 0, 0, 0), Color.FromArgb(0, 0, 0, 0), Color.FromArgb(0, 0, 0, 0), false);
                     int newSize = random.Next(80, 128);
                     ObjectCutout.image = new Bitmap(ObjectCutout.image, new Size(newSize, newSize));
@@ -72,29 +70,50 @@ namespace ImageSegmentationTrainingsDataCreator
                     bg.DrawImage(ObjectCutout.image, xPos, yPos);
                     bg.Save();
 
-                    currentBackground.Save(folderBrowserDialog1.SelectedPath + @"/.data/" + files[a].Replace(folderBrowserDialog1.SelectedPath, ""));
+                    currentBackground.Save(@"C:\Users\remon\Desktop\images\" + textBox1.Text + a + ".png", ImageFormat.Png);
+                    if ((a - offset) % 2 == 0 && testCount < 2000)
+                    {
+                        testFile.WriteLine(textBox1.Text + a + " " + textBox2.Text);
+                        testCount += 1;
+                    }
+                    else
+                    {
+                        trainFile.WriteLine(textBox1.Text + a + " " + textBox2.Text);
+                    }
 
                     using Bitmap currentBackgroundNew = (Bitmap)Image.FromFile(@"../Mask_background.jpg");
                     using Graphics bg2 = Graphics.FromImage(currentBackgroundNew);
-                    using Bitmap mask = makeMask(ObjectCutout.image, Color.FromArgb(68, 1, 84), Color.FromArgb(32, 143, 140));
+                    bg2.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+                    using Bitmap mask = makeMask(ObjectCutout.image, Color.FromArgb(1, 1, 1), Color.FromArgb(2, 2, 2));
                     bg2.DrawImage(mask, xPos, yPos);
                     bg2.Save();
-                    currentBackgroundNew.Save(folderBrowserDialog1.SelectedPath + @"/.masks/" + files[a].Replace(folderBrowserDialog1.SelectedPath, ""));
+                    currentBackgroundNew.Save(@"C:\Users\remon\Desktop\masks\" + textBox1.Text + a + ".png", ImageFormat.Png);
                 }
                 else
                 {
-                    File.Copy(files[a], folderBrowserDialog1.SelectedPath + @"/.data/" + files[a].Replace(folderBrowserDialog1.SelectedPath, ""));
+                    using Bitmap image = (Bitmap)Image.FromFile(files[a - offset]);
+                    image.Save(@"C:\Users\remon\Desktop\images\" + textBox1.Text + a + ".png", ImageFormat.Png);
 
-                    using Bitmap maskImage = (Bitmap)Image.FromFile(files[a]);
-                    using Bitmap mask = makeMask(maskImage, Color.FromArgb(68, 1, 84), Color.FromArgb(32, 143, 140));
-                    mask.Save(folderBrowserDialog1.SelectedPath + @"/.masks/" + files[a].Replace(folderBrowserDialog1.SelectedPath, ""));
+                    using Bitmap maskImage = (Bitmap)Image.FromFile(files[a - offset]);
+                    using Bitmap mask = makeMask(maskImage, Color.FromArgb(1, 1, 1), Color.FromArgb(2, 2, 2));
+                    mask.Save(@"C:\Users\remon\Desktop\masks\" + textBox1.Text + a + ".png", ImageFormat.Png);
+
+                    if ((a - offset) % 2 == 0 && testCount < 2000)
+                    {
+                        testFile.WriteLine(textBox1.Text + a + " " + textBox2.Text);
+                        testCount += 1;
+                    }
+                    else
+                    {
+                        trainFile.WriteLine(textBox1.Text + a + " " + textBox2.Text);
+                    }
                 }
 
                 BeginInvoke((MethodInvoker)delegate
                 {
                     progressBar1.Value += 1;
                     progressBar1.Update();
-                    label2.Text = a + 1 + " van de " + files.Length;
+                    label2.Text = a - offset + 1 + " van de " + files.Length + " afbeeldingen";
                     label2.Update();
                     Update();
                 });
@@ -105,7 +124,6 @@ namespace ImageSegmentationTrainingsDataCreator
 
         private Bitmap makeMask(Bitmap cutout, Color backgroundColor, Color objectColor)
         {
-            //using (cutout)
             for (int a = 0; a < cutout.Width; a++)
             {
                 for (int b = 0; b < cutout.Height; b++)
@@ -113,16 +131,16 @@ namespace ImageSegmentationTrainingsDataCreator
                     Color pixelColor = cutout.GetPixel(a, b);
                     if (pixelColor.A > 0 && background)
                     {
-                        cutout.SetPixel(a, b, backgroundColor);
+                        cutout.SetPixel(a, b, objectColor);
                         continue;
                     }
                     else if (pixelColor.R > 245 && pixelColor.G > 245 && pixelColor.B > 245 && !background)
                     {
-                        cutout.SetPixel(a, b, backgroundColor);
+                        cutout.SetPixel(a, b, objectColor);
                         continue;
                     }
 
-                        cutout.SetPixel(a, b, objectColor);
+                    cutout.SetPixel(a, b, backgroundColor);
                 }
             }
             return cutout;
@@ -144,88 +162,6 @@ namespace ImageSegmentationTrainingsDataCreator
                     {
                         image.SetPixel(a, b, backgroundColor);
                     }
-                   /* else if (colorObject && color != borderColor && color != backgroundColor && color != Color.FromArgb(32, 142, 139))
-                    {
-                        if (a < 249 && a > 0)
-                        {
-                            Color pixelRight = image.GetPixel(a + 1, b);
-                            if ((pixelRight.R > 245 && pixelRight.G > 245 && pixelRight.B > 245) || pixelRight == backgroundColor || pixelRight == Color.FromArgb(32, 142, 139))
-                            {
-                                try
-                                {
-                                    image.SetPixel(a, b, borderColor);
-                                    image.SetPixel(a + 1, b, borderColor);
-                                    image.SetPixel(a + 2, b, borderColor);
-                                    image.SetPixel(a + 3, b, borderColor);
-                                    image.SetPixel(a + 4, b, borderColor);
-
-                                }
-                                catch (Exception)
-                                {
-                                }
-                                continue;
-                            }
-
-                            Color pixelLeft = image.GetPixel(a - 1, b);
-                            if ((pixelLeft.R > 245 && pixelLeft.G > 245 && pixelLeft.B > 245) || pixelLeft == backgroundColor || pixelLeft == Color.FromArgb(32, 142, 139))
-                            {
-                                try
-                                {
-                                    image.SetPixel(a, b, borderColor);
-                                    image.SetPixel(a - 1, b, borderColor);
-                                    image.SetPixel(a - 2, b, borderColor);
-                                    image.SetPixel(a - 3, b, borderColor);
-                                    image.SetPixel(a - 4, b, borderColor);
-
-                                }
-                                catch (Exception)
-                                {
-                                }
-                                continue;
-                            }
-                        }
-
-                        if (b < 249 && b > 0)
-                        {
-                            
-                            Color pixelUnder = image.GetPixel(a, b + 1);
-                            if ((pixelUnder.R > 245 && pixelUnder.G > 245 && pixelUnder.B > 245) || pixelUnder == backgroundColor || pixelUnder == Color.FromArgb(32, 142, 139))
-                            {
-                                try
-                                {
-                                    image.SetPixel(a, b, borderColor);
-                                    image.SetPixel(a, b + 1, borderColor);
-                                    image.SetPixel(a, b + 2, borderColor);
-                                    image.SetPixel(a, b + 3, borderColor);
-                                    image.SetPixel(a, b + 4, borderColor);
-
-                                }
-                                catch (Exception)
-                                {
-                                }
-                                continue;
-                            }
-
-                            Color pixelAbove = image.GetPixel(a, b - 1);
-                            if ((pixelAbove.R > 245 && pixelAbove.G > 245 && pixelAbove.B > 245) || pixelAbove == backgroundColor || pixelAbove == Color.FromArgb(32, 142, 139))
-                            {
-                                try
-                                {
-                                    image.SetPixel(a, b, borderColor);
-                                    image.SetPixel(a, b - 1, borderColor);
-                                    image.SetPixel(a, b - 2, borderColor);
-                                    image.SetPixel(a, b - 3, borderColor);
-                                    image.SetPixel(a, b - 4, borderColor);
-
-                                }
-                                catch (Exception)
-                                {
-                                }
-                                continue;
-                            }
-                        }
-                        image.SetPixel(a, b, objectColor);
-                    }*/
                     else
                     {
                         if (a < leftOffset) leftOffset = a;
