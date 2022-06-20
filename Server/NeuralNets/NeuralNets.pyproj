@@ -42,7 +42,6 @@
   <ItemGroup>
     <Content Include="env.yml" />
     <Content Include="ImageClassifier\model.h5" />
-    <Content Include="requirements.txt" />
     <Content Include="TransferLearning\ICmodel.h5" />
   </ItemGroup>
   <ItemGroup>

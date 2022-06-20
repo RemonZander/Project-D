@@ -49,10 +49,10 @@ def show_predictions(dataset=None, num=1):
       
         cutout.save('newImage.jpg')
 
-model = tf.keras.models.load_model('ImageSegmentation/model 90-10.h5')
+model = tf.keras.models.load_model('ImageSegmentation/model 90-10 only background.h5')
 
 testImages = []
-testImg = tf.keras.preprocessing.image.load_img('ImageSegmentation/test.png')
+testImg = tf.keras.preprocessing.image.load_img('ImageSegmentation/test 5.jpg')
 testImg = tf.image.resize(testImg, [128, 128])
 img_array = tf.cast(testImg, tf.float32) / 255.0
 batch = tf.expand_dims(img_array, 0)
