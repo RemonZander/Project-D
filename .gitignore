@@ -31,3 +31,8 @@
 /ImageSegmentationTrainingsDataCreator\obj
 /ImageSegmentationTrainingsDataCreator/bin/Debug
 /ImageSegmentationTrainingsDataCreator/obj
+/segmentation dataset
+/Server/Flask Service/__pycache__
+/Server/TCP controller/__pycache__
+/Server/neuralNets/TransferLearning/__pycache__
+/Server/neuralNets/ImageSegmentation/__pycache__
