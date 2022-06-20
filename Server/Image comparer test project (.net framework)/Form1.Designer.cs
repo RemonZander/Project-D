@@ -1,6 +1,6 @@
 ﻿namespace Image_comparer_test_project__.net_framework_
 {
-    partial class Form1
+    internal sealed partial class Form1
     {
         /// <summary>
         /// Required designer variable.
@@ -74,11 +74,30 @@
             this.label8 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.textBox18 = new System.Windows.Forms.TextBox();
+            this.label22 = new System.Windows.Forms.Label();
+            this.textBox17 = new System.Windows.Forms.TextBox();
+            this.label21 = new System.Windows.Forms.Label();
+            this.textBox16 = new System.Windows.Forms.TextBox();
+            this.label20 = new System.Windows.Forms.Label();
+            this.textBox15 = new System.Windows.Forms.TextBox();
+            this.label19 = new System.Windows.Forms.Label();
+            this.textBox14 = new System.Windows.Forms.TextBox();
+            this.label18 = new System.Windows.Forms.Label();
+            this.label17 = new System.Windows.Forms.Label();
+            this.textBox13 = new System.Windows.Forms.TextBox();
+            this.textBox12 = new System.Windows.Forms.TextBox();
+            this.label16 = new System.Windows.Forms.Label();
+            this.label15 = new System.Windows.Forms.Label();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.textBox11 = new System.Windows.Forms.TextBox();
+            this.label14 = new System.Windows.Forms.Label();
             this.textBox10 = new System.Windows.Forms.TextBox();
             this.label13 = new System.Windows.Forms.Label();
             this.textBox9 = new System.Windows.Forms.TextBox();
             this.label12 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
+            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -128,18 +147,21 @@
             this.chart1.Location = new System.Drawing.Point(344, 27);
             this.chart1.Name = "chart1";
             series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             series1.Legend = "Legend1";
             series1.Name = "Series1";
             series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             series2.Legend = "Legend1";
             series2.Name = "Series2";
             series3.ChartArea = "ChartArea1";
+            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             series3.Legend = "Legend1";
             series3.Name = "Series3";
             this.chart1.Series.Add(series1);
             this.chart1.Series.Add(series2);
             this.chart1.Series.Add(series3);
-            this.chart1.Size = new System.Drawing.Size(845, 426);
+            this.chart1.Size = new System.Drawing.Size(1051, 612);
             this.chart1.TabIndex = 6;
             this.chart1.Text = "chart1";
             // 
@@ -184,7 +206,7 @@
             this.exitToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1201, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(1407, 24);
             this.menuStrip1.TabIndex = 14;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -201,21 +223,21 @@
             // openAfbeelding1ToolStripMenuItem
             // 
             this.openAfbeelding1ToolStripMenuItem.Name = "openAfbeelding1ToolStripMenuItem";
-            this.openAfbeelding1ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openAfbeelding1ToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
             this.openAfbeelding1ToolStripMenuItem.Text = "Open afbeelding 1";
             this.openAfbeelding1ToolStripMenuItem.Click += new System.EventHandler(this.openAfbeelding1ToolStripMenuItem_Click);
             // 
             // openAfbeelding2ToolStripMenuItem
             // 
             this.openAfbeelding2ToolStripMenuItem.Name = "openAfbeelding2ToolStripMenuItem";
-            this.openAfbeelding2ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openAfbeelding2ToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
             this.openAfbeelding2ToolStripMenuItem.Text = "Open afbeelding 2";
             this.openAfbeelding2ToolStripMenuItem.Click += new System.EventHandler(this.openAfbeelding2ToolStripMenuItem_Click);
             // 
             // openFolderToolStripMenuItem
             // 
             this.openFolderToolStripMenuItem.Name = "openFolderToolStripMenuItem";
-            this.openFolderToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openFolderToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
             this.openFolderToolStripMenuItem.Text = "Open folder";
             this.openFolderToolStripMenuItem.Click += new System.EventHandler(this.openFolderToolStripMenuItem_Click);
             // 
@@ -234,7 +256,7 @@
             this.singleModeToolStripMenuItem,
             this.folderModeToolStripMenuItem});
             this.modusToolStripMenuItem.Name = "modusToolStripMenuItem";
-            this.modusToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.modusToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
             this.modusToolStripMenuItem.Text = "Modus";
             // 
             // singleModeToolStripMenuItem
@@ -260,41 +282,41 @@
             this.vierakantToolStripMenuItem,
             this.exponentieelToolStripMenuItem});
             this.pixelGewichtenToolStripMenuItem.Name = "pixelGewichtenToolStripMenuItem";
-            this.pixelGewichtenToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.pixelGewichtenToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
             this.pixelGewichtenToolStripMenuItem.Text = "Pixel gewichten";
             // 
             // geenToolStripMenuItem
             // 
             this.geenToolStripMenuItem.Name = "geenToolStripMenuItem";
-            this.geenToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.geenToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
             this.geenToolStripMenuItem.Text = "Geen";
             this.geenToolStripMenuItem.Click += new System.EventHandler(this.geenToolStripMenuItem_Click);
             // 
             // logaritmischToolStripMenuItem
             // 
             this.logaritmischToolStripMenuItem.Name = "logaritmischToolStripMenuItem";
-            this.logaritmischToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.logaritmischToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
             this.logaritmischToolStripMenuItem.Text = "Logaritmisch";
             this.logaritmischToolStripMenuItem.Click += new System.EventHandler(this.logaritmischToolStripMenuItem_Click);
             // 
             // linearToolStripMenuItem
             // 
             this.linearToolStripMenuItem.Name = "linearToolStripMenuItem";
-            this.linearToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.linearToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
             this.linearToolStripMenuItem.Text = "Linear";
             this.linearToolStripMenuItem.Click += new System.EventHandler(this.linearToolStripMenuItem_Click);
             // 
             // vierakantToolStripMenuItem
             // 
             this.vierakantToolStripMenuItem.Name = "vierakantToolStripMenuItem";
-            this.vierakantToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.vierakantToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
             this.vierakantToolStripMenuItem.Text = "Vierkant";
             this.vierakantToolStripMenuItem.Click += new System.EventHandler(this.vierakantToolStripMenuItem_Click);
             // 
             // exponentieelToolStripMenuItem
             // 
             this.exponentieelToolStripMenuItem.Name = "exponentieelToolStripMenuItem";
-            this.exponentieelToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exponentieelToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
             this.exponentieelToolStripMenuItem.Text = "Exponentieel";
             this.exponentieelToolStripMenuItem.Click += new System.EventHandler(this.exponentieelToolStripMenuItem_Click);
             // 
@@ -463,6 +485,24 @@
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.textBox18);
+            this.panel2.Controls.Add(this.label22);
+            this.panel2.Controls.Add(this.textBox17);
+            this.panel2.Controls.Add(this.label21);
+            this.panel2.Controls.Add(this.textBox16);
+            this.panel2.Controls.Add(this.label20);
+            this.panel2.Controls.Add(this.textBox15);
+            this.panel2.Controls.Add(this.label19);
+            this.panel2.Controls.Add(this.textBox14);
+            this.panel2.Controls.Add(this.label18);
+            this.panel2.Controls.Add(this.label17);
+            this.panel2.Controls.Add(this.textBox13);
+            this.panel2.Controls.Add(this.textBox12);
+            this.panel2.Controls.Add(this.label16);
+            this.panel2.Controls.Add(this.label15);
+            this.panel2.Controls.Add(this.comboBox1);
+            this.panel2.Controls.Add(this.textBox11);
+            this.panel2.Controls.Add(this.label14);
             this.panel2.Controls.Add(this.textBox10);
             this.panel2.Controls.Add(this.label13);
             this.panel2.Controls.Add(this.textBox9);
@@ -476,8 +516,167 @@
             this.panel2.Controls.Add(this.textBox1);
             this.panel2.Location = new System.Drawing.Point(12, 205);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(326, 229);
+            this.panel2.Size = new System.Drawing.Size(326, 434);
             this.panel2.TabIndex = 21;
+            // 
+            // textBox18
+            // 
+            this.textBox18.Enabled = false;
+            this.textBox18.Location = new System.Drawing.Point(189, 405);
+            this.textBox18.Name = "textBox18";
+            this.textBox18.Size = new System.Drawing.Size(134, 20);
+            this.textBox18.TabIndex = 42;
+            this.textBox18.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox18_KeyDown);
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(3, 408);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(180, 13);
+            this.label22.TabIndex = 41;
+            this.label22.Text = "Data dump boven totaal verhouding:";
+            // 
+            // textBox17
+            // 
+            this.textBox17.Location = new System.Drawing.Point(85, 276);
+            this.textBox17.Name = "textBox17";
+            this.textBox17.ReadOnly = true;
+            this.textBox17.Size = new System.Drawing.Size(238, 20);
+            this.textBox17.TabIndex = 40;
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(3, 279);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(76, 13);
+            this.label21.TabIndex = 39;
+            this.label21.Text = "Verschil totaal:";
+            // 
+            // textBox16
+            // 
+            this.textBox16.Location = new System.Drawing.Point(164, 250);
+            this.textBox16.Name = "textBox16";
+            this.textBox16.ReadOnly = true;
+            this.textBox16.Size = new System.Drawing.Size(159, 20);
+            this.textBox16.TabIndex = 38;
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(3, 253);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(154, 13);
+            this.label20.TabIndex = 37;
+            this.label20.Text = "Verschil Saturation verhouding:";
+            // 
+            // textBox15
+            // 
+            this.textBox15.Location = new System.Drawing.Point(164, 224);
+            this.textBox15.Name = "textBox15";
+            this.textBox15.ReadOnly = true;
+            this.textBox15.Size = new System.Drawing.Size(159, 20);
+            this.textBox15.TabIndex = 36;
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(3, 227);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(155, 13);
+            this.label19.TabIndex = 35;
+            this.label19.Text = "Verschil Brightness verhouding:";
+            // 
+            // textBox14
+            // 
+            this.textBox14.Enabled = false;
+            this.textBox14.Location = new System.Drawing.Point(178, 379);
+            this.textBox14.Name = "textBox14";
+            this.textBox14.Size = new System.Drawing.Size(145, 20);
+            this.textBox14.TabIndex = 34;
+            this.textBox14.TextChanged += new System.EventHandler(this.textBox14_TextChanged);
+            this.textBox14.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox14_KeyDown);
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label18.Location = new System.Drawing.Point(125, 299);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(51, 24);
+            this.label18.TabIndex = 33;
+            this.label18.Text = "Data";
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(3, 382);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(177, 13);
+            this.label17.TabIndex = 32;
+            this.label17.Text = "Data dump onder totaal verhouding:";
+            // 
+            // textBox13
+            // 
+            this.textBox13.Location = new System.Drawing.Point(95, 353);
+            this.textBox13.Name = "textBox13";
+            this.textBox13.ReadOnly = true;
+            this.textBox13.Size = new System.Drawing.Size(111, 20);
+            this.textBox13.TabIndex = 31;
+            // 
+            // textBox12
+            // 
+            this.textBox12.Location = new System.Drawing.Point(212, 353);
+            this.textBox12.Name = "textBox12";
+            this.textBox12.ReadOnly = true;
+            this.textBox12.Size = new System.Drawing.Size(111, 20);
+            this.textBox12.TabIndex = 30;
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(3, 356);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(86, 13);
+            this.label16.TabIndex = 29;
+            this.label16.Text = "Bestandsnamen:";
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(3, 329);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(86, 13);
+            this.label15.TabIndex = 28;
+            this.label15.Text = "Kies vergelijking:";
+            // 
+            // comboBox1
+            // 
+            this.comboBox1.Enabled = false;
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Location = new System.Drawing.Point(95, 326);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(228, 21);
+            this.comboBox1.TabIndex = 27;
+            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+            // 
+            // textBox11
+            // 
+            this.textBox11.Location = new System.Drawing.Point(133, 198);
+            this.textBox11.Name = "textBox11";
+            this.textBox11.ReadOnly = true;
+            this.textBox11.Size = new System.Drawing.Size(190, 20);
+            this.textBox11.TabIndex = 26;
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(3, 201);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(124, 13);
+            this.label14.TabIndex = 25;
+            this.label14.Text = "Verschil hue verhouding:";
             // 
             // textBox10
             // 
@@ -527,7 +726,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1201, 471);
+            this.ClientSize = new System.Drawing.Size(1407, 647);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.chart1);
@@ -594,6 +793,25 @@
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.TextBox textBox10;
         private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
+        private System.Windows.Forms.TextBox textBox11;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.TextBox textBox13;
+        private System.Windows.Forms.TextBox textBox12;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.TextBox textBox14;
+        private System.Windows.Forms.TextBox textBox16;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.TextBox textBox15;
+        private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.TextBox textBox17;
+        private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.TextBox textBox18;
+        private System.Windows.Forms.Label label22;
     }
 }
 

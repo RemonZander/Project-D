@@ -1,24 +1,28 @@
-from email.mime import image
-from pickle import NONE, TRUE
 import tensorflow as tf
 import tensorflow_datasets as tfds
 from tensorflow_examples.models.pix2pix import pix2pix
 from IPython.display import clear_output
 import matplotlib.pyplot as plt
-from PIL import Image
+import pathlib
+import os
+import PIL
 
 ####GLOBAL VARIABLES AND FUNCTIONS
-dataset, info = tfds.load('oxford_iiit_pet:3.*.*', with_info=True)
+dataset, info = tfds.load('boldataset', with_info=True)
 TRAIN_LENGTH = info.splits['train'].num_examples
 BATCH_SIZE = 64
 BUFFER_SIZE = 1000
 STEPS_PER_EPOCH = TRAIN_LENGTH // BATCH_SIZE
 model = "";
 
+Images_dir = "E:\\school bestanden\\HBO\\Informatica\\2020-2025\\Projecten\\testset\\data" # TEMP PATH
+masks_dir = "E:\\school bestanden\\HBO\\Informatica\\2020-2025\\Projecten\\testset\\masks" # TEMP PATH
+
 def normalize(input_image, input_mask):
-  input_image = tf.cast(input_image, tf.float32) / 255.0
-  input_mask -= 1
-  return input_image, input_mask
+    input_image = tf.cast(input_image, tf.float32) / 255.0
+    #input_mask = tf.cast(input_mask, tf.float32) / 255.0
+    input_mask -= 1
+    return input_image, input_mask
 
 def load_image(datapoint):
   input_image = tf.image.resize(datapoint['image'], (128, 128))
@@ -52,7 +56,7 @@ class trainModel():
     train_batches = ""
     down_stack = ""
     model = "";
-    OUTPUT_CLASSES = 3
+    OUTPUT_CLASSES = 6
     EPOCHS = 20
     VAL_SUBSPLITS = 5
     model_history = ""
@@ -83,6 +87,9 @@ class trainModel():
             .repeat()
             .map(Augment())
             .prefetch(buffer_size=tf.data.AUTOTUNE))
+        #self.train_batches = (
+         #   train_images
+        #)
         self.base_model_outputs = [self.base_model.get_layer(name).output for name in self.layer_names]
         # Create the feature extraction model
         self.down_stack = tf.keras.Model(inputs=self.base_model.input, outputs=self.base_model_outputs)
