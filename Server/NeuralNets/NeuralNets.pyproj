@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>ceb0ce3f-6990-4a92-8f2a-05db5e03a4fe</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>ImageSegmentation.py</StartupFile>
+    <StartupFile>ImageSegmentation\run.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -12,6 +12,7 @@
     <Name>NeuralNets</Name>
     <RootNamespace>NeuralNets</RootNamespace>
     <InterpreterId>CondaEnv|CondaEnv|TensorflowENV</InterpreterId>
+    <SuppressEnvironmentCreationPrompt>True</SuppressEnvironmentCreationPrompt>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -25,6 +26,7 @@
     <Compile Include="ImageClassifier.py" />
     <Compile Include="ImageClassifier\run.py" />
     <Compile Include="ImageSegmentation.py" />
+    <Compile Include="ImageSegmentation\dataset.py" />
     <Compile Include="ImageSegmentation\run.py" />
     <Compile Include="ImageSegmentation\tcp_server.py" />
     <Compile Include="TransferLearning.py" />
@@ -42,8 +44,6 @@
   <ItemGroup>
     <Content Include="env.yml" />
     <Content Include="ImageClassifier\model.h5" />
-    <Content Include="ImageSegmentation\model.h5" />
-    <Content Include="requirements.txt" />
     <Content Include="TransferLearning\ICmodel.h5" />
   </ItemGroup>
   <ItemGroup>
