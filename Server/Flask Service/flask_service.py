@@ -53,13 +53,35 @@ index_gap_list_lock = threading.Lock()
 highest_user_index_lock = threading.Lock()
 tcp_client_lock = threading.Lock()
 
-def search_event_by_user_index(user_index) -> threading.Event:
+def search_event_by_user_index(user_index: int) -> threading.Event:
+    """
+    Iterates through global `event_list` and returns first instance where Item1 in tuple == `user_index`
+
+    Parameters
+    ---------
+    - `user_index` (int): The index to be removed
+
+    Returns
+    ---------
+    - threading.Event: Event which contains `user_index` as first value in it's tuple
+    """
     global event_list
     for event in event_list:
         if event[0] == user_index:
             return event[1]
 
-def remove_event_by_user_index(user_index) -> threading.Event:
+def remove_event_by_user_index(user_index: int) -> None:
+    """
+    Removes event which contains id `user_index` as first value in tuple from global `event_list`.
+
+    Parameters
+    ---------
+    - `user_index` (int): The index to be removed
+
+    Returns
+    ---------
+    - None
+    """
     global event_list
     event_to_remove = ""
     for event in event_list:
@@ -292,20 +314,34 @@ class FlaskTCPClient:
         self.client: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def start_tcp_client(self) -> None:
+        """
+        Connects `self.client` to `self.ADRESS_FLASK_TCP` as a client.
+        Parameters
+        ---------
+        - None
+
+        Returns
+        ---------
+        - None
+        """
         print("TCP CLIENT: STARTING...")
         print(socket.gethostbyname(socket.gethostname()))
         self.client.connect(self.ADDRESS_FLASK_TCP)
 
+    def send_request(self, user_index: int, image_bytes: bytes, complex_case: bool) -> None:
         """
-        print("TCP CLIENT: SENDING REQUEST...")
-        #self.client.send(converted_msg)
-        time.sleep(2)
-        converted_msg = "your mom".encode(self.FORMAT)
-        converted_msg += b" " * (self.BUFFER_MAX - len(converted_msg))
-        self.client.send(converted_msg)
-        """
+        Sends a `Message` object containing given variables to `self.ADRESS_FLASK_TCP`
 
-    def send_request(self, user_index: int, image_bytes, complex_case: bool) -> None:
+        Variables
+        ---------
+        - user_index (int): Attribtute for `Message` object to be sent
+        - image_bytes (bytes): Attribtute for `Message` object to be sent
+        - complex_cases (bool): Attribtute for `Message` object to be sent
+
+        Returns
+        ---------
+        - None
+        """
         print("TCP CLIENT: SENDING REQUEST...")
         self.lock.acquire()
         if self.client_amount == 0:
@@ -322,11 +358,6 @@ class FlaskTCPClient:
         converted_msg = msg_json.encode("ascii")
         print(f"TCP CLIENT: MESSAGE LENGTH: {len(converted_msg)}")
         
-
-
-
-
-
         """
         image_bytes_decoded = image_base64.decode("ascii")
         image_bytes = image_bytes_decoded.encode("ascii") #self.format
@@ -349,6 +380,18 @@ class FlaskTCPClient:
         self.client.send(converted_msg)
 
     def listen(self) -> None:
+        """
+        Listens on `self..ADRESS_FLASK_TCP` as long as `self.client_amount` gt 0.
+        When a message is received, global `tcp_result` gets assigned to the message. After which the event storing the same `user_index` from msg gets triggered.
+
+        Variables
+        ---------
+        - None
+
+        Returns
+        ---------
+        - None
+        """
         global tcp_result
         global event_list
 
