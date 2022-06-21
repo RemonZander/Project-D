@@ -12,7 +12,8 @@ import json
 from MessageType import MessageType
 from Message import Message
 import time
-
+from time import sleep
+import base64
 
 #USER CONNECTS
 #NEW THREAD
@@ -71,43 +72,52 @@ class FlaskHTTPServer():
     def __init__(self):
         self.app = Flask(__name__)
         self.app.add_url_rule("/image", "image", self.handle_extension_post, methods=["POST"])
-        self.app.add_url_rule("/test", "test", self.test_handle, methods=["GET"])
         self.app.run(debug=True)
 
     def handle_extension_post(self):
         if request.method == "POST":
-            print("FLASK SERVER: NEW CLIENT CONNECTING...")
+            #print("FLASK SERVER: NEW CLIENT CONNECTING...")
+            #sleep(10)
+            #print("FLASK SERVER: CLIENT LEAVING...")
+            
             #INPUT VALIDATION
-
             image = request.files["image"]
+            print(type(image))
             if not validate_image(image):
                 return {"errorCode": 415, "message": "The media format of the requested data is not supported by the server, so the server is rejecting the request." }, 415
-
-            #CREATE THREAD FOR EACH USER
-            #thread = threading.Thread(target=self.handle_request, args=request.files["image"])
-            #thread.start()
 
             complex_case = request.form["complex_case"]
             print(f"IMAGE TYPE: {type(image)}")
 
-            #with concurrent.futures.ThreadPoolExecutor() as executor:
-                #future = executor.submit(self.handle_request, request.files["image"])
-               #result = future.result()
-                #return result
+            #TODO: RESCALE IMAGE, MAX IMAGE SIZE? 
+            image_bytes = image.read()
+            image_base64 = base64.b64encode(image_bytes)
+            image_base64 = image_base64.decode("ascii")
+            msg = Message("1", image_base64 , complex_case) #TODO: Create message from image
+            msg = msg.to_json()
+            #CONVERT MSG TO BYTES
+            converted_msg = msg.encode("ascii")
+            print(f"TCP CLIENT: MESSAGE LENGTH: {len(converted_msg)}")
+            msg_str = converted_msg.decode("ascii")
+            msg_dict = json.loads(msg_str)
+            msg_obj = Message.from_json(msg_dict)
+            image_attr = msg_obj.content.encode("ascii")
 
-            #return self.handle_request(image, complex_case)
-            return "yeet"
+            #image_base64 = image_base64.encode("ascii")
+            image_base64 = base64.b64decode(image_attr)
+            with open ("testimage.jpg", "wb") as b:
+                print("writing")
+                b.write(image_base64)
+                print("Written")
 
-    def test_handle(self):
-        if request.method == "GET":
-            return "Get"
 
-    def debug_func(self):
-        #with concurrent.futures.ThreadPoolExecutor() as executor:
-            #executor.submit(self.handle_request, "payload", True)
+            #ADD PADDING TO MAKE MSG SIZE 250000
+            #converted_msg += b" " * (self.BUFFER_MAX - len(converted_msg))
 
-        thread = threading.Thread(target=self.handle_request, args=("payload", True))
-        thread.start()
+
+            #print(len(image_bytes))
+            #return self.handle_request(image_base64, complex_case)
+            return "True"
 
     def handle_request(self, image, complex_case: bool):
         print("FLASK SERVER: HANDLING REQUEST...")
@@ -208,7 +218,7 @@ class FlaskHTTPServer():
 #ADDRESS_FLASK_TCP = (socket.gethostbyname(socket.gethostname()), 5050)
 
 class FlaskTCPClient:
-    def __init__(self, BUFFER_MAX=128, PORT_FLASK_TCP=5050, SERVER=socket.gethostbyname(socket.gethostname()), FORMAT="utf-8"):
+    def __init__(self, BUFFER_MAX=250000, PORT_FLASK_TCP=5050, SERVER=socket.gethostbyname(socket.gethostname()), FORMAT="utf-8"):
         self.BUFFER_MAX = BUFFER_MAX
         self.PORT_FLASK_TCP = PORT_FLASK_TCP #TODO: SEE IF 
         self.SERVER = SERVER
@@ -224,16 +234,16 @@ class FlaskTCPClient:
         print(socket.gethostbyname(socket.gethostname()))
         self.client.connect(self.ADDRESS_FLASK_TCP)
 
+        """
         print("TCP CLIENT: SENDING REQUEST...")
-        converted_msg = "your mom".encode(self.FORMAT)
-        converted_msg += b" " * (self.BUFFER_MAX - len(converted_msg))
-        self.client.send(converted_msg)
+        #self.client.send(converted_msg)
         time.sleep(2)
         converted_msg = "your mom".encode(self.FORMAT)
         converted_msg += b" " * (self.BUFFER_MAX - len(converted_msg))
         self.client.send(converted_msg)
+        """
 
-    def send_request(self, user_index: int, image, complex_case: bool) -> None:
+    def send_request(self, user_index: int, image_base64, complex_case: bool) -> None:
         print("TCP CLIENT: SENDING REQUEST...")
         self.lock.acquire()
         if self.client_amount == 0:
@@ -241,13 +251,22 @@ class FlaskTCPClient:
             thread.start()
         self.client_amount += 1
         self.lock.release()
+        image_bytes_decoded = image_base64.decode("ascii")
+        image_bytes = image_bytes_decoded.encode("ascii") #self.format
+        #image_bytes_decoded.save("testsave.jpg")
+        with open ("testimage.jpg", "wb") as b:
+            print("writing")
+            b.write(image_bytes)
+            print("Written")
 
-        msg = Message(user_index, image, complex_case) #TODO: Create message from image
+
+
+        msg = Message(user_index, image_bytes_decoded , complex_case) #TODO: Create message from image
         msg = msg.to_json()
         #CONVERT MSG TO BYTES
-        converted_msg = msg.encode(self.FORMAT)
+        converted_msg = msg.encode("ASCII")
         print(f"TCP CLIENT: MESSAGE LENGTH: {len(converted_msg)}")
-        #ADD PADDING TO MAKE MSG SIZE 128
+        #ADD PADDING TO MAKE MSG SIZE 250000
         converted_msg += b" " * (self.BUFFER_MAX - len(converted_msg))
         self.client.send(converted_msg)
 

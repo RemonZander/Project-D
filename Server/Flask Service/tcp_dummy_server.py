@@ -6,7 +6,7 @@ import time
 import random
 
 class DummyServer():
-    def __init__(self, BUFFER_MAX=128, PORT_FLASK_TCP=5050, SERVER=socket.gethostbyname(socket.gethostname()), FORMAT="utf-8"):
+    def __init__(self, BUFFER_MAX=250000, PORT_FLASK_TCP=5050, SERVER=socket.gethostbyname(socket.gethostname()), FORMAT="utf-8"):
         self.BUFFER_MAX = BUFFER_MAX
         self.FORMAT = FORMAT
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -28,13 +28,21 @@ class DummyServer():
         print(f"DUMMY SERVER: NEW CONNECTION ESTABLISHED: {addr}")
         connected = True
         while connected:
-            recv_msg = conn.recv(self.BUFFER_MAX).decode(self.FORMAT)
+            recv_msg = conn.recv(self.BUFFER_MAX).decode("ASCII")
             if recv_msg:
-                print(f"DUMMY SERVER: DUMMY SERVER: MESSAGE RECEIVED: {recv_msg}")
+                print(f"DUMMY SERVER: MESSAGE RECEIVED: {recv_msg}")
                 msg_string = json.loads(recv_msg)
                 msg_obj = Message.from_json(msg_string)
                 user_index = msg_obj.user_index
                 complex_case = msg_obj.complex_case
+                #Save image 
+                image_bytes = msg_obj.content.encode("ASCII") #self.format
+                #image_bytes_decoded.save("testsave.jpg")
+                #with open ("testimage.jpg", "wb") as b:
+                    #print("writing")
+                    #b.write(image_bytes)
+                    #print("Written")
+
                 resp_msg = Message(user_index, "RESPONSE MESSAGE!", complex_case)
                 msg_str = resp_msg.to_json()
                 msg_bytes = msg_str.encode(self.FORMAT)
