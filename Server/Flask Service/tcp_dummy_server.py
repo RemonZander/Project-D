@@ -4,6 +4,7 @@ from Message import Message
 import json
 import time
 import random
+import base64
 
 class DummyServer():
     def __init__(self, BUFFER_MAX=250000, PORT_FLASK_TCP=5050, SERVER=socket.gethostbyname(socket.gethostname()), FORMAT="utf-8"):
@@ -28,20 +29,23 @@ class DummyServer():
         print(f"DUMMY SERVER: NEW CONNECTION ESTABLISHED: {addr}")
         connected = True
         while connected:
-            recv_msg = conn.recv(self.BUFFER_MAX).decode("ASCII")
+            recv_msg = conn.recv(self.BUFFER_MAX)#.decode("ascii")
             if recv_msg:
                 print(f"DUMMY SERVER: MESSAGE RECEIVED: {recv_msg}")
-                msg_string = json.loads(recv_msg)
-                msg_obj = Message.from_json(msg_string)
+
+                msg_str = recv_msg.decode("ascii")
+                msg_dict = json.loads(msg_str)
+                msg_obj = Message.from_json(msg_dict)
+
                 user_index = msg_obj.user_index
                 complex_case = msg_obj.complex_case
-                #Save image 
-                image_bytes = msg_obj.content.encode("ASCII") #self.format
-                #image_bytes_decoded.save("testsave.jpg")
-                #with open ("testimage.jpg", "wb") as b:
-                    #print("writing")
-                    #b.write(image_bytes)
-                    #print("Written")
+                image_attr = msg_obj.content.encode("ascii")
+
+                image_base64 = base64.b64decode(image_attr)
+                with open ("testimage.jpg", "wb") as b:
+                    print("writing")
+                    b.write(image_base64)
+                    print("Written")
 
                 resp_msg = Message(user_index, "RESPONSE MESSAGE!", complex_case)
                 msg_str = resp_msg.to_json()
