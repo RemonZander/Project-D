@@ -75,6 +75,17 @@ class FlaskHTTPServer():
         self.app.run(debug=True)
 
     def handle_extension_post(self):
+        """
+        Handles the endpoint `/image`
+
+        Parameters
+        ---------
+        - None
+
+        Returns
+        ---------
+        - self.handle_request()
+        """
         if request.method == "POST":
             #print("FLASK SERVER: NEW CLIENT CONNECTING...")
             #sleep(10)
@@ -91,35 +102,32 @@ class FlaskHTTPServer():
 
             #TODO: RESCALE IMAGE, MAX IMAGE SIZE? 
             image_bytes = image.read()
-            image_base64 = base64.b64encode(image_bytes)
-            image_base64 = image_base64.decode("ascii")
-            msg = Message("1", image_base64 , complex_case) #TODO: Create message from image
-            msg = msg.to_json()
-            #CONVERT MSG TO BYTES
-            converted_msg = msg.encode("ascii")
-            print(f"TCP CLIENT: MESSAGE LENGTH: {len(converted_msg)}")
-            msg_str = converted_msg.decode("ascii")
-            msg_dict = json.loads(msg_str)
-            msg_obj = Message.from_json(msg_dict)
-            image_attr = msg_obj.content.encode("ascii")
-
-            #image_base64 = image_base64.encode("ascii")
-            image_base64 = base64.b64decode(image_attr)
-            with open ("testimage.jpg", "wb") as b:
-                print("writing")
-                b.write(image_base64)
-                print("Written")
-
-
-            #ADD PADDING TO MAKE MSG SIZE 250000
-            #converted_msg += b" " * (self.BUFFER_MAX - len(converted_msg))
-
 
             #print(len(image_bytes))
-            #return self.handle_request(image_base64, complex_case)
-            return "True"
+            return self.handle_request(image_bytes, complex_case)
 
-    def handle_request(self, image, complex_case: bool):
+    def handle_request(self, image_bytes : bytes, complex_case: bool) -> tuple():
+        """
+        Facilitates the request for the requesting user.
+        Following sequence:
+        - Assign user ID
+        - Create new event using the ID
+        - Forward the request to TCP client
+        - Wait for msg to be returned
+        - (msg received) Deallocate user ID
+        - Converts return msg into response
+        - Return response
+
+        Parameters
+        ---------
+        - `image` (bytes): Image in raw byte format
+        - `complex_case` (bool): Whether or not the process will follow complex or simple route (irrelevant for this method)
+
+        Returns
+        ---------
+        - `tuple`: Tuple containing a dict storing the return code and return msg (e.g {"Code": 200, "Message": "})
+                and the return code as int.
+        """
         print("FLASK SERVER: HANDLING REQUEST...")
         print(f"FLASK SERVER: ACTIVE CONNECTIONS: {threading.activeCount() - 1}")
         user_index = self.allocate_user_index()
@@ -128,13 +136,26 @@ class FlaskHTTPServer():
         event_list.append((user_index, threading.Event()))
         event_list_lock.release()
 
-        self.send_request_to_tcp(user_index, image, complex_case)
+        self.send_request_to_tcp(user_index, image_bytes, complex_case)
         msg = self.wait_for_event(user_index)
         self.deallocate_user_index(user_index)
         print(f"FLASK SERVER: USER {user_index} DONE.")
-        return {"Code": 200, "message": "Message succesfully processed" }, 200 #TODO: Add msg in payload
+        return {"Code": 200, "Mmessage": "Message succesfully processed" }, 200 #TODO: Add msg in payload
 
     def allocate_user_index(self) -> int:
+        """
+        Assigns and returns a user index.
+        If the global `index_gap_list` contains any index, returns `index_gap_list`[0].
+        Else increases global `highest_user_index` by 1 and returns that outcome
+        
+        Parameters
+        ---------
+        - None
+
+        Returns
+        ---------
+        - int: allocated user_index
+        """
         print("FLASK SERVER: ALLOCATING USER_INDEX...")
         global highest_user_index
         global index_gap_list
@@ -156,6 +177,20 @@ class FlaskHTTPServer():
         return user_index
 
     def deallocate_user_index(self, user_index: int) -> None:
+        """
+        De-assigns a user index.
+        If the `user_index` is currently the global `highest_user_index`,
+        the function iterates through global `event_list` starting at `event_list`[-1] to find the next highest index. 
+        If a new event is found, that event's index becomes the new `highest_user_index`.
+        Else no new event in list, `highest_user_index` becomes `-1`.
+        Parameters
+        ---------
+        - `user_index` (int): Index to deallocate
+
+        Returns
+        ---------
+        - None
+        """
         print("FLASK SERVER: DEALLOCATING USER_INDEX...")
         global highest_user_index
         global index_gap_list
@@ -174,6 +209,7 @@ class FlaskHTTPServer():
                 if index == len(event_list) - 1:
                     highest_user_index = -1
                     event_list = []
+                    break
         else:
             index_gap_list.append(user_index)
 
@@ -181,13 +217,39 @@ class FlaskHTTPServer():
         event_list_lock.release()
         index_gap_list_lock.release()
 
-    def send_request_to_tcp(self, user_index, image, complex_case):
+    def send_request_to_tcp(self, user_index: int, image: bytes, complex_case: bool) -> None:
+        """
+        Forward a request to a TCP client.
+
+        Parameters
+        ---------
+        - `user_index` (int): User index to be forwarded
+        - `image` (bytes): Image to be forwarded
+        - `complex_case` (bool): Image to be forwarded
+
+        Returns
+        ---------
+        - None
+        """
         print("FLASK SERVER: SENDING REQUEST TO TCP...")
         tcp_client_lock.acquire()
         tcp_client.send_request(user_index, image, complex_case)
         tcp_client_lock.release()
 
-    def wait_for_event(self, user_index) -> None:
+    def wait_for_event(self, user_index: int) -> Message:
+        """
+        Blocks the thread until the event in global `event_list` with index `user_index` is set.
+        When the event is set, the event gets removed from the `event_list`
+        Contents of the event get retrieved and returned from global `tcp_result` 
+
+        Parameters
+        ---------
+        - `user_index` (int): Index within global `event_list` to wait for
+
+        Returns
+        ---------
+        - Message: Message found in the global `tcp_result`
+        """
         global tcp_result
         global event_list
 
@@ -243,7 +305,7 @@ class FlaskTCPClient:
         self.client.send(converted_msg)
         """
 
-    def send_request(self, user_index: int, image_base64, complex_case: bool) -> None:
+    def send_request(self, user_index: int, image_bytes, complex_case: bool) -> None:
         print("TCP CLIENT: SENDING REQUEST...")
         self.lock.acquire()
         if self.client_amount == 0:
@@ -251,6 +313,21 @@ class FlaskTCPClient:
             thread.start()
         self.client_amount += 1
         self.lock.release()
+
+        image_base64 = base64.b64encode(image_bytes)
+        image_ascii = image_base64.decode("ascii")
+        msg = Message(user_index, image_ascii , complex_case) #TODO: Create message from image
+        msg_json = msg.to_json()
+        #CONVERT MSG TO BYTES
+        converted_msg = msg_json.encode("ascii")
+        print(f"TCP CLIENT: MESSAGE LENGTH: {len(converted_msg)}")
+        
+
+
+
+
+
+        """
         image_bytes_decoded = image_base64.decode("ascii")
         image_bytes = image_bytes_decoded.encode("ascii") #self.format
         #image_bytes_decoded.save("testsave.jpg")
@@ -266,6 +343,7 @@ class FlaskTCPClient:
         #CONVERT MSG TO BYTES
         converted_msg = msg.encode("ASCII")
         print(f"TCP CLIENT: MESSAGE LENGTH: {len(converted_msg)}")
+        """
         #ADD PADDING TO MAKE MSG SIZE 250000
         converted_msg += b" " * (self.BUFFER_MAX - len(converted_msg))
         self.client.send(converted_msg)
