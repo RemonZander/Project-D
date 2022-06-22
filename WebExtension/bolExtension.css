@@ -203,8 +203,12 @@
 }
 
 #bolOverlay #bolElement #bolElBody .bolItem .bolItemBody .bolItemDescription .bolItemDescImg img {
-  height: 150px;
   cursor: pointer;
+  width: auto;
+  height: 150px;
+  max-width: 100%;
+  -o-object-fit: contain;
+     object-fit: contain;
 }
 
 #bolOverlay #bolElement #bolElBody .bolItem .bolItemBody .bolItemDescription .bolItemDescText {
@@ -236,10 +240,6 @@
   padding: 5%;
   border-top: solid 1px #020202;
   border-bottom: solid 1px #020202;
-}
-
-#bolOverlay #bolElement #bolElBody .bolItem.active .bolItemBody .bolItemDetails {
-  margin-bottom: 3.5%;
 }
 
 .noWrap {
