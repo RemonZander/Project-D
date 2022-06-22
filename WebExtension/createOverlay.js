@@ -78,7 +78,6 @@ if (!document.querySelector("#bolOverlay")) {
 		const createItem = (item) => {
 			// Gets the correct image url to display the image in the extension
 			const imgLink = chrome.runtime.getURL(`images/${item.image}`);
-			console.log(item);
 
 			const bolItem = elementFromHtml(`
 				<div class="bolItem" data-link="${item.link}">
@@ -126,6 +125,17 @@ if (!document.querySelector("#bolOverlay")) {
 			}
 		});
 
+		// Removes the overlay element from the html, when right clicked outside the bolElement
+		bolElement.addEventListener("contextmenu", (e) => {
+			if (e.target.matches("#bolOverlay")) {
+				e.preventDefault();
+
+				htmlHead.parentNode.removeChild(
+					document.getElementById("bolOverlay")
+				);
+			}
+		});
+
 		// Adds the onClick event on the title and the images to go to the product page on bol.com
 		bolElement.addEventListener("click", (e) => {
 			if (e.target.matches(".bolItemImg")) {
@@ -140,17 +150,6 @@ if (!document.querySelector("#bolOverlay")) {
 					e.target.parentNode.parentNode.parentNode.parentNode.dataset
 						.link,
 					"_blank"
-				);
-			}
-		});
-
-		// Removes the overlay element from the html, when right clicked outside the bolElement
-		bolElement.addEventListener("contextmenu", (e) => {
-			if (e.target.matches("#bolOverlay")) {
-				e.preventDefault();
-
-				htmlHead.parentNode.removeChild(
-					document.getElementById("bolOverlay")
 				);
 			}
 		});
