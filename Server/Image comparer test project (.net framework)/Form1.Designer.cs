@@ -526,6 +526,7 @@
             this.textBox18.Name = "textBox18";
             this.textBox18.Size = new System.Drawing.Size(134, 20);
             this.textBox18.TabIndex = 42;
+            this.textBox18.TextChanged += new System.EventHandler(this.textBox18_TextChanged);
             this.textBox18.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox18_KeyDown);
             // 
             // label22
