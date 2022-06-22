@@ -127,19 +127,22 @@ class FlaskHTTPServer():
             #
 
             image_base64 = base64.b64encode(image_bytes)
-            image_ascii = image_base64.decode("ascii")
-            msg = Message(1, image_ascii, complex_case) #TODO: Create message from image
+            image_base64 = image_base64.decode("ascii")
+            msg = Message(1, image_base64, complex_case) #TODO: Create message from image
             msg_json = msg.to_json()
+            print(f"TO JSON 1st")
             msg_encoded = msg_json.encode("ascii")
 
 
             msg_str = msg_encoded.decode("ascii")
             msg_dict = json.loads(msg_str)
+            print(f"TO JSON 2st")
             msg_obj = Message.from_json(msg_dict)
+            print(f"FROM JSON")
 
             return_msg = [
                 {
-                    "image": msg_obj.content.encode("ascii"),
+                    "image": msg_obj.content,
                     "title": "TitleHardcoded",
                     "link": "LinkHardcoded",
                     "match": 4,
@@ -148,6 +151,7 @@ class FlaskHTTPServer():
             ]
             #CONVERT MSG TO BYTES
             #
+            print(f"Print before return")
             return {"Code": 200, "Message": return_msg }, 200
             #print(len(image_bytes))
             #return self.handle_request(image_bytes, complex_case)
