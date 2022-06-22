@@ -19,8 +19,8 @@ import base64
 #NEW THREAD
 #SEE IF THERE ARE ANY GAPS IN GIVEN INDEXES (TRACKED BY AVAILABLE INDEXES)
 #   IF SO:
-#       user_id = index_gap_list[0]
-#       index_gap_list.remove(user_id) #REMOVE VALUE FROM GAP LIST (SHRINKS LIST)
+#       user_id = id_gap_list[0]
+#       id_gap_list.remove(user_id) #REMOVE VALUE FROM GAP LIST (SHRINKS LIST)
 
 #   ELSE:
 #       user_id = ++highest_user_id #TODO: user id max limit?
@@ -34,7 +34,7 @@ import base64
 #user_id == highest_user_id ?
 #   IF SO:
 #       ITERATE THROUGH event_list BACKWARDS STARTING AT user_id-1 TO FIND NEW highest_user_id
-        #REMOVE ALL EMPTY INDEXES FOUND BEFORE NEW highest_user_id FROM index_gap_list
+        #REMOVE ALL EMPTY INDEXES FOUND BEFORE NEW highest_user_id FROM id_gap_list
 #   ELSE:
 #       ADD user_id TO available_index list
 
@@ -44,39 +44,39 @@ import base64
 #GLOBAL VARIABLES
 event_list = [] #list[tuple(int, threading.Event)] 
 tcp_result = ""
-index_gap_list: int = []
-highest_user_index: int = -1
+id_gap_list: int = []
+highest_user_id: int = -1
 
 event_list_lock = threading.Lock()
 tcp_result_lock = threading.Lock()
-index_gap_list_lock = threading.Lock()
-highest_user_index_lock = threading.Lock()
+id_gap_list_lock = threading.Lock()
+highest_user_id_lock = threading.Lock()
 tcp_client_lock = threading.Lock()
 
-def search_event_by_user_index(user_index: int) -> threading.Event:
+def search_event_by_user_id(user_id: int) -> threading.Event:
     """
-    Iterates through global `event_list` and returns first instance where Item1 in tuple == `user_index`
+    Iterates through global `event_list` and returns first instance where Item1 in tuple == `user_id`
 
     Parameters
     ---------
-    - `user_index` (int): The index to be removed
+    - `user_id` (int): The index to be removed
 
     Returns
     ---------
-    - threading.Event: Event which contains `user_index` as first value in it's tuple
+    - threading.Event: Event which contains `user_id` as first value in it's tuple
     """
     global event_list
     for event in event_list:
-        if event[0] == user_index:
+        if event[0] == user_id:
             return event[1]
 
-def remove_event_by_user_index(user_index: int) -> None:
+def remove_event_by_user_id(user_id: int) -> None:
     """
-    Removes event which contains id `user_index` as first value in tuple from global `event_list`.
+    Removes event which contains id `user_id` as first value in tuple from global `event_list`.
 
     Parameters
     ---------
-    - `user_index` (int): The index to be removed
+    - `user_id` (int): The index to be removed
 
     Returns
     ---------
@@ -85,7 +85,7 @@ def remove_event_by_user_index(user_index: int) -> None:
     global event_list
     event_to_remove = ""
     for event in event_list:
-        if event[0] == user_index:
+        if event[0] == user_id:
             event_to_remove = event
             break
     event_list.remove(event_to_remove)
@@ -180,23 +180,23 @@ class FlaskHTTPServer():
         """
         print("FLASK SERVER: HANDLING REQUEST...")
         print(f"FLASK SERVER: ACTIVE CONNECTIONS: {threading.activeCount() - 1}")
-        user_index = self.allocate_user_index()
+        user_id = self.allocate_user_id()
 
         event_list_lock.acquire()
-        event_list.append((user_index, threading.Event()))
+        event_list.append((user_id, threading.Event()))
         event_list_lock.release()
 
-        self.send_request_to_tcp(user_index, image_bytes, complex_case)
-        msg = self.wait_for_event(user_index)
-        self.deallocate_user_index(user_index)
-        print(f"FLASK SERVER: USER {user_index} DONE.")
+        self.send_request_to_tcp(user_id, image_bytes, complex_case)
+        msg = self.wait_for_event(user_id)
+        self.deallocate_user_id(user_id)
+        print(f"FLASK SERVER: USER {user_id} DONE.")
         return {"Code": 200, "Message": "Message succesfully processed" }, 200 #TODO: Add msg in payload
 
-    def allocate_user_index(self) -> int:
+    def allocate_user_id(self) -> int:
         """
         Assigns and returns a user index.
-        If the global `index_gap_list` contains any index, returns `index_gap_list`[0].
-        Else increases global `highest_user_index` by 1 and returns that outcome
+        If the global `id_gap_list` contains any index, returns `id_gap_list`[0].
+        Else increases global `highest_user_id` by 1 and returns that outcome
         
         Parameters
         ---------
@@ -204,76 +204,76 @@ class FlaskHTTPServer():
 
         Returns
         ---------
-        - int: allocated user_index
+        - int: allocated user_id
         """
-        print("FLASK SERVER: ALLOCATING USER_INDEX...")
-        global highest_user_index
-        global index_gap_list
-        user_index = -1
+        print("FLASK SERVER: ALLOCATING user_id...")
+        global highest_user_id
+        global id_gap_list
+        user_id = -1
 
-        index_gap_list_lock.acquire()
-        highest_user_index_lock.acquire()
+        id_gap_list_lock.acquire()
+        highest_user_id_lock.acquire()
 
-        if len(index_gap_list) > 0:
-            user_index = index_gap_list[0]
-            index_gap_list.remove(user_index)
+        if len(id_gap_list) > 0:
+            user_id = id_gap_list[0]
+            id_gap_list.remove(user_id)
         else:
-            user_index = highest_user_index + 1
-            highest_user_index = user_index
+            user_id = highest_user_id + 1
+            highest_user_id = user_id
 
-        index_gap_list_lock.release()
-        highest_user_index_lock.release()
-        print(f"FLASK SERVER: GIVEN USER INDEX IS {str(user_index)}")
-        return user_index
+        id_gap_list_lock.release()
+        highest_user_id_lock.release()
+        print(f"FLASK SERVER: GIVEN USER INDEX IS {str(user_id)}")
+        return user_id
 
-    def deallocate_user_index(self, user_index: int) -> None:
+    def deallocate_user_id(self, user_id: int) -> None:
         """
         De-assigns a user index.
-        If the `user_index` is currently the global `highest_user_index`,
+        If the `user_id` is currently the global `highest_user_id`,
         the function iterates through global `event_list` starting at `event_list`[-1] to find the next highest index. 
-        If a new event is found, that event's index becomes the new `highest_user_index`.
-        Else no new event in list, `highest_user_index` becomes `-1`.
+        If a new event is found, that event's index becomes the new `highest_user_id`.
+        Else no new event in list, `highest_user_id` becomes `-1`.
         Parameters
         ---------
-        - `user_index` (int): Index to deallocate
+        - `user_id` (int): Index to deallocate
 
         Returns
         ---------
         - None
         """
-        print("FLASK SERVER: DEALLOCATING USER_INDEX...")
-        global highest_user_index
-        global index_gap_list
+        print("FLASK SERVER: DEALLOCATING user_id...")
+        global highest_user_id
+        global id_gap_list
         global event_list
 
-        highest_user_index_lock.acquire()
+        highest_user_id_lock.acquire()
         event_list_lock.acquire()
-        index_gap_list_lock.acquire()
+        id_gap_list_lock.acquire()
 
-        if user_index == highest_user_index:
+        if user_id == highest_user_id:
             for index in range(1, len(event_list)):
                 if event_list[-index -1] is not None:
-                    highest_user_index = event_list.index(event_list[-index -1])
-                    event_list = event_list[0:highest_user_index+1]
+                    highest_user_id = event_list.index(event_list[-index -1])
+                    event_list = event_list[0:highest_user_id+1]
                     break
                 if index == len(event_list) - 1:
-                    highest_user_index = -1
+                    highest_user_id = -1
                     event_list = []
                     break
         else:
-            index_gap_list.append(user_index)
+            id_gap_list.append(user_id)
 
-        highest_user_index_lock.release()
+        highest_user_id_lock.release()
         event_list_lock.release()
-        index_gap_list_lock.release()
+        id_gap_list_lock.release()
 
-    def send_request_to_tcp(self, user_index: int, image: bytes, complex_case: bool) -> None:
+    def send_request_to_tcp(self, user_id: int, image: bytes, complex_case: bool) -> None:
         """
         Forward a request to a TCP client.
 
         Parameters
         ---------
-        - `user_index` (int): User index to be forwarded
+        - `user_id` (int): User index to be forwarded
         - `image` (bytes): Image to be forwarded
         - `complex_case` (bool): Image to be forwarded
 
@@ -283,18 +283,18 @@ class FlaskHTTPServer():
         """
         print("FLASK SERVER: SENDING REQUEST TO TCP...")
         tcp_client_lock.acquire()
-        tcp_client.send_request(user_index, image, complex_case)
+        tcp_client.send_request(user_id, image, complex_case)
         tcp_client_lock.release()
 
-    def wait_for_event(self, user_index: int) -> Message:
+    def wait_for_event(self, user_id: int) -> Message:
         """
-        Blocks the thread until the event in global `event_list` with index `user_index` is set.
+        Blocks the thread until the event in global `event_list` with index `user_id` is set.
         When the event is set, the event gets removed from the `event_list`
         Contents of the event get retrieved and returned from global `tcp_result` 
 
         Parameters
         ---------
-        - `user_index` (int): Index within global `event_list` to wait for
+        - `user_id` (int): Index within global `event_list` to wait for
 
         Returns
         ---------
@@ -305,13 +305,13 @@ class FlaskHTTPServer():
 
         print("FLASK SERVER: WAITING FOR EVENT...")
         event_list_lock.acquire()
-        event = search_event_by_user_index(user_index)
+        event = search_event_by_user_id(user_id)
         event_list_lock.release()
 
         event.wait() #TODO: Time-out period?
         print("FLASK SERVER: EVENT PROCESSED...")
         event_list_lock.acquire()
-        remove_event_by_user_index(user_index)
+        remove_event_by_user_id(user_id)
         event_list_lock.release()
 
         msg = tcp_result
@@ -356,13 +356,13 @@ class FlaskTCPClient:
         print(socket.gethostbyname(socket.gethostname()))
         self.client.connect(self.ADDRESS_FLASK_TCP)
 
-    def send_request(self, user_index: int, image_bytes: bytes, complex_case: bool) -> None:
+    def send_request(self, user_id: int, image_bytes: bytes, complex_case: bool) -> None:
         """
         Sends a `Message` object containing given variables to `self.ADRESS_FLASK_TCP`
 
         Variables
         ---------
-        - user_index (int): Attribtute for `Message` object to be sent
+        - user_id (int): Attribtute for `Message` object to be sent
         - image_bytes (bytes): Attribtute for `Message` object to be sent
         - complex_cases (bool): Attribtute for `Message` object to be sent
 
@@ -380,7 +380,7 @@ class FlaskTCPClient:
 
         image_base64 = base64.b64encode(image_bytes)
         image_ascii = image_base64.decode("ascii")
-        msg = Message(user_index, image_ascii , complex_case) #TODO: Create message from image
+        msg = Message(user_id, image_ascii , complex_case) #TODO: Create message from image
         msg_json = msg.to_json()
         #CONVERT MSG TO BYTES
         converted_msg = msg_json.encode("ascii")
@@ -397,7 +397,7 @@ class FlaskTCPClient:
 
 
 
-        msg = Message(user_index, image_bytes_decoded , complex_case) #TODO: Create message from image
+        msg = Message(user_id, image_bytes_decoded , complex_case) #TODO: Create message from image
         msg = msg.to_json()
         #CONVERT MSG TO BYTES
         converted_msg = msg.encode("ASCII")
@@ -410,7 +410,7 @@ class FlaskTCPClient:
     def listen(self) -> None:
         """
         Listens on `self..ADRESS_FLASK_TCP` as long as `self.client_amount` gt 0.
-        When a message is received, global `tcp_result` gets assigned to the message. After which the event storing the same `user_index` from msg gets triggered.
+        When a message is received, global `tcp_result` gets assigned to the message. After which the event storing the same `user_id` from msg gets triggered.
 
         Variables
         ---------
@@ -435,13 +435,13 @@ class FlaskTCPClient:
                 msg_json = json.loads(msg)
                 msg_object = Message.from_json(msg_json)
 
-                user_index = msg_object.user_index
+                user_id = msg_object.user_id
 
                 tcp_result_lock.acquire()
                 tcp_result = msg_object
 
                 event_list_lock.acquire()
-                event = search_event_by_user_index(user_index)
+                event = search_event_by_user_id(user_id)
                 event.set()
                 event_list_lock.release()
 
