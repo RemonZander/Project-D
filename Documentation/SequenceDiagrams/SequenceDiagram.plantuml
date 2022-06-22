@@ -4,41 +4,48 @@ title **Search System Sequence Diagram**
 
 actor user as usr
 participant "Chrome extension" as ext
-control "Python Server" as csh
+control "Python Server" as psv
 database "Product database" as db
-participant "Object identifier NN (Python)" as obj
-participant "Image Comparer (C# -> Python)" as img
+participant "Image Segmentation NN (Python)" as sgm
+participant "Image Classification NN (Python)" as obj
+participant "Image Comparer (C#)" as img
 
 usr -> ext: Submit image
 activate usr
 activate ext
-ext -> csh: Send image
-activate csh
-csh -> obj: Send image
+ext -> psv: Send image
+activate psv
+psv -> sgm: Send image
+activate sgm
+sgm --> psv: Return image cutout
+deactivate sgm
+psv -> obj: Send image cutout
 activate obj
 
-obj --> csh: Return identified object name
+obj --> psv: Return identified object name
 deactivate obj
 
 alt#Gold #LightBlue Simple case
-    csh --> ext: Return object name
-    deactivate csh
+    psv --> ext: Return object name
+
     ext --> usr: Return URL link to bol.com
 
 else #Pink Complex case
-    csh -> db: Send object name
-    activate csh
+    psv -> db: Send object name
+
     activate db
-    db --> csh: Return catagory products
+    db --> psv: Return catagory products
     deactivate db
-    csh -> img: Send image + catagory products
+
+    psv -> img: Send image cutout + catagory products
     activate img
     
-    img --> csh: Return product list
+    img --> psv: Return product list
     deactivate img
 
-    csh --> ext: Return search results
-    deactivate csh
+    psv --> ext: Return search results
+    deactivate psv
+
     ext --> usr: Return search results
     deactivate ext
     deactivate usr
