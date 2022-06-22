@@ -124,9 +124,33 @@ class FlaskHTTPServer():
 
             #TODO: RESCALE IMAGE, MAX IMAGE SIZE? 
             image_bytes = image.read()
+            #
 
+            image_base64 = base64.b64encode(image_bytes)
+            image_ascii = image_base64.decode("ascii")
+            msg = Message(1, image_ascii, complex_case) #TODO: Create message from image
+            msg_json = msg.to_json()
+            msg_encoded = msg_json.encode("ascii")
+
+
+            msg_str = msg_encoded.decode("ascii")
+            msg_dict = json.loads(msg_str)
+            msg_obj = Message.from_json(msg_dict)
+
+            return_msg = [
+                {
+                    "image": msg_obj.content.encode("ascii"),
+                    "title": "TitleHardcoded",
+                    "link": "LinkHardcoded",
+                    "match": 4,
+                    "description": "desc"
+                }
+            ]
+            #CONVERT MSG TO BYTES
+            #
+            return {"Code": 200, "Message": return_msg }, 200
             #print(len(image_bytes))
-            return self.handle_request(image_bytes, complex_case)
+            #return self.handle_request(image_bytes, complex_case)
 
     def handle_request(self, image_bytes : bytes, complex_case: bool) -> tuple():
         """
@@ -162,7 +186,7 @@ class FlaskHTTPServer():
         msg = self.wait_for_event(user_index)
         self.deallocate_user_index(user_index)
         print(f"FLASK SERVER: USER {user_index} DONE.")
-        return {"Code": 200, "Mmessage": "Message succesfully processed" }, 200 #TODO: Add msg in payload
+        return {"Code": 200, "Message": "Message succesfully processed" }, 200 #TODO: Add msg in payload
 
     def allocate_user_index(self) -> int:
         """
