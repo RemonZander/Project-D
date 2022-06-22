@@ -1,6 +1,12 @@
-// Create a context-menu
+// Create context-menus
 chrome.contextMenus.create({
-	id: "bolImageSearch",
+	id: "bolComplexSearch",
+	title: "Search on bol.com",
+	contexts: ["image"],
+});
+
+chrome.contextMenus.create({
+	id: "bolSimpleSearch",
 	title: "Search on bol.com",
 	contexts: ["image"],
 });
