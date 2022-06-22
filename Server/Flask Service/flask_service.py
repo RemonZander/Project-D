@@ -54,6 +54,24 @@ id_gap_list_lock = threading.Lock()
 highest_user_id_lock = threading.Lock()
 tcp_client_lock = threading.Lock()
 
+def get_event_by_user_id(user_id:int) -> threading.event | False:
+    """
+    Returns an event which from the tuple in global `event_list` which contains `user_id` as Item1 in the tuple
+
+    Parameters
+    ---------
+    - `user_id` (int): The number to search for in global `event_list`
+
+    Returns
+    ---------
+    - threading.event : Event found
+    - False : No event found
+    """
+    for event in event_list:
+        if event[0] == user_id:
+            return event[1]
+    return False
+
 class FlaskHTTPServer():
     def __init__(self):
         self.app = Flask(__name__)
@@ -72,22 +90,24 @@ class FlaskHTTPServer():
         ---------
         - self.handle_request()
         """
-        if request.method == "POST":
-            #INPUT VALIDATION
-            image = request.files["image"]
-            print(type(image))
-            if not validate_image(image):
-                return {"errorCode": 415, "message": "The media format of the requested data is not supported by the server, so the server is rejecting the request." }, 415
+        if request.method != "POST": return {"Code": 400, "message": "Request type not accepted" }, 400
 
-            complex_case = request.form["complex_case"]
-            print(f"IMAGE TYPE: {type(image)}")
+        #INPUT VALIDATION
+        image = request.files["image"]
+        print(type(image))
+        if not validate_image(image):
+            return {"Code": 415, "message": "The media format of the requested data is not supported by the server, so the server is rejecting the request." }, 415
 
-            #TODO: RESCALE IMAGE, MAX IMAGE SIZE? 
-            image_bytes = image.read()
+        complex_case = request.form["complex_case"]
+        print(f"IMAGE TYPE: {type(image)}")
 
-            return self.handle_request(image_bytes, complex_case)
+        #TODO: RESCALE IMAGE, MAX IMAGE SIZE? 
+        image_bytes = image.read()
 
-    def handle_request(self, image_bytes : bytes, complex_case: bool) -> tuple():
+        return self.__handle_request(image_bytes, complex_case)
+        
+
+    def __handle_request(self, image_bytes : bytes, complex_case: bool) -> tuple():
         """
         Facilitates the request for the requesting user.
         Following sequence:
@@ -111,7 +131,7 @@ class FlaskHTTPServer():
         """
         print("FLASK SERVER: HANDLING REQUEST...")
         print(f"FLASK SERVER: ACTIVE CONNECTIONS: {threading.activeCount() - 1}")
-        user_id = self.allocate_user_id()
+        user_id = self.__allocate_user_id()
 
         event_list_lock.acquire()
         event_list.append((user_id, threading.Event()))
@@ -119,10 +139,10 @@ class FlaskHTTPServer():
 
         print("FLASK SERVER: SENDING REQUEST TO TCP...")
         tcp_client_lock.acquire()
-        tcp_client.send_request(user_id, image_bytes, complex_case)
+        tcp_client.__send_request(user_id, image_bytes, complex_case)
         tcp_client_lock.release()
-        msg = self.wait_for_event(user_id)
-        self.deallocate_user_id(user_id)
+        msg = self.__wait_for_event(user_id)
+        self.__deallocate_user_id(user_id)
 
         f = open("temp.jpg","wb")
         f.write(msg.content)
@@ -145,7 +165,7 @@ class FlaskHTTPServer():
         print(f"FLASK SERVER: USER {user_id} DONE.")
         return {"Code": 200, "Message": return_msg }, 200
 
-    def remove_event_by_user_id(user_id: int) -> None:
+    def __remove_event_by_user_id(user_id: int) -> None:
         """
         Removes event which contains id `user_id` as first value in tuple from global `event_list`.
 
@@ -165,7 +185,7 @@ class FlaskHTTPServer():
                 break
         event_list.remove(event_to_remove)
 
-    def allocate_user_id(self) -> int:
+    def __allocate_user_id(self) -> int:
         """
         Assigns and returns a user index.
         If the global `id_gap_list` contains any index, returns `id_gap_list`[0].
@@ -199,7 +219,7 @@ class FlaskHTTPServer():
         print(f"FLASK SERVER: GIVEN USER INDEX IS {str(user_id)}")
         return user_id
 
-    def deallocate_user_id(self, user_id: int) -> None:
+    def __deallocate_user_id(self, user_id: int) -> None:
         """
         De-assigns a user index.
         If the `user_id` is currently the global `highest_user_id`,
@@ -240,7 +260,7 @@ class FlaskHTTPServer():
         event_list_lock.release()
         id_gap_list_lock.release()
 
-    def wait_for_event(self, user_id: int) -> Message:
+    def __wait_for_event(self, user_id: int) -> Message:
         """
         Blocks the thread until the event in global `event_list` with index `user_id` is set.
         When the event is set, the event gets removed from the `event_list`
@@ -261,16 +281,13 @@ class FlaskHTTPServer():
         print("FLASK SERVER: WAITING FOR EVENT...")
         event_list_lock.acquire()
         
-        for event in event_list:
-            if event[0] == user_id:
-                user_event = event[1]
-
+        user_event = get_event_by_user_id(user_id)
         event_list_lock.release()
 
         user_event.wait() #TODO: Time-out period?
         print("FLASK SERVER: EVENT PROCESSED...")
         event_list_lock.acquire()
-        self.remove_event_by_user_id(user_id)
+        self.__remove_event_by_user_id(user_id)
         event_list_lock.release()
 
         msg = tcp_result
@@ -304,7 +321,7 @@ class FlaskTCPClient:
         print(socket.gethostbyname(socket.gethostname()))
         self.client.connect(self.ADDRESS_FLASK_TCP)
 
-    def send_request(self, user_id: int, image_bytes: bytes, complex_case: bool) -> None:
+    def __send_request(self, user_id: int, image_bytes: bytes, complex_case: bool) -> None:
         """
         Sends a `Message` object containing given variables to `self.ADRESS_FLASK_TCP`
 
@@ -321,7 +338,7 @@ class FlaskTCPClient:
         print("TCP CLIENT: SENDING REQUEST...")
         self.lock.acquire()
         if self.client_amount == 0:
-            thread = threading.Thread(target=self.listen) #args=(None))
+            thread = threading.Thread(target=self.__listen) #args=(None))
             thread.start()
         self.client_amount += 1
         self.lock.release()
@@ -338,7 +355,9 @@ class FlaskTCPClient:
         converted_msg += b" " * (self.BUFFER_MAX - len(converted_msg))
         self.client.send(converted_msg)
 
-    def listen(self) -> None:
+
+
+    def __listen(self) -> None:
         """
         Listens on `self..ADRESS_FLASK_TCP` as long as `self.client_amount` gt 0.
         When a message is received, global `tcp_result` gets assigned to the message. After which the event storing the same `user_id` from msg gets triggered.
@@ -372,11 +391,7 @@ class FlaskTCPClient:
                 tcp_result = msg_object
 
                 event_list_lock.acquire()
-
-                for event in event_list:
-                    if event[0] == user_id:
-                        user_event = event[1]
-
+                user_event = get_event_by_user_id(user_id)
                 user_event.set()
                 event_list_lock.release()
 
