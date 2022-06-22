@@ -70,25 +70,7 @@ def search_event_by_user_id(user_id: int) -> threading.Event:
         if event[0] == user_id:
             return event[1]
 
-def remove_event_by_user_id(user_id: int) -> None:
-    """
-    Removes event which contains id `user_id` as first value in tuple from global `event_list`.
 
-    Parameters
-    ---------
-    - `user_id` (int): The index to be removed
-
-    Returns
-    ---------
-    - None
-    """
-    global event_list
-    event_to_remove = ""
-    for event in event_list:
-        if event[0] == user_id:
-            event_to_remove = event
-            break
-    event_list.remove(event_to_remove)
 
 class FlaskHTTPServer():
     def __init__(self):
@@ -191,6 +173,26 @@ class FlaskHTTPServer():
         self.deallocate_user_id(user_id)
         print(f"FLASK SERVER: USER {user_id} DONE.")
         return {"Code": 200, "Message": "Message succesfully processed" }, 200 #TODO: Add msg in payload
+
+    def remove_event_by_user_id(user_id: int) -> None:
+        """
+        Removes event which contains id `user_id` as first value in tuple from global `event_list`.
+
+        Parameters
+        ---------
+        - `user_id` (int): The index to be removed
+
+        Returns
+        ---------
+        - None
+        """
+        global event_list
+        event_to_remove = ""
+        for event in event_list:
+            if event[0] == user_id:
+                event_to_remove = event
+                break
+        event_list.remove(event_to_remove)
 
     def allocate_user_id(self) -> int:
         """
@@ -311,7 +313,7 @@ class FlaskHTTPServer():
         event.wait() #TODO: Time-out period?
         print("FLASK SERVER: EVENT PROCESSED...")
         event_list_lock.acquire()
-        remove_event_by_user_id(user_id)
+        self.remove_event_by_user_id(user_id)
         event_list_lock.release()
 
         msg = tcp_result
