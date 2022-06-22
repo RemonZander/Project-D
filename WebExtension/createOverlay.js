@@ -76,12 +76,9 @@ if (!document.querySelector("#bolOverlay")) {
 
 		// Function that creates a bolItem element and adds it as a child element to the extension.
 		const createItem = (item) => {
-			// Gets the correct image url to display the image in the extension
-			const imgLink = chrome.runtime.getURL(`images/${item.image}`);
-
 			const bolItem = elementFromHtml(`
-				<div class="bolItem" data-link="${item.link}">
-					<img class="bolItemImg" src="${imgLink}">
+				<div class="bolItem">
+					<img class="bolItemImg" src="data:image/png;base64,${item.image}">
 					<div class="bolItemBody">
 						<div class="bolItemHeader">
 							<div class="bolItemTitle titleWrap" title='${removeMarks(item.title)}'>${
@@ -90,7 +87,9 @@ if (!document.querySelector("#bolOverlay")) {
 							<div class="bolItemDropdownBtn"></div>
 						</div>
 						<div class="bolItemDescription">
-							<div class="bolItemDescImg"><img src="${imgLink}"></div>
+							<div class="bolItemDescImg"><img src="data:image/png;base64,${
+								item.image
+							}"></div>
 							<div class="bolItemDescText">${item.description}</div>
 							<div class="bolItemMatch">Match: ${item.match}%</div>
 						</div>
