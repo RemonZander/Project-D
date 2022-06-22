@@ -13,7 +13,7 @@ import time
 #TCP CONTROLLER     -      IMAGE COMPARER           :   5053
 
 class FlaskTCPClient:
-    def __init__(self, BUFFER_MAX=128, PORT_FLASK_TCP=5050, SERVER=socket.gethostbyname(socket.gethostname()), FORMAT="utf-8"):
+    def __init__(self, BUFFER_MAX=128, PORT_FLASK_TCP=5050, SERVER=socket.gethostbyname(socket.gethostname()), FORMAT="ascii"):
         self.BUFFER_MAX = BUFFER_MAX,
         self.PORT_FLASK_TCP = PORT_FLASK_TCP,
         self.SERVER = SERVER,

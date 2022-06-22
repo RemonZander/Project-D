@@ -1,14 +1,14 @@
 import json
 
 class Message():
-    def __init__(self, user_id, content, complex_case):
-        self.user_id = user_id
+    def __init__(self, user_index: int, content, complex_case: bool):
+        self.user_index = user_index
         self.content = content
         self.complex_case = complex_case
 
     def __iter__(self):
         yield from {
-            "user_id" : self.user_id,
+            "user_index" : self.user_index,
             "content": self.content,
             "complex_case": self.complex_case
         }.items()
@@ -24,6 +24,6 @@ class Message():
 
     @staticmethod
     def from_json(json_dict):
-        return Message(json_dict['user_id'], json_dict['content'], json_dict['complex_case'])
+        return Message(json_dict['user_index'], json_dict['content'], json_dict['complex_case'])
 
 #https://levelup.gitconnected.com/how-to-deserialize-json-to-custom-class-objects-in-python-d8b92949cd3b

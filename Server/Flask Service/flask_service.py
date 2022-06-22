@@ -14,6 +14,7 @@ from Message import Message
 import time
 from time import sleep
 import base64
+from exif_data import ExifData
 
 #USER CONNECTS
 #NEW THREAD
@@ -53,25 +54,6 @@ id_gap_list_lock = threading.Lock()
 highest_user_id_lock = threading.Lock()
 tcp_client_lock = threading.Lock()
 
-def search_event_by_user_id(user_id: int) -> threading.Event:
-    """
-    Iterates through global `event_list` and returns first instance where Item1 in tuple == `user_id`
-
-    Parameters
-    ---------
-    - `user_id` (int): The index to be removed
-
-    Returns
-    ---------
-    - threading.Event: Event which contains `user_id` as first value in it's tuple
-    """
-    global event_list
-    for event in event_list:
-        if event[0] == user_id:
-            return event[1]
-
-
-
 class FlaskHTTPServer():
     def __init__(self):
         self.app = Flask(__name__)
@@ -91,10 +73,6 @@ class FlaskHTTPServer():
         - self.handle_request()
         """
         if request.method == "POST":
-            #print("FLASK SERVER: NEW CLIENT CONNECTING...")
-            #sleep(10)
-            #print("FLASK SERVER: CLIENT LEAVING...")
-            
             #INPUT VALIDATION
             image = request.files["image"]
             print(type(image))
@@ -106,37 +84,8 @@ class FlaskHTTPServer():
 
             #TODO: RESCALE IMAGE, MAX IMAGE SIZE? 
             image_bytes = image.read()
-            #
 
-            image_base64 = base64.b64encode(image_bytes)
-            image_base64 = image_base64.decode("ascii")
-            msg = Message(1, image_base64, complex_case) #TODO: Create message from image
-            msg_json = msg.to_json()
-            print(f"TO JSON 1st")
-            msg_encoded = msg_json.encode("ascii")
-
-
-            msg_str = msg_encoded.decode("ascii")
-            msg_dict = json.loads(msg_str)
-            print(f"TO JSON 2st")
-            msg_obj = Message.from_json(msg_dict)
-            print(f"FROM JSON")
-
-            return_msg = [
-                {
-                    "image": msg_obj.content,
-                    "title": "TitleHardcoded",
-                    "link": "LinkHardcoded",
-                    "match": 4,
-                    "description": "desc"
-                }
-            ]
-            #CONVERT MSG TO BYTES
-            #
-            print(f"Print before return")
-            return {"Code": 200, "Message": return_msg }, 200
-            #print(len(image_bytes))
-            #return self.handle_request(image_bytes, complex_case)
+            return self.handle_request(image_bytes, complex_case)
 
     def handle_request(self, image_bytes : bytes, complex_case: bool) -> tuple():
         """
@@ -168,11 +117,33 @@ class FlaskHTTPServer():
         event_list.append((user_id, threading.Event()))
         event_list_lock.release()
 
-        self.send_request_to_tcp(user_id, image_bytes, complex_case)
+        print("FLASK SERVER: SENDING REQUEST TO TCP...")
+        tcp_client_lock.acquire()
+        tcp_client.send_request(user_id, image_bytes, complex_case)
+        tcp_client_lock.release()
         msg = self.wait_for_event(user_id)
         self.deallocate_user_id(user_id)
+
+        f = open("temp.jpg","wb")
+        f.write(msg.content)
+        f.close()
+
+        exif = ExifData("temp.jpg")
+        title, link, desc = ExifData.LoadData()
+        image_base64 = base64.b64encode(msg.content)
+        image_base64 = image_base64.decode("ascii")
+
+        return_msg = [
+            {
+                "image": image_base64,
+                "title": title,
+                "link": link,
+                "match": 4,
+                "description": desc
+            }
+        ]
         print(f"FLASK SERVER: USER {user_id} DONE.")
-        return {"Code": 200, "Message": "Message succesfully processed" }, 200 #TODO: Add msg in payload
+        return {"Code": 200, "Message": return_msg }, 200
 
     def remove_event_by_user_id(user_id: int) -> None:
         """
@@ -269,25 +240,6 @@ class FlaskHTTPServer():
         event_list_lock.release()
         id_gap_list_lock.release()
 
-    def send_request_to_tcp(self, user_id: int, image: bytes, complex_case: bool) -> None:
-        """
-        Forward a request to a TCP client.
-
-        Parameters
-        ---------
-        - `user_id` (int): User index to be forwarded
-        - `image` (bytes): Image to be forwarded
-        - `complex_case` (bool): Image to be forwarded
-
-        Returns
-        ---------
-        - None
-        """
-        print("FLASK SERVER: SENDING REQUEST TO TCP...")
-        tcp_client_lock.acquire()
-        tcp_client.send_request(user_id, image, complex_case)
-        tcp_client_lock.release()
-
     def wait_for_event(self, user_id: int) -> Message:
         """
         Blocks the thread until the event in global `event_list` with index `user_id` is set.
@@ -304,13 +256,18 @@ class FlaskHTTPServer():
         """
         global tcp_result
         global event_list
+        user_event = []
 
         print("FLASK SERVER: WAITING FOR EVENT...")
         event_list_lock.acquire()
-        event = search_event_by_user_id(user_id)
+        
+        for event in event_list:
+            if event[0] == user_id:
+                user_event = event[1]
+
         event_list_lock.release()
 
-        event.wait() #TODO: Time-out period?
+        user_event.wait() #TODO: Time-out period?
         print("FLASK SERVER: EVENT PROCESSED...")
         event_list_lock.acquire()
         self.remove_event_by_user_id(user_id)
@@ -343,17 +300,6 @@ class FlaskTCPClient:
 
         self.client: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    def start_tcp_client(self) -> None:
-        """
-        Connects `self.client` to `self.ADRESS_FLASK_TCP` as a client.
-        Parameters
-        ---------
-        - None
-
-        Returns
-        ---------
-        - None
-        """
         print("TCP CLIENT: STARTING...")
         print(socket.gethostbyname(socket.gethostname()))
         self.client.connect(self.ADDRESS_FLASK_TCP)
@@ -388,23 +334,6 @@ class FlaskTCPClient:
         converted_msg = msg_json.encode("ascii")
         print(f"TCP CLIENT: MESSAGE LENGTH: {len(converted_msg)}")
         
-        """
-        image_bytes_decoded = image_base64.decode("ascii")
-        image_bytes = image_bytes_decoded.encode("ascii") #self.format
-        #image_bytes_decoded.save("testsave.jpg")
-        with open ("testimage.jpg", "wb") as b:
-            print("writing")
-            b.write(image_bytes)
-            print("Written")
-
-
-
-        msg = Message(user_id, image_bytes_decoded , complex_case) #TODO: Create message from image
-        msg = msg.to_json()
-        #CONVERT MSG TO BYTES
-        converted_msg = msg.encode("ASCII")
-        print(f"TCP CLIENT: MESSAGE LENGTH: {len(converted_msg)}")
-        """
         #ADD PADDING TO MAKE MSG SIZE 250000
         converted_msg += b" " * (self.BUFFER_MAX - len(converted_msg))
         self.client.send(converted_msg)
@@ -443,24 +372,18 @@ class FlaskTCPClient:
                 tcp_result = msg_object
 
                 event_list_lock.acquire()
-                event = search_event_by_user_id(user_id)
-                event.set()
+
+                for event in event_list:
+                    if event[0] == user_id:
+                        user_event = event[1]
+
+                user_event.set()
                 event_list_lock.release()
 
                 self.lock.acquire()
                 self.client_amount -= 1
                 self.lock.release()
 
-
-
 if __name__ == '__main__':
     tcp_client = FlaskTCPClient()
-    tcp_client.start_tcp_client()
     flask_server = FlaskHTTPServer()
-    #for _ in range(5):
-        #flask_server.debug_func()
-
-    #list = []
-    #list.insert(4, "test")
-    #print(list[0])
-    #print(list[3])

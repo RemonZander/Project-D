@@ -5,15 +5,14 @@
     <ProjectGuid>dd820957-e76e-4218-86cb-fc0483a6fa8f</ProjectGuid>
     <ProjectHome>
     </ProjectHome>
-    <StartupFile>
-    </StartupFile>
+    <StartupFile>flask_service.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Flask Service</Name>
     <RootNamespace>Flask Service</RootNamespace>
-    <InterpreterId>MSBuild|TenserFlow|D:\school bestanden\HBO\Informatica\2020-2025\Projecten\Project D\Server\ImageClassifier\ImageClassifier.pyproj</InterpreterId>
+    <InterpreterId>CondaEnv|CondaEnv|TensorflowENV</InterpreterId>
     <SuppressEnvironmentCreationPrompt>True</SuppressEnvironmentCreationPrompt>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -25,6 +24,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="exif_data.py" />
     <Compile Include="flask_service.py" />
     <Compile Include="flask_tcp_client.py" />
     <Compile Include="image_validation.py" />
@@ -33,8 +33,7 @@
     <Compile Include="tcp_dummy_server.py" />
   </ItemGroup>
   <ItemGroup>
-    <InterpreterReference Include="CondaEnv|CondaEnv|SimpleNeuralNet" />
-    <InterpreterReference Include="MSBuild|TenserFlow|D:\school bestanden\HBO\Informatica\2020-2025\Projecten\Project D\Server\ImageClassifier\ImageClassifier.pyproj" />
+    <InterpreterReference Include="CondaEnv|CondaEnv|TensorflowENV" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
