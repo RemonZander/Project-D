@@ -45,13 +45,13 @@ from exif_data import ExifData
 #GLOBAL VARIABLES
 event_list = [] #list[tuple(int, threading.Event)] 
 tcp_result = ""
-id_gap_list: int = []
-highest_user_id: int = -1
+#id_gap_list: int = []
+#highest_user_id: int = -1
 
 event_list_lock = threading.Lock()
 tcp_result_lock = threading.Lock()
-id_gap_list_lock = threading.Lock()
-highest_user_id_lock = threading.Lock()
+#id_gap_list_lock = threading.Lock()
+#highest_user_id_lock = threading.Lock()
 tcp_client_lock = threading.Lock()
 
 def get_event_by_user_id(user_id:int) -> threading.event | False:
@@ -200,40 +200,34 @@ class FlaskHTTPServer():
         - int: allocated user_id
         """
         print("FLASK SERVER: ALLOCATING user_id...")
-        global highest_user_id
-        global id_gap_list
-        user_id = -1
+        global event_list
 
-        id_gap_list_lock.acquire()
-        highest_user_id_lock.acquire()
+        event_list_lock.acquire()
+        assigned_user_id = 0
+        for tuple_id_event in event_list:
+            if tuple_id_event[0] > assigned_user_id:
+                assigned_user_id = tuple_id_event[0] +1
 
-        if len(id_gap_list) > 0:
-            user_id = id_gap_list[0]
-            id_gap_list.remove(user_id)
-        else:
-            user_id = highest_user_id + 1
-            highest_user_id = user_id
+        event_list_lock.release()
+        print(f"FLASK SERVER: GIVEN USER INDEX IS {str(assigned_user_id)}")
+        return assigned_user_id
 
-        id_gap_list_lock.release()
-        highest_user_id_lock.release()
-        print(f"FLASK SERVER: GIVEN USER INDEX IS {str(user_id)}")
-        return user_id
-
+    """
     def __deallocate_user_id(self, user_id: int) -> None:
-        """
-        De-assigns a user index.
-        If the `user_id` is currently the global `highest_user_id`,
-        the function iterates through global `event_list` starting at `event_list`[-1] to find the next highest index. 
-        If a new event is found, that event's index becomes the new `highest_user_id`.
-        Else no new event in list, `highest_user_id` becomes `-1`.
-        Parameters
-        ---------
-        - `user_id` (int): Index to deallocate
+        #
+        #De-assigns a user index.
+        #If the `user_id` is currently the global `highest_user_id`,
+        #the function iterates through global `event_list` starting at `event_list`[-1] to find the next highest index. 
+        #If a new event is found, that event's user_id becomes the new `highest_user_id`.
+        #Else no new event in list, `highest_user_id` becomes `-1`.
+        #Parameters
+        #---------
+        #- `user_id` (int): Index to deallocate
 
-        Returns
-        ---------
-        - None
-        """
+        #Returns
+        #---------
+        #- None
+        #
         print("FLASK SERVER: DEALLOCATING user_id...")
         global highest_user_id
         global id_gap_list
@@ -244,21 +238,21 @@ class FlaskHTTPServer():
         id_gap_list_lock.acquire()
 
         if user_id == highest_user_id:
-            for index in range(1, len(event_list)):
-                if event_list[-index -1] is not None:
-                    highest_user_id = event_list.index(event_list[-index -1])
-                    event_list = event_list[0:highest_user_id+1]
-                    break
-                if index == len(event_list) - 1:
-                    highest_user_id = -1
-                    event_list = []
-                    break
+            if len(event_list) == 1:
+                highest_user_id = -1
+            else:
+                new_highest_user_id = -1
+                for index in range(1, len(event_list)):
+                    if event_list[-index -1][0] > new_highest_user_id:
+                        new_highest_user_id = event_list[-index -1][0]
+                highest_user_id = new_highest_user_id
         else:
             id_gap_list.append(user_id)
 
         highest_user_id_lock.release()
         event_list_lock.release()
         id_gap_list_lock.release()
+    """
 
     def __wait_for_event(self, user_id: int) -> Message:
         """
@@ -345,7 +339,7 @@ class FlaskTCPClient:
 
         image_base64 = base64.b64encode(image_bytes)
         image_ascii = image_base64.decode("ascii")
-        msg = Message(user_id, image_ascii , complex_case) #TODO: Create message from image
+        msg = Message(user_id, image_ascii , complex_case, "") #TODO: Create message from image
         msg_json = msg.to_json()
         #CONVERT MSG TO BYTES
         converted_msg = msg_json.encode("ascii")
@@ -354,8 +348,6 @@ class FlaskTCPClient:
         #ADD PADDING TO MAKE MSG SIZE 250000
         converted_msg += b" " * (self.BUFFER_MAX - len(converted_msg))
         self.client.send(converted_msg)
-
-
 
     def __listen(self) -> None:
         """
