@@ -54,7 +54,7 @@ tcp_result_lock = threading.Lock()
 #highest_user_id_lock = threading.Lock()
 tcp_client_lock = threading.Lock()
 
-def get_event_by_user_id(user_id:int) -> threading.event | False:
+def get_event_by_user_id(user_id:int):
     """
     Returns an event which from the tuple in global `event_list` which contains `user_id` as Item1 in the tuple
 
@@ -106,90 +106,11 @@ class FlaskHTTPServer():
 
         return self.__handle_request(image_bytes, complex_case)
         
-
-    def __handle_request(self, image_bytes : bytes, complex_case: bool) -> tuple():
-        """
-        Facilitates the request for the requesting user.
-        Following sequence:
-        - Assign user ID
-        - Create new event using the ID
-        - Forward the request to TCP client
-        - Wait for msg to be returned
-        - (msg received) Deallocate user ID
-        - Converts return msg into response
-        - Return response
-
-        Parameters
-        ---------
-        - `image` (bytes): Image in raw byte format
-        - `complex_case` (bool): Whether or not the process will follow complex or simple route (irrelevant for this method)
-
-        Returns
-        ---------
-        - `tuple`: Tuple containing a dict storing the return code and return msg (e.g {"Code": 200, "Message": "})
-                and the return code as int.
-        """
-        print("FLASK SERVER: HANDLING REQUEST...")
-        print(f"FLASK SERVER: ACTIVE CONNECTIONS: {threading.activeCount() - 1}")
-        user_id = self.__allocate_user_id()
-
-        event_list_lock.acquire()
-        event_list.append((user_id, threading.Event()))
-        event_list_lock.release()
-
-        print("FLASK SERVER: SENDING REQUEST TO TCP...")
-        tcp_client_lock.acquire()
-        tcp_client.__send_request(user_id, image_bytes, complex_case)
-        tcp_client_lock.release()
-        msg = self.__wait_for_event(user_id)
-        self.__deallocate_user_id(user_id)
-
-        f = open("temp.jpg","wb")
-        f.write(msg.content)
-        f.close()
-
-        exif = ExifData("temp.jpg")
-        title, link, desc = ExifData.LoadData()
-        image_base64 = base64.b64encode(msg.content)
-        image_base64 = image_base64.decode("ascii")
-
-        return_msg = [
-            {
-                "image": image_base64,
-                "title": title,
-                "link": link,
-                "match": 4,
-                "description": desc
-            }
-        ]
-        print(f"FLASK SERVER: USER {user_id} DONE.")
-        return {"Code": 200, "Message": return_msg }, 200
-
-    def __remove_event_by_user_id(user_id: int) -> None:
-        """
-        Removes event which contains id `user_id` as first value in tuple from global `event_list`.
-
-        Parameters
-        ---------
-        - `user_id` (int): The index to be removed
-
-        Returns
-        ---------
-        - None
-        """
-        global event_list
-        event_to_remove = ""
-        for event in event_list:
-            if event[0] == user_id:
-                event_to_remove = event
-                break
-        event_list.remove(event_to_remove)
-
     def __allocate_user_id(self) -> int:
         """
         Assigns and returns a user index.
-        If the global `id_gap_list` contains any index, returns `id_gap_list`[0].
-        Else increases global `highest_user_id` by 1 and returns that outcome
+        Iterates through global `event_list` to find the current highest "user_id".
+        Returns the highest user id + 1.
         
         Parameters
         ---------
@@ -211,6 +132,26 @@ class FlaskHTTPServer():
         event_list_lock.release()
         print(f"FLASK SERVER: GIVEN USER INDEX IS {str(assigned_user_id)}")
         return assigned_user_id
+
+    def __remove_event_by_user_id(user_id: int) -> None:
+        """
+        Removes event which contains id `user_id` as first value in tuple from global `event_list`.
+
+        Parameters
+        ---------
+        - `user_id` (int): The index to be removed
+
+        Returns
+        ---------
+        - None
+        """
+        global event_list
+        event_to_remove = ""
+        for event in event_list:
+            if event[0] == user_id:
+                event_to_remove = event
+                break
+        event_list.remove(event_to_remove)
 
     """
     def __deallocate_user_id(self, user_id: int) -> None:
@@ -289,6 +230,64 @@ class FlaskHTTPServer():
         tcp_result_lock.release()
 
         return msg
+
+    def __handle_request(self, image_bytes : bytes, complex_case: bool) -> tuple():
+        """
+        Facilitates the request for the requesting user.
+        Following sequence:
+        - Assign user ID
+        - Create new event using the ID
+        - Forward the request to TCP client
+        - Wait for msg to be returned
+        - (msg received) Deallocate user ID
+        - Converts return msg into response
+        - Return response
+
+        Parameters
+        ---------
+        - `image` (bytes): Image in raw byte format
+        - `complex_case` (bool): Whether or not the process will follow complex or simple route (irrelevant for this method)
+
+        Returns
+        ---------
+        - `tuple`: Tuple containing a dict storing the return code and return msg (e.g {"Code": 200, "Message": "})
+                and the return code as int.
+        """
+        print("FLASK SERVER: HANDLING REQUEST...")
+        print(f"FLASK SERVER: ACTIVE CONNECTIONS: {threading.activeCount() - 1}")
+        user_id = self.__allocate_user_id()
+
+        event_list_lock.acquire()
+        event_list.append((user_id, threading.Event()))
+        event_list_lock.release()
+
+        print("FLASK SERVER: SENDING REQUEST TO TCP...")
+        tcp_client_lock.acquire()
+        tcp_client.__send_request(user_id, image_bytes, complex_case)
+        tcp_client_lock.release()
+        msg = self.__wait_for_event(user_id)
+        self.__deallocate_user_id(user_id)
+
+        f = open("temp.jpg","wb")
+        f.write(msg.content)
+        f.close()
+
+        exif = ExifData("temp.jpg")
+        title, link, desc = ExifData.LoadData()
+        image_base64 = base64.b64encode(msg.content)
+        image_base64 = image_base64.decode("ascii")
+
+        return_msg = [
+            {
+                "image": image_base64,
+                "title": title,
+                "link": link,
+                "match": 4,
+                "description": desc
+            }
+        ]
+        print(f"FLASK SERVER: USER {user_id} DONE.")
+        return {"Code": 200, "Message": return_msg }, 200
 
 #PORT MAPPINGS:
 #CLIENT             -      SERVER                   :   PORT
