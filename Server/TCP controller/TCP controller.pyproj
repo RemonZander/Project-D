@@ -11,6 +11,7 @@
     <OutputPath>.</OutputPath>
     <Name>TCP controller</Name>
     <RootNamespace>TCP controller</RootNamespace>
+    <InterpreterId>CondaEnv|CondaEnv|TensorflowENV</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -24,6 +25,9 @@
     <Compile Include="Message.py" />
     <Compile Include="MessageType.py" />
     <Compile Include="tcp_controller.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="CondaEnv|CondaEnv|TensorflowENV" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
