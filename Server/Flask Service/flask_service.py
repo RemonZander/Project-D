@@ -263,7 +263,7 @@ class FlaskHTTPServer():
 
         print("FLASK SERVER: SENDING REQUEST TO TCP...")
         tcp_client_lock.acquire()
-        tcp_client.__send_request(user_id, image_bytes, complex_case)
+        tcp_client.send_request(user_id, image_bytes, complex_case)
         tcp_client_lock.release()
         msg = self.__wait_for_event(user_id)
         self.__deallocate_user_id(user_id)
@@ -314,7 +314,7 @@ class FlaskTCPClient:
         print(socket.gethostbyname(socket.gethostname()))
         self.client.connect(self.ADDRESS_FLASK_TCP)
 
-    def __send_request(self, user_id: int, image_bytes: bytes, complex_case: bool) -> None:
+    def send_request(self, user_id: int, image_bytes: bytes, complex_case: bool) -> None:
         """
         Sends a `Message` object containing given variables to `self.ADRESS_FLASK_TCP`
 
