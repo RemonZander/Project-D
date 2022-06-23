@@ -15,6 +15,7 @@ import time
 from time import sleep
 import base64
 from exif_data import ExifData
+from square_image import square_image
 
 #USER CONNECTS
 #NEW THREAD
@@ -98,13 +99,7 @@ class FlaskHTTPServer():
         if not validate_image(image):
             return {"Code": 415, "message": "The media format of the requested data is not supported by the server, so the server is rejecting the request." }, 415
 
-        complex_case = request.form["complex_case"]
-        print(f"IMAGE TYPE: {type(image)}")
-
-        #TODO: RESCALE IMAGE, MAX IMAGE SIZE? 
-        image_bytes = image.read()
-
-        return self.__handle_request(image_bytes, complex_case)
+        return self.__handle_request(image.read(), request.form["complex_case"])
         
     def __allocate_user_id(self) -> int:
         """
@@ -257,16 +252,17 @@ class FlaskHTTPServer():
         print(f"FLASK SERVER: ACTIVE CONNECTIONS: {threading.activeCount() - 1}")
         user_id = self.__allocate_user_id()
 
+        resized_image_base_64 = square_image(image_bytes, user_id)
+
         event_list_lock.acquire()
         event_list.append((user_id, threading.Event()))
         event_list_lock.release()
 
         print("FLASK SERVER: SENDING REQUEST TO TCP...")
         tcp_client_lock.acquire()
-        tcp_client.send_request(user_id, image_bytes, complex_case)
+        tcp_client.send_request(user_id, resized_image_base_64, complex_case)
         tcp_client_lock.release()
         msg = self.__wait_for_event(user_id)
-        self.__deallocate_user_id(user_id)
 
         f = open("temp.jpg","wb")
         f.write(msg.content)
@@ -314,7 +310,7 @@ class FlaskTCPClient:
         print(socket.gethostbyname(socket.gethostname()))
         self.client.connect(self.ADDRESS_FLASK_TCP)
 
-    def send_request(self, user_id: int, image_bytes: bytes, complex_case: bool) -> None:
+    def send_request(self, user_id: int, image_base64: base64, complex_case: bool) -> None:
         """
         Sends a `Message` object containing given variables to `self.ADRESS_FLASK_TCP`
 
@@ -336,7 +332,7 @@ class FlaskTCPClient:
         self.client_amount += 1
         self.lock.release()
 
-        image_base64 = base64.b64encode(image_bytes)
+        #image_base64 = base64.b64encode(image_bytes)
         image_ascii = image_base64.decode("ascii")
         msg = Message(user_id, image_ascii , complex_case, "") #TODO: Create message from image
         msg_json = msg.to_json()
