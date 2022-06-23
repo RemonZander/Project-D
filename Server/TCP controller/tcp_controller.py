@@ -73,16 +73,17 @@ class TCPController():
                 listenThread.start()
                 print(f"ACTIVE CONNECTIONS: {threading.activeCount() - 1}")
             if self.q.qsize() > 0 and self.processingUser == False:
-                if self.Processed_Results != None:
-                    conn.send(self.Processed_Results.to_json().encode(self.FORMAT))
                 msg_obj = self.q.get()
                 print("STARTING NN THREAD...")
                 ImageSegmentationClientThread = threading.Thread(target=self.ImageSegmentationClient, args=(msg_obj,))
                 ImageSegmentationClientThread.start()
+            if self.Processed_Results != [] and self.processingUser == False:
+                msg = self.Processed_Results.to_json().encode(self.FORMAT)
+                msg += b" " * (self.BUFFER_SIZE - len(msg))
+                conn.send(msg)
 
         self.server.close()
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        #self.server.bind(self.ADDRESS_FLASK_TCP)
         self.__init__()
         self.StartServer()
             
@@ -210,7 +211,6 @@ class TCPController():
             msg = self.comparerClient.recv(self.BUFFER_SIZE).decode(self.FORMAT)
             msg = msg[0:msg.rfind('}') + 1]
             new_msg_obj = Message.from_json(json.loads(msg))
-            print()
         except:
             print("Lost connection to comparer server")
             print("reconnecting to comparer server...")

@@ -6,7 +6,7 @@ import os
 #Shrinks an image down to 200 x 200 pixels, the side which has a shorter dimension gets filled with a background color (white default)
 def square_image(image_bytes: bytes, user_id: int, fill_color=(255, 255, 255, 0)) -> base64:
     #open image
-    im = Image.open(io.BytesIO(image_bytes), "rb")
+    im = Image.open(io.BytesIO(image_bytes))
     #x, y tuple
     x, y = im.size
     max_size = max(x, y)
@@ -17,9 +17,9 @@ def square_image(image_bytes: bytes, user_id: int, fill_color=(255, 255, 255, 0)
     #resize it down to 128 x 128 pixels
     resized_img = new_im.resize((128, 128))
     #save image
-    resized_img.save(f"{user_id}", "png")
-    with open(f"{user_id}.png") as f:
-        encoded_string = base64.b64encode(f)
+    resized_img.save(str(user_id) + ".png")
+    with open(f"{user_id}.png", "rb") as f:
+        encoded_string = base64.b64encode(f.read())
     try: os.remove(f"{user_id}.png")
     except: pass
     return encoded_string
