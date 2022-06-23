@@ -1,6 +1,6 @@
 #bolOverlay, #bolElement, #bolElHeader, #bolLogo, #bolLogoMainText, #bolLogoExtText, #bolSearchBar, #bolSearchInput, #bolElCloseBtn, #bolElCloseBtn svg, #bolElBody, 
 .bolItem, .bolItemImg, .bolItemBody, .bolItemHeader, .bolItemTitle, .bolItemDropdownBtn, .bolItemDropdownBtn::before, .bolItemDescription, .bolItemDescImg, .bolItemDescImg img, 
-.bolItemDetails, .bolItemSubCategory, .bolItemMatch, .active, .bolItemImg, .bolItemBody, .bolItemHeader, .bolItemDropdownBtn::before, .bolItemDescription, .bolItemDescText, .bolItemDetails, 
+.bolItemMatch, .active, .bolItemImg, .bolItemBody, .bolItemHeader, .bolItemDropdownBtn::before, .bolItemDescription, .bolItemDescText, .bolItemDetails, 
 .noWrap, .markedText {
     all: unset;
 }
@@ -113,7 +113,6 @@
                         align-items: center;
                         padding: 0px 5% 0px 5%;
                         height: 50px;
-                        margin-bottom: 3.5%;
 
                         .bolItemTitle {
                             line-height: 25px;
@@ -149,7 +148,6 @@
                     .bolItemDescription {
                         height: 0px;
                         padding: 0px;
-                        border-top: solid 1px #020202;
                         border-bottom: none;
                         overflow: hidden;
                         transition: all 0.25s ease-out;
@@ -159,26 +157,24 @@
                             padding: 0px 10px 0px 0px;
                             
                             img {
+                                cursor: pointer;
+                                width: auto;
                                 height: 150px;
+                                max-width: 100%;
+                                object-fit: contain;
                             }
                         }
-                    }
-                    
-                    .bolItemDetails {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        padding: 0px 5% 0px 5%;
-                        margin-top: 3.5%;
 
-                        .bolItemSubCategory {
-                            width: 100px;
-                            padding: 5px;
-                            cursor: pointer;
+                        .bolItemDescText {
+                            white-space: pre-line;
+                            min-height: 150px;
+                            display: block;
                         }
                         
                         .bolItemMatch {
-                            padding: 5px;
+                            padding: 7.5px;
+                            border: 1px #000000 solid;
+                            float: right;
                         } 
                     }
                 }
@@ -190,7 +186,7 @@
 
                     .bolItemBody {
                         .bolItemHeader {
-                            margin-top: 3.5%;
+                            margin: 3.5% 0px 3.5% 0px;
 
                             .bolItemDropdownBtn::before {
                                 content: "-";
@@ -202,14 +198,6 @@
                             padding: 5%;
                             border-top: solid 1px #020202;
                             border-bottom: solid 1px #020202;
-
-                            .bolItemDescText {
-                                white-space: pre-line;
-                            }
-                        }
-
-                        .bolItemDetails {
-                            margin-bottom: 3.5%;
                         }
                     } 
                 }

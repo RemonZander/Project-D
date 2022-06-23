@@ -76,12 +76,9 @@ if (!document.querySelector("#bolOverlay")) {
 
 		// Function that creates a bolItem element and adds it as a child element to the extension.
 		const createItem = (item) => {
-			// Gets the correct image url to display the image in the extension
-			const imgLink = chrome.runtime.getURL(`images/${item.image}`);
-
 			const bolItem = elementFromHtml(`
 				<div class="bolItem">
-					<img class="bolItemImg" src="${imgLink}">
+					<img class="bolItemImg" src="data:image/png;base64,${item.image}">
 					<div class="bolItemBody">
 						<div class="bolItemHeader">
 							<div class="bolItemTitle titleWrap" title='${removeMarks(item.title)}'>${
@@ -90,13 +87,10 @@ if (!document.querySelector("#bolOverlay")) {
 							<div class="bolItemDropdownBtn"></div>
 						</div>
 						<div class="bolItemDescription">
-							<div class="bolItemDescImg"><img src="${imgLink}"></div>
+							<div class="bolItemDescImg"><img src="data:image/png;base64,${
+								item.image
+							}"></div>
 							<div class="bolItemDescText">${item.description}</div>
-						</div>
-						<div class="bolItemDetails">
-							<div class="bolItemSubCategory noWrap" title="${item.subCategory}">${
-				item.subCategory
-			}</div>
 							<div class="bolItemMatch">Match: ${item.match}%</div>
 						</div>
 					</div>
@@ -137,6 +131,24 @@ if (!document.querySelector("#bolOverlay")) {
 
 				htmlHead.parentNode.removeChild(
 					document.getElementById("bolOverlay")
+				);
+			}
+		});
+
+		// Adds the onClick event on the title and the images to go to the product page on bol.com
+		bolElement.addEventListener("click", (e) => {
+			if (e.target.matches(".bolItemImg")) {
+				window.open(e.target.parentNode.dataset.link, "_blank");
+			} else if (e.target.matches(".bolItemTitle")) {
+				window.open(
+					e.target.parentNode.parentNode.parentNode.dataset.link,
+					"_blank"
+				);
+			} else if (e.target.matches(".bolItemDescImg img")) {
+				window.open(
+					e.target.parentNode.parentNode.parentNode.parentNode.dataset
+						.link,
+					"_blank"
 				);
 			}
 		});
