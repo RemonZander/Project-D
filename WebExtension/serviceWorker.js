@@ -45,16 +45,20 @@ chrome.contextMenus.onClicked.addListener((clickedData, tab) => {
 			data.append("image", imgFile);
 			data.append("complex_case", true);
 
+			console.log("Before Post");
+
 			// Post request to the server sending the formdata as the data.
 			fetch(`http://127.0.0.1:5000/image`, {
 				method: "POST",
 				body: data,
 			})
 				.then((res) => {
+					console.log("Recieved response!");
 					res.json()
-						.then((data) => ({
-							body: data,
-						}))
+						.then((data) => {
+							console.log(data);
+							({ body: data });
+						})
 						.then((obj) => {
 							let bolItems = [];
 							obj.body.Message.forEach((product) => {
