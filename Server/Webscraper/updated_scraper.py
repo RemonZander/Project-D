@@ -43,7 +43,6 @@ class BolWebScraper:
         self.actual_total_amount = 0
 
         self.webdriver_wait = WebDriverWait(self.driver, 10)
-        self.__initiate_scraper()
 
         self.driver.implicitly_wait(10)
 
@@ -52,6 +51,8 @@ class BolWebScraper:
         self.image_index = 1
 
         self.screen_blocked_amount = 0
+
+        self.__initiate_scraper()
 
     def scrape_lowest_categories_and_save_in_same_folder(self, category_list, folder_name, total_amount):
         amount_categories = len(category_list)
@@ -82,6 +83,9 @@ class BolWebScraper:
             self.driver.find_element(By.CSS_SELECTOR, "wsp-consent-modal > div > button").click()
         except Exception as e:
             pass
+
+    def terminate_scraper(self):
+        self.driver.quit()
 
     def __get_el_by_css_selector(self, selector: str, parent_element=None):
         if parent_element is not None:
@@ -217,7 +221,7 @@ class BolWebScraper:
         else:
             max_pages = children[-2].find_element(By.CSS_SELECTOR, ".js_pagination_item").get_attribute("data-page-number")
 
-        restart_same_page_amount = 0
+        restart_same_page_amount = 0+
 
         if restart_same_page_amount > 10:
             raise Exception("Tried scraping page same page 10 times.\nUrl: {}".format(start_url + f"?page={page_num}&view=list"))

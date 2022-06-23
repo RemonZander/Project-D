@@ -1,71 +1,58 @@
 import unittest
 from updated_scraper import BolWebScraper
-import time
+from updated_scraper import scrape_cats
+from exif_data import ExifData
+import os.path as path
+import shutil
+
 
 class TestBolScraper(unittest.TestCase):
-
     def setUp(self):
-        self.bol_scraper = BolWebScraper(False)
-        self.bol_scraper._BolWebScraper__initiate_scraper()
+        self.enable_download = True
 
-    ###Verify list of sub sub categories is > 0
-    def test_extract_sub_categories(self):
-        self.extract_sub_categories_computer_en_elektronica()
-        self.extract_sub_categories_speelgoed_hobby_en_feest()
-        self.extract_sub_categories_zwanger_baby_en_peuter()
-        self.extract_sub_categories_mooi_en_gezond()
-        self.extract_sub_categories_kleding_schoenen_en_accessoires()
+        self.scraper = BolWebScraper(self.enable_download)
+        self.current_directory = path.dirname(path.abspath(__file__))
 
-    def extract_sub_categories_computer_en_elektronica(self):
-        categories= ["https://www.bol.com/nl/nl/menu/categories/subMenu/3"]
-        test = self.bol_scraper._BolWebScraper__extract_sub_categories(categories)
-        self.assertGreater(len(test), 0)
+    def test_scrape_lowest_categories_and_save_in_same_folder(self):
+        # Arrange / Act
+        self.scraper.scrape_lowest_categories_and_save_in_same_folder(
+            ["https://www.bol.com/nl/nl/l/lange-jeans/47200/4295688522/"],
+            "lange broeken",
+            1
+        )
 
-    def extract_sub_categories_speelgoed_hobby_en_feest(self):
-        category= ["https://www.bol.com/nl/nl/menu/categories/subMenu/4"]
-        test = self.bol_scraper._BolWebScraper__extract_sub_categories(category)
-        self.assertGreater(len(test), 0)
+        # Assert
+        self.result_directory = path.realpath(self.current_directory + "/lange broeken")
+        self.result_image = path.realpath(self.result_directory + "/1.jpg")
 
-    def extract_sub_categories_zwanger_baby_en_peuter(self):
-        category= ["https://www.bol.com/nl/nl/menu/categories/subMenu/5"]
-        test = self.bol_scraper._BolWebScraper__extract_sub_categories(category)
-        self.assertGreater(len(test), 0)
+        self.assertTrue(path.exists(self.result_directory))
+        self.assertTrue(path.isfile(self.result_image))
 
-    def extract_sub_categories_mooi_en_gezond(self):
-        category= ["https://www.bol.com/nl/nl/menu/categories/subMenu/6"]
-        test = self.bol_scraper._BolWebScraper__extract_sub_categories(category)
-        self.assertGreater(len(test), 0)
+        exif_data_obj = ExifData(self.result_image)
 
-    def extract_sub_categories_kleding_schoenen_en_accessoires(self):
-        category= ["https://www.bol.com/nl/nl/menu/categories/subMenu/7"]
-        test = self.bol_scraper._BolWebScraper__extract_sub_categories(category)
-        self.assertGreater(len(test), 0)
+        self.assertIsNotNone(exif_data_obj.LoadData())
 
-    #Attempt to scrape multiple items from sub category test_computer_en_elektronica
-    #def test_computer_en_elektronica_1(self):
-        #self.bol_scraper.__find_lowest_categories("https://www.bol.com/nl/nl/menu/categories/subMenu/3", 1)
+        # Cleanup
+        shutil.rmtree(self.result_directory)
 
-    #def test_computer_en_elektronica_100(self):
-        #self.bol_scraper.__find_lowest_categories("https://www.bol.com/nl/nl/menu/categories/subMenu/3", 100)
+    def test_scrape_cats(self):
+        # Arrange / Act
+        data = scrape_cats(
+            ["https://www.bol.com/nl/nl/l/lange-jeans/47200/4295688522/"],
+            "lange broeken",
+            1
+        )
 
-    #def test_kleding_schoenen_en_accessoires(self):
-        #self.bol_scraper.__find_lowest_categories("https://www.bol.com/nl/nl/menu/categories/subMenu/7")
+        # Assert
+        self.assertEqual("lange broeken", data[0])
+        self.assertEqual(0, data[1])
+        self.assertTrue(isinstance(data[2], float))
+        self.assertEqual(1, data[3])
+        self.assertEqual(0, data[4])
 
     def tearDown(self):
-        self.bol_scraper._BolWebScraper__terminate_scraper()
+        self.scraper.terminate_scraper()
+
 
 if __name__ == '__main__':
     unittest.main()
-
-var =   [
-            "https://www.bol.com/nl/nl/menu/categories/subMenu/3",  #Computer en Elekronica
-            #"https://www.bol.com/nl/nl/menu/categories/subMenu/4",  #Speelgoed, Hobby en Feest
-            #"https://www.bol.com/nl/nl/menu/categories/subMenu/5",  #Zwanger, Baby & Peuter
-            #"https://www.bol.com/nl/nl/menu/categories/subMenu/6",  #Mooi & Gezond
-            #"https://www.bol.com/nl/nl/menu/categories/subMenu/7"  #Kleding, Schoenen & Accessoires
-            #"https://www.bol.com/nl/nl/menu/categories/subMenu/8",  #Sport, Outdoor & Reizen
-            #"https://www.bol.com/nl/nl/menu/categories/subMenu/12", #Kantoor & School
-            #"https://www.bol.com/nl/nl/menu/categories/subMenu/11", #Wonen, Koken & Huishouden
-            #"https://www.bol.com/nl/nl/menu/categories/subMenu/9",  #Dier, Tuin & Klussen
-            #"https://www.bol.com/nl/nl/menu/categories/subMenu/13"  #Auto & Motor
-        ]
