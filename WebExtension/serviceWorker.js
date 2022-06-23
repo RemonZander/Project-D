@@ -44,6 +44,7 @@ chrome.contextMenus.onClicked.addListener((clickedData, tab) => {
 			const data = new FormData();
 			data.append("image", imgFile);
 			data.append("complex_case", true);
+			console.log("Before sending request");
 
 			// Post request to the server sending the formdata as the data.
 			fetch(`http://127.0.0.1:5000/image`, {
@@ -51,6 +52,7 @@ chrome.contextMenus.onClicked.addListener((clickedData, tab) => {
 				body: data,
 			})
 				.then((res) => {
+					console.log("Recieved response");
 					res.json()
 						.then((data) => ({
 							body: data,
