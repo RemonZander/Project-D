@@ -44,15 +44,11 @@ from square_image import square_image
 #USER DISCONNECTS
 
 #GLOBAL VARIABLES
-event_list = [] #list[tuple(int, threading.Event)] 
+event_list = []
 tcp_result = ""
-#id_gap_list: int = []
-#highest_user_id: int = -1
 
 event_list_lock = threading.Lock()
 tcp_result_lock = threading.Lock()
-#id_gap_list_lock = threading.Lock()
-#highest_user_id_lock = threading.Lock()
 tcp_client_lock = threading.Lock()
 
 def get_event_by_user_id(user_id:int):
