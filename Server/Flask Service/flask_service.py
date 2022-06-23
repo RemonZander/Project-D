@@ -292,7 +292,7 @@ class FlaskHTTPServer():
 #ADDRESS_FLASK_TCP = (socket.gethostbyname(socket.gethostname()), 5050)
 
 class FlaskTCPClient:
-    def __init__(self, BUFFER_MAX=250000, PORT_FLASK_TCP=5050, SERVER=socket.gethostbyname(socket.gethostname()), FORMAT="utf-8"):
+    def __init__(self, BUFFER_MAX=250000, PORT_FLASK_TCP=5050, SERVER=socket.gethostbyname(socket.gethostname()), FORMAT="ascii"):
         self.BUFFER_MAX = BUFFER_MAX
         self.PORT_FLASK_TCP = PORT_FLASK_TCP #TODO: SEE IF 
         self.SERVER = SERVER
@@ -314,7 +314,7 @@ class FlaskTCPClient:
         Variables
         ---------
         - user_id (int): Attribtute for `Message` object to be sent
-        - image_bytes (bytes): Attribtute for `Message` object to be sent
+        - image_base64 (base64): Attribtute for `Message` object to be sent
         - complex_cases (bool): Attribtute for `Message` object to be sent
 
         Returns
@@ -330,11 +330,11 @@ class FlaskTCPClient:
         self.lock.release()
 
         #image_base64 = base64.b64encode(image_bytes)
-        image_ascii = image_base64.decode("ascii")
-        msg = Message(user_id, image_ascii , complex_case, "") #TODO: Create message from image
+        image_ascii = image_base64.decode(self.FORMAT)
+        msg = Message(user_id, image_ascii , complex_case, "")
         msg_json = msg.to_json()
         #CONVERT MSG TO BYTES
-        converted_msg = msg_json.encode("ascii")
+        converted_msg = msg_json.encode(self.FORMAT)
         print(f"TCP CLIENT: MESSAGE LENGTH: {len(converted_msg)}")
         
         #ADD PADDING TO MAKE MSG SIZE 250000
@@ -343,7 +343,7 @@ class FlaskTCPClient:
 
     def __listen(self) -> None:
         """
-        Listens on `self..ADRESS_FLASK_TCP` as long as `self.client_amount` gt 0.
+        Listens on `self.ADRESS_FLASK_TCP` as long as `self.client_amount` gt 0.
         When a message is received, global `tcp_result` gets assigned to the message. After which the event storing the same `user_id` from msg gets triggered.
 
         Variables
@@ -356,7 +356,6 @@ class FlaskTCPClient:
         """
         global tcp_result
         global event_list
-
         print("TCP CLIENT: LISTENING TO RESPONSE...")
         #WAIT FOR RESPONSE
         while self.client_amount > 0:
