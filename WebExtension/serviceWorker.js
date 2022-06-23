@@ -5,18 +5,17 @@ chrome.contextMenus.create({
 	contexts: ["image"],
 });
 
-// Create context-menus
 chrome.contextMenus.create({
 	id: "bolComplexSearch",
 	parentId: "bolParentSearch",
-	title: "Search item on bol.com (Complex Case)",
+	title: "Search picture on bol.com",
 	contexts: ["image"],
 });
 
 chrome.contextMenus.create({
 	id: "bolSimpleSearch",
 	parentId: "bolParentSearch",
-	title: "Search type on bol.com (Simple Case)",
+	title: "Search item type on bol.com",
 	contexts: ["image"],
 });
 
@@ -29,16 +28,16 @@ chrome.contextMenus.onClicked.addListener((clickedData, tab) => {
 	)
 		return;
 
-	if (tab && clickedData.menuItemId === "bolComplexSearch") {
-		// Fetch request to get the image from the image src url
-		fetch(clickedData.srcUrl).then(async (res) => {
-			// Convert the image to a blob
-			const contentType = res.headers.get("content-type");
-			const blob = await res.blob();
+	// Fetch request to get the image from the image src url
+	fetch(clickedData.srcUrl).then(async (res) => {
+		// Convert the image to a blob
+		const contentType = res.headers.get("content-type");
+		const blob = await res.blob();
 
-			// Making the blob into an file object
-			const imgFile = new File([blob], "image.jpg", { contentType });
+		// Making the blob into an file object
+		const imgFile = new File([blob], "image.jpg", { contentType });
 
+		if (tab && clickedData.menuItemId === "bolComplexSearch") {
 			// Adding the imgFile to the formData with the key "image" for the post request
 			const data = new FormData();
 			data.append("image", imgFile);
@@ -74,24 +73,19 @@ chrome.contextMenus.onClicked.addListener((clickedData, tab) => {
 				.catch((error) => {
 					console.log("Authorization failed : " + error.message);
 				});
-		});
-	} else if (tab && clickedData.menuItemId === "bolSimpleSearch") {
-		// Fetch request to get the image from the image src url
-		fetch(clickedData.srcUrl).then(async (res) => {
-			// Convert the image to a blob
-			const contentType = res.headers.get("content-type");
-			const blob = await res.blob();
 
-			// Making the blob into an file object
-			const imgFile = new File([blob], "image.jpg", { contentType });
-
+			chrome.scripting.executeScript({
+				target: { tabId: tab.id },
+				files: ["createOverlay.js"],
+			});
+		} else if (tab && clickedData.menuItemId === "bolSimpleSearch") {
 			// Adding the imgFile to the formData with the key "image" for the post request
 			const data = new FormData();
 			data.append("image", imgFile);
 			data.append("complex_case", false);
 
 			// Post request to the server sending the formdata as the data.
-			fetch(`url`, {
+			fetch(`http://127.0.0.1:5000/image`, {
 				method: "POST",
 				body: data,
 			})
@@ -102,13 +96,16 @@ chrome.contextMenus.onClicked.addListener((clickedData, tab) => {
 						}))
 						.then((obj) => {
 							console.log(obj.body.Message);
+							chrome.tabs.create({
+								url: `https://www.bol.com/nl/nl/s/?searchtext=${obj.body.Message}`,
+							});
 						});
 				})
 				.catch((error) => {
 					console.log("Authorization failed : " + error.message);
 				});
-		});
-	}
+		}
+	});
 });
 
 // Function that runs the createOverlay.js file when the extension icon is clicked
