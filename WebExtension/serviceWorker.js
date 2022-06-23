@@ -95,7 +95,6 @@ chrome.contextMenus.onClicked.addListener((clickedData, tab) => {
 							body: data,
 						}))
 						.then((obj) => {
-							console.log(obj.body.Message);
 							chrome.tabs.create({
 								url: `https://www.bol.com/nl/nl/s/?searchtext=${obj.body.Message}`,
 							});
