@@ -16,6 +16,7 @@ from time import sleep
 import base64
 from exif_data import ExifData
 from square_image import square_image
+import os
 
 #USER CONNECTS
 #NEW THREAD
@@ -260,12 +261,12 @@ class FlaskHTTPServer():
         tcp_client_lock.release()
         msg = self.__wait_for_event(user_id)
 
-        f = open("temp.jpg","wb")
-        f.write(msg.content)
-        f.close()
+        with open(f"request-{user_id}.png", "wb") as f:
+            f.write(msg.content)
 
-        exif = ExifData("temp.jpg")
+        exif = ExifData(f"request-{user_id}.png")
         title, link, desc = ExifData.LoadData()
+        os.remove(f"request-{user_id}")
         image_base64 = base64.b64encode(msg.content)
         image_base64 = image_base64.decode("ascii")
 
