@@ -30,6 +30,8 @@ chrome.contextMenus.onClicked.addListener((clickedData, tab) => {
 	)
 		return;
 
+	console.log("Before first Post");
+
 	// Fetch request to get the image from the image src url
 	fetch(clickedData.srcUrl).then(async (res) => {
 		// Convert the image to a blob
@@ -38,6 +40,8 @@ chrome.contextMenus.onClicked.addListener((clickedData, tab) => {
 
 		// Making the blob into an file object
 		const imgFile = new File([blob], "image.jpg", { contentType });
+
+		console.log("Inside first Post");
 
 		if (tab && clickedData.menuItemId === "bolComplexSearch") {
 			// Adding the imgFile to the formData with the key "image" for the post request
@@ -60,6 +64,7 @@ chrome.contextMenus.onClicked.addListener((clickedData, tab) => {
 							({ body: data });
 						})
 						.then((obj) => {
+							console.log(obj.body.Message);
 							let bolItems = [];
 							obj.body.Message.forEach((product) => {
 								bolItems.push({
