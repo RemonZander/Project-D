@@ -65,10 +65,11 @@ def get_event_by_user_id(user_id:int):
     - threading.event : Event found
     - False : No event found
     """
-    for event in event_list:
+    print(event_list)
+    for event in event_list:     
         if event[0] == user_id:
-            return event[1]
-    return False
+            return event
+    #return False
 
 class FlaskHTTPServer():
     def __init__(self):
@@ -96,6 +97,7 @@ class FlaskHTTPServer():
         if not validate_image(image):
             return {"Code": 415, "message": "The media format of the requested data is not supported by the server, so the server is rejecting the request." }, 415
 
+        print("FLASK SERVER: HANDLING REQUEST...")
         return self.__handle_request(image.read(), request.form["complex_case"])
         
     def __allocate_user_id(self) -> int:
@@ -208,7 +210,7 @@ class FlaskHTTPServer():
         print("FLASK SERVER: WAITING FOR EVENT...")
         event_list_lock.acquire()
         
-        user_event = get_event_by_user_id(user_id)
+        user_event = get_event_by_user_id(user_id)[1]
         event_list_lock.release()
 
         user_event.wait() #TODO: Time-out period?
@@ -245,7 +247,6 @@ class FlaskHTTPServer():
         - `tuple`: Tuple containing a dict storing the return code and return msg (e.g {"Code": 200, "Message": "})
                 and the return code as int.
         """
-        print("FLASK SERVER: HANDLING REQUEST...")
         print(f"FLASK SERVER: ACTIVE CONNECTIONS: {threading.activeCount() - 1}")
         user_id = self.__allocate_user_id()
 
@@ -261,6 +262,12 @@ class FlaskHTTPServer():
         tcp_client_lock.release()
         msg = self.__wait_for_event(user_id)
 
+
+        filenames_match_temp = msg.content.split("_")
+        filenames_match = []
+        for item in filenames_match_temp:
+            filenames_match.append(item.split("-"))
+        print(filenames_match)
         with open(f"request-{user_id}.png", "wb") as f:
             f.write(msg.content)
 
@@ -368,15 +375,16 @@ class FlaskTCPClient:
                 msg_json = json.loads(msg)
                 msg_object = Message.from_json(msg_json)
 
-                user_id = msg_object.user_id
+                user_id = msg_object.user_index
 
                 tcp_result_lock.acquire()
                 tcp_result = msg_object
 
                 event_list_lock.acquire()
-                user_event = get_event_by_user_id(user_id)
+                user_event = get_event_by_user_id(user_id)[1]
                 user_event.set()
                 event_list_lock.release()
+                print("done event stuff")
 
                 self.lock.acquire()
                 self.client_amount -= 1
