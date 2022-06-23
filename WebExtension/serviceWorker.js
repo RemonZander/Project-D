@@ -1,22 +1,24 @@
-// Create context-menus
-chrome.contextMenus.create({
-	id: "bolParentSearch",
-	title: "Bol.com Extension",
-	contexts: ["image"],
-});
+chrome.runtime.onInstalled.addListener(() => {
+	// Create context-menus
+	chrome.contextMenus.create({
+		id: "bolParentSearch",
+		title: "Bol.com Extension",
+		contexts: ["image"],
+	});
 
-chrome.contextMenus.create({
-	id: "bolComplexSearch",
-	parentId: "bolParentSearch",
-	title: "Search picture on bol.com",
-	contexts: ["image"],
-});
+	chrome.contextMenus.create({
+		id: "bolComplexSearch",
+		parentId: "bolParentSearch",
+		title: "Search picture on bol.com",
+		contexts: ["image"],
+	});
 
-chrome.contextMenus.create({
-	id: "bolSimpleSearch",
-	parentId: "bolParentSearch",
-	title: "Search item type on bol.com",
-	contexts: ["image"],
+	chrome.contextMenus.create({
+		id: "bolSimpleSearch",
+		parentId: "bolParentSearch",
+		title: "Search item type on bol.com",
+		contexts: ["image"],
+	});
 });
 
 // Register a listener for the `onClicked` event
