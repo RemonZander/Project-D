@@ -51,8 +51,12 @@ class TCPController():
             self.classificationClient.connect(self.ADDRESS_IMAGE_CLASSIFICATION)
         except:
              print("Can't connect to classification server. Will try later again")
-        #print("CONNECTING TO COMPARER SERVER...")
-       # self.comparerClient.connect(self.ADDRESS_IMAGE_COMPARER)
+        print("CONNECTING TO COMPARER SERVER...")
+        try:
+            self.comparerClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.comparerClient.connect(self.ADDRESS_IMAGE_COMPARER)
+        except:
+            print("Can't connect to comparer server. Will try later again")
 
     def StartServer(self):
         print("SERVER IS STARTING...")
@@ -70,17 +74,15 @@ class TCPController():
                 print(f"ACTIVE CONNECTIONS: {threading.activeCount() - 1}")
             if self.q.qsize() > 0 and self.processingUser == False:
                 if self.Processed_Results != None:
-                    conn.send(self.Processed_Results.encode(self.FORMAT))
+                    conn.send(self.Processed_Results.to_json().encode(self.FORMAT))
                 msg_obj = self.q.get()
-                #msg_obj = Message.from_json(self.q.get())
-                #self.q.task_done()
                 print("STARTING NN THREAD...")
                 ImageSegmentationClientThread = threading.Thread(target=self.ImageSegmentationClient, args=(msg_obj,))
                 ImageSegmentationClientThread.start()
 
         self.server.close()
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server.bind(self.ADDRESS_FLASK_TCP)
+        #self.server.bind(self.ADDRESS_FLASK_TCP)
         self.__init__()
         self.StartServer()
             
@@ -100,8 +102,6 @@ class TCPController():
             else:
                 print("Error with msg_obj")
                 print(e)
-
-        #self.Listen(conn, addr)
 
         if len(msg) > 0 and self.processingUser:
             self.q.put(msg)
@@ -180,19 +180,50 @@ class TCPController():
             self.ImageComparerClient(new_msg_obj)
             return
 
-        if len(self.q) == 0: 
-            self.processingUser = False
-            self.Processed_Results = new_msg_obj
-            return
+        #if len(self.q) == 0: 
+        #    self.processingUser = False
+        #    self.Processed_Results = new_msg_obj
+         #   return
 
+        self.processingUser = False
         self.Processed_Results = new_msg_obj
 
     def ImageComparerClient(self, msg_obj):
         converted_msg = msg_obj.to_json().encode(self.FORMAT)
+        jsonvoorbeeld = msg_obj.to_json()
+        new_msg_obj = []
         print("SENDING MESSAGE...")
-        self.comparerClient.send(converted_msg)
-        new_msg_obj = Message.from_json(json.loads(self.comparerClient.recv(self.BUFFER_SIZE).decode(self.FORMAT)))
-        print("RECEIVED MESAGE FROM COMPARER SERVER. MESSAGE: " + new_msg_obj)
+        try:
+            self.comparerClient.send(converted_msg)
+        except:
+            print("reconnecting to classification server...")
+            try:
+                self.comparerClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.comparerClient.connect(self.ADDRESS_IMAGE_COMPARER)
+                print("SENDING MESSAGE...")
+                self.comparerClient.send(converted_msg)
+            except:
+                print("can't connect to comparer server. Will try in 1 second again")
+                time.sleep(1)
+                self.ImageComparerClient(msg_obj)
+        try:
+            msg = self.comparerClient.recv(self.BUFFER_SIZE).decode(self.FORMAT)
+            msg = msg[0:msg.rfind('}') + 1]
+            new_msg_obj = Message.from_json(json.loads(msg))
+            print()
+        except:
+            print("Lost connection to comparer server")
+            print("reconnecting to comparer server...")
+            try:
+                self.comparerClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.comparerClient.connect(self.ADDRESS_IMAGE_COMPARER)
+                print("SENDING MESSAGE...")
+                self.comparerClient.send(converted_msg)
+            except:
+                print("can't connect to comparer server. Will try in 1 second again")
+                time.sleep(1)
+                self.ImageClassificationClient(msg_obj)
+        print("RECEIVED MESAGE FROM COMPARER SERVER. MESSAGE: " + str(new_msg_obj))
 
         #if self.q.qsize() == 0: 
           #  self.processingUser = False

@@ -12,8 +12,7 @@
         "storage"
     ],
     "host_permissions": [
-        "https://*/",
-        "http://*/"
+        "<all_urls>"
     ],
     "content_scripts": [
         {
@@ -21,7 +20,7 @@
             "css": ["bolExtension.css"]
         }
       ],
-      "web_accessible_resources" : [
+    "web_accessible_resources" : [
         {
             "resources": [ "/images/*" ],
             "matches": ["<all_urls>"]

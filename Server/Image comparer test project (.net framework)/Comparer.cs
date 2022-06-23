@@ -12,16 +12,16 @@ using System.Drawing;
 using System.Threading;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
+using Newtonsoft.Json;
 
 namespace Image_comparer_test_project__.net_framework_
 {
     internal class Comparer
     {
-        private SectorData firstImgSectors;
-        private SectorData[] SecondimgListSectors = new SectorData[1];
-        private DataSet ds = new DataSet();
-        private List<Results> results;
-        private string[] fileNames = new string[1];
+        private static SectorData firstImgSectors;
+        private static SectorData[] SecondimgListSectors = new SectorData[1];
+        private static List<Results> results = new List<Results>();
+        private static string[] fileNames = new string[1];
 
         //only square supported for now
         private const int WidthSectors = 17;
@@ -29,12 +29,15 @@ namespace Image_comparer_test_project__.net_framework_
 
         public static void Main()
         {
+            System.Diagnostics.Process.GetCurrentProcess().PriorityClass = System.Diagnostics.ProcessPriorityClass.High;
             TcpClient client;
-            TcpListener server = new TcpListener(IPAddress.Parse("192.168.1.200"), 5053);
+            TcpListener server = new TcpListener(IPAddress.Parse("192.168.1.5"), 5053);
 
             server.Start();
-            Byte[] bytes = new Byte[128];
+            Byte[] bytes = new Byte[250000];
             string data = null;
+
+            ImageConverter imageConverter = new ImageConverter();
 
             while (true)
             {
@@ -50,14 +53,104 @@ namespace Image_comparer_test_project__.net_framework_
                 while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
                 {
                     data = Encoding.ASCII.GetString(bytes, 0, i);
-                    Console.WriteLine("Received: {0}", data);
-                    data = data.ToUpper();
-                    byte[] msg = Encoding.ASCII.GetBytes(data);
+                    Message message = JsonConvert.DeserializeObject<Message>(data);
+                    byte[] imgBytes = Convert.FromBase64String(message.content);
+
+                    Bitmap bm = (Bitmap)imageConverter.ConvertFrom(imgBytes);
+                    bm.Save("temp.png", ImageFormat.Png);
+                    Prepimage("temp.png", true, 0);
+                    fileNames = Directory.GetFiles(@"../../../../../Dataset/" + message.class_name);
+                    /*                    bm.Save("test.png", ImageFormat.Png);
+                                        Console.WriteLine("Received: {0}", data);
+                                        data = data.ToUpper();
+                                        byte[] msg = Encoding.ASCII.GetBytes(data);
+                                        stream.Write(msg, 0, msg.Length);
+                                        Console.WriteLine("Sent: {0}", data);*/
+
+                    SecondimgListSectors = new SectorData[fileNames.Length];
+                    Thread[] threads = new Thread[30];
+
+                    for (int a = 0; a < threads.Length; a++)
+                    {
+                        string[] substring = new string[fileNames.Length / threads.Length];
+                        int subStringLength = substring.Length * a;
+                        Array.Copy(fileNames, subStringLength, substring, 0, substring.Length);
+                        threads[a] = new Thread(() => ThreadRunPrep(substring, subStringLength));
+                        threads[a].Start();
+                    }
+
+                    string[] lastSubString = new string[fileNames.Length % threads.Length];
+                    Array.Copy(fileNames, fileNames.Length - fileNames.Length % threads.Length, lastSubString, 0, lastSubString.Length);
+                    Thread lastThread = new Thread(() => ThreadRunPrep(lastSubString, fileNames.Length - fileNames.Length % threads.Length));
+                    lastThread.Start();
+
+                    foreach (var thread in threads)
+                    {
+                        thread.Join();
+                    }
+
+                    lastThread.Join();
+
+                    threads = new Thread[25];
+                    SectorData firstimage = firstImgSectors;
+                    int length = SecondimgListSectors.Length / threads.Length;
+                    for (int a = 0; a < threads.Length; a++)
+                    {
+                        int startPos = length * a;
+                        threads[a] = new Thread(() => ThreadRunCompare(startPos, length, firstimage));
+                        threads[a].Start();
+                    }
+
+                    lastThread = new Thread(() => ThreadRunCompare(0, 0, firstimage));
+                    if (SecondimgListSectors.Length % threads.Length != 0)
+                    {
+                        length = SecondimgListSectors.Length % threads.Length;
+                        int lastPos = SecondimgListSectors.Length - length;
+                        lastThread = new Thread(() => ThreadRunCompare(lastPos, length, firstimage));
+                        lastThread.Start();
+                    }
+
+                    foreach (var thread in threads)
+                    {
+                        thread.Join();
+                    }
+
+                    if (SecondimgListSectors.Length % threads.Length != 0)
+                    {
+                        lastThread.Join();
+                    }
+
+                    Directory.Delete(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\foto's", true);
+                    Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\foto's");
+                    List<Tuple<double, string>> totalDiff = new List<Tuple<double, string>>();
+                    for (int a = 0; a < results.Count; a++)
+                    {
+                        totalDiff.Add(Tuple.Create((Convert.ToDouble(results[a].HueDiffPercent.Replace("%", "")) +
+                            Convert.ToDouble(results[a].BrightnessDiffPercent.Replace("%", "")) +
+                            Convert.ToDouble(results[a].SaturationDiffPercent.Replace("%", ""))) / 3, results[a].FileName));
+                    }
+
+                    totalDiff = totalDiff.OrderBy(x => x.Item1).ToList();
+
+                    Message newMSG = new Message{
+                        class_name = message.class_name,
+                        complex_case = message.complex_case,
+                        user_index = message.user_index
+                    };
+
+                    for (int b = 0; b < 20; b++)
+                    {
+                        newMSG.content += totalDiff[b].Item2 + "-" + Convert.ToInt32(totalDiff[b].Item1) + "_";
+
+                        //File.Copy(@"../../../../../Dataset/" + message.class_name + @"\" + fileName, Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\foto's\" + totalDiff[b].Item1 + " " + fileName);
+                    }
+
+                    string msgJSON = JsonConvert.SerializeObject(newMSG);
+                    byte[] msg = Encoding.ASCII.GetBytes(msgJSON);
+                    Array.Resize(ref msg, 250000);
                     stream.Write(msg, 0, msg.Length);
-                    Console.WriteLine("Sent: {0}", data);
                 }
             }
-            //client.Close();
         }
 
         private static Bitmap CropAtRect(Bitmap b, Rectangle r)
@@ -74,12 +167,12 @@ namespace Image_comparer_test_project__.net_framework_
             return (UInt16)number;
         }
 
-        private void Prepimage(string filename, bool firstImg, int secondImagePos)
+        private static void Prepimage(string filename, bool firstImg, int secondImagePos)
         {
             Bitmap image = (Bitmap)Image.FromFile(filename);
 
-            double ratio = image.Height * 1.0 / image.Width;
-            image = CropAtRect(image, new Rectangle(0, 0, 200, (int)(200 * ratio)));
+            //double ratio = image.Height * 1.0 / image.Width;
+            //image = CropAtRect(image, new Rectangle(0, 0, 200, (int)(200 * ratio)));
 
             SectorData sectorAverages = new SectorData
             {
@@ -111,7 +204,7 @@ namespace Image_comparer_test_project__.net_framework_
             });
 
             Span<(int, int, int)> colors = new (int, int, int)[bytes / 3];
-            for (int a = 0, b = 0; a < rgbValues.Length; a += 3, b++)
+            for (int a = 0, b = 0; a < rgbValues.Length - 2; a += 3, b++)
             {
                 float red = rgbValues[a + 2] / 255f;
                 float green = rgbValues[a + 1] / 255f;
@@ -205,7 +298,7 @@ namespace Image_comparer_test_project__.net_framework_
             SecondimgListSectors[secondImagePos] = sectorAverages;
         }
 
-        private void ThreadRunPrep(string[] filenames, int startPos)
+        private static void ThreadRunPrep(string[] filenames, int startPos)
         {
             for (int a = 0; a < filenames.Length; a++)
             {
@@ -213,7 +306,7 @@ namespace Image_comparer_test_project__.net_framework_
             }
         }
 
-        private void ThreadRunCompare(int startPos, int length, SectorData firstimage)
+        private static void ThreadRunCompare(int startPos, int length, SectorData firstimage)
         {
             Results[] resultsTemp = new Results[length];
 
@@ -228,12 +321,12 @@ namespace Image_comparer_test_project__.net_framework_
             }
         }
 
-        private Results CompareImg(SectorData firstImgSectorsCompare, SectorData secondImgSectorsCompare, int pos)
+        private static Results CompareImg(SectorData firstImgSectorsCompare, SectorData secondImgSectorsCompare, int pos)
         {
             List<int> diffHue = new List<int>();
             List<int> diffBrightness = new List<int>();
             List<int> diffSaturation = new List<int>();
-            List<int> diffTotal = new List<int>();           
+            List<int> diffTotal = new List<int>();
 
             firstImgSectorsCompare.HSVData = firstImgSectorsCompare.HSVData.OrderBy(x => x.Item1).ToList();
             secondImgSectorsCompare.HSVData = secondImgSectorsCompare.HSVData.OrderBy(x => x.Item1).ToList();
@@ -267,5 +360,16 @@ namespace Image_comparer_test_project__.net_framework_
                 FileName = secondImgSectorsCompare.FileName,
             };
         }
+    }
+
+    internal struct Message
+    {
+        public string user_index { get; set; }
+
+        public string content { get; set; }
+
+        public string complex_case { get; set; }
+        
+        public string class_name { get; set; }
     }
 }
