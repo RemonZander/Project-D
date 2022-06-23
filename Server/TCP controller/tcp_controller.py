@@ -4,7 +4,6 @@ from multiprocessing import Queue
 import socket
 import threading
 import json
-from typing import Type
 from MessageType import MessageType
 from Message import Message
 import time
@@ -22,11 +21,12 @@ class TCPController():
     PORT_IMAGE_SEGMENTATION = 5051
     PORT_IMAGE_CLASSIFICATION = 5052
     PORT_IMAGE_Comparer = 5053
-    SERVER = socket.gethostbyname(socket.gethostname())
-    ADDRESS_FLASK_TCP = (SERVER, PORT_FLASK_TCP)
-    ADDRESS_IMAGE_SEGMENTATION = (SERVER, PORT_IMAGE_SEGMENTATION)
-    ADDRESS_IMAGE_CLASSIFICATION = (SERVER, PORT_IMAGE_CLASSIFICATION)
-    ADDRESS_IMAGE_COMPARER = (SERVER, PORT_IMAGE_Comparer)
+    SERVER_ADDRESS = socket.gethostbyname(socket.gethostname())
+    ADDRESS_FLASK_TCP = (SERVER_ADDRESS, PORT_FLASK_TCP)
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    ADDRESS_IMAGE_SEGMENTATION = (SERVER_ADDRESS, PORT_IMAGE_SEGMENTATION)
+    ADDRESS_IMAGE_CLASSIFICATION = (SERVER_ADDRESS, PORT_IMAGE_CLASSIFICATION)
+    ADDRESS_IMAGE_COMPARER = (SERVER_ADDRESS, PORT_IMAGE_Comparer)
     FORMAT = "ascii"
     BUFFER_SIZE = 250000
     q = Queue()
@@ -38,26 +38,35 @@ class TCPController():
     connected = False
 
     def __init__(self):
-        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind(self.ADDRESS_FLASK_TCP)
-        #print("CONNECTING TO SEGMENTATION SERVER...")
-        #self.segmentationClient.connect(self.ADDRESS_IMAGE_SEGMENTATION)
-        #print("CONNECTING TO CLASSIFICATION SERVER...")
-        #self.classificationClient.connect(self.ADDRESS_IMAGE_CLASSIFICATION)
+        print("CONNECTING TO SEGMENTATION SERVER...")
+        try:
+            self.segmentationClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.segmentationClient.connect(self.ADDRESS_IMAGE_SEGMENTATION)
+        except:
+            print("Can't connect to segmentation server. Will try later again")
+        print("CONNECTING TO CLASSIFICATION SERVER...")
+        try:
+            self.classificationClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.classificationClient.connect(self.ADDRESS_IMAGE_CLASSIFICATION)
+        except:
+             print("Can't connect to classification server. Will try later again")
         #print("CONNECTING TO COMPARER SERVER...")
        # self.comparerClient.connect(self.ADDRESS_IMAGE_COMPARER)
 
     def StartServer(self):
+        print("SERVER IS STARTING...")
         self.server.listen()
-        conn, addr = self.server.accept()
+        (conn, addr) = self.server.accept()
+        (conn, addr) = self.server.accept()
         print(f"NEW CONNECTION ESTABLISHED: {addr}")
         self.connected = True
         listenThread = threading.Thread(target=self.Listen, args=(conn,addr))
+        listenThread.start()
         while self.connected:
             if listenThread.is_alive() == False:
-                listenThread = threading.Thread(target=self.Listen, args=(conn,addr))                
+                listenThread = threading.Thread(target=self.Listen, args=(conn,addr))
                 listenThread.start()
-                print("Started listening...")
                 print(f"ACTIVE CONNECTIONS: {threading.activeCount() - 1}")
             if self.q.qsize() > 0 and self.processingUser == False:
                 if self.Processed_Results != None:
@@ -72,6 +81,7 @@ class TCPController():
         self.server.close()
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind(self.ADDRESS_FLASK_TCP)
+        self.__init__()
         self.StartServer()
             
 
@@ -79,12 +89,19 @@ class TCPController():
         msg = ""
         msg_obj = []
         try:
+            print("Started listening...")
             msg = conn.recv(self.BUFFER_SIZE).decode(self.FORMAT)
+            print("MESSAGE RECEIVED. MESSAGE: " + msg)
             msg_obj = Message.from_json(json.loads(msg))
-            print("MESSAGE RECEIVED. MESSAGE: " + msg_obj)
         except Exception as e:
             if type(e) == ConnectionResetError:
                 self.connected = False
+                print("Restarting server...")
+            else:
+                print("Error with msg_obj")
+                print(e)
+
+        #self.Listen(conn, addr)
 
         if len(msg) > 0 and self.processingUser:
             self.q.put(msg)
@@ -97,18 +114,68 @@ class TCPController():
 
     def ImageSegmentationClient(self, msg_obj):
         converted_msg = msg_obj.to_json().encode(self.FORMAT)
-        print("SENDING MESSAGE...")
-        self.segmentationClient.send(converted_msg)
-        new_msg_obj = Message.from_json(json.loads(self.segmentationClient.recv(self.BUFFER_SIZE).decode(self.FORMAT)))
-        print("RECEIVED MESAGE FROM SEGMENTATION SERVER. MESSAGE: " + new_msg_obj)
+        print("SENDING MESSAGE TO SEGMENTATION...")
+        try:
+            self.segmentationClient.send(converted_msg)
+        except:
+            print("reconnecting to segmentation server...")
+            try:
+                self.segmentationClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.segmentationClient.connect(self.ADDRESS_IMAGE_SEGMENTATION)
+                print("SENDING MESSAGE...")
+                self.segmentationClient.send(converted_msg)
+            except:
+                print("can't connect to segmentation server. Will try in 1 second again")
+                time.sleep(1)
+                self.ImageSegmentationClient(msg_obj)
+        try:
+            new_msg_obj = Message.from_json(json.loads(self.segmentationClient.recv(self.BUFFER_SIZE).decode(self.FORMAT)))
+        except:
+            print("Lost connection to segmentation server")
+            print("reconnecting to segmentation server...")
+            try:
+                self.segmentationClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.segmentationClient.connect(self.ADDRESS_IMAGE_SEGMENTATION)
+                print("SENDING MESSAGE...")
+                self.segmentationClient.send(converted_msg)
+            except:
+                print("can't connect to segmentation server. Will try in 1 second again")
+                time.sleep(1)
+                self.ImageSegmentationClient(msg_obj)
+        print("RECEIVED MESAGE FROM SEGMENTATION SERVER. MESSAGE: " + str(new_msg_obj))
         self.ImageClassificationClient(new_msg_obj)
 
     def ImageClassificationClient(self, msg_obj):
         converted_msg = msg_obj.to_json().encode(self.FORMAT)
         print("SENDING MESSAGE...")
-        self.classificationClient.send(converted_msg)
-        new_msg_obj = Message.from_json(json.loads(self.classificationClient.recv(self.BUFFER_SIZE).decode(self.FORMAT)))
-        print("RECEIVED MESAGE FROM CLASSIFICATION SERVER. MESSAGE: " + new_msg_obj)
+        try:
+            self.classificationClient.send(converted_msg)
+        except:
+            print("reconnecting to classification server...")
+            try:
+                self.classificationClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.classificationClient.connect(self.ADDRESS_IMAGE_CLASSIFICATION)
+                print("SENDING MESSAGE...")
+                self.classificationClient.send(converted_msg)
+            except:
+                print("can't connect to classification server. Will try in 1 second again")
+                time.sleep(1)
+                self.ImageClassificationClient(msg_obj)
+        try:
+            new_msg_obj = Message.from_json(json.loads(self.classificationClient.recv(self.BUFFER_SIZE).decode(self.FORMAT)))
+        except:
+            print("Lost connection to classification server")
+            print("reconnecting to classification server...")
+            try:
+                self.classificationClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.classificationClient.connect(self.ADDRESS_IMAGE_CLASSIFICATION)
+                print("SENDING MESSAGE...")
+                self.classificationClient.send(converted_msg)
+            except:
+                print("can't connect to classification server. Will try in 1 second again")
+                time.sleep(1)
+                self.ImageClassificationClient(msg_obj)
+        print("RECEIVED MESAGE FROM CLASSIFICATION SERVER. MESSAGE: " + str(new_msg_obj))
         if new_msg_obj.complex_case:
             self.ImageComparerClient(new_msg_obj)
             return
@@ -138,6 +205,5 @@ class TCPController():
         
 
 if __name__ == "__main__":
-    print("SERVER IS STARTING...")
     tcpController = TCPController()
     tcpController.StartServer()
