@@ -10,7 +10,7 @@ import PIL.Image as Image
 
 class ImageSegmentationServer():
     def __init__(self, BUFFER_MAX=250000, PORT_FLASK_TCP=5051, SERVER=socket.gethostbyname(socket.gethostname()), FORMAT="ascii"):
-        self.model = tf.keras.models.load_model('ImageSegmentation/model 60-40.h5')
+        self.model = tf.keras.models.load_model('model 60-40.h5')
         self.BUFFER_MAX = BUFFER_MAX
         self.FORMAT = FORMAT
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
