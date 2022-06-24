@@ -144,6 +144,7 @@ class TCPController():
                 time.sleep(1)
                 self.ImageSegmentationClient(msg_obj)
         print("RECEIVED MESAGE FROM SEGMENTATION SERVER. MESSAGE: " + str(new_msg_obj))
+        print("Compex_case: " + new_msg_obj.complex_case)
         self.ImageClassificationClient(new_msg_obj)
 
     def ImageClassificationClient(self, msg_obj):
@@ -177,14 +178,10 @@ class TCPController():
                 time.sleep(1)
                 self.ImageClassificationClient(msg_obj)
         print("RECEIVED MESAGE FROM CLASSIFICATION SERVER. MESSAGE: " + str(new_msg_obj))
-        if new_msg_obj.complex_case:
+        print("Complex_case: " + new_msg_obj.complex_case)
+        if new_msg_obj.complex_case == "true":
             self.ImageComparerClient(new_msg_obj)
             return
-
-        #if len(self.q) == 0: 
-        #    self.processingUser = False
-        #    self.Processed_Results = new_msg_obj
-         #   return
 
         self.processingUser = False
         self.Processed_Results = new_msg_obj

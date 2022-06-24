@@ -54,7 +54,7 @@ class ImageSegmentationServer():
         new_mask = self.create_mask(pred_mask)
         new_mask = tf.keras.utils.array_to_img(new_mask)
         new_mask = new_mask.convert("RGB")
-        origional_img_data = image.getdata()
+        origional_img_data = self.square_image(image).getdata()
         d = new_mask.getdata()
         newImageData = []
         for i, pixelData in enumerate(d):

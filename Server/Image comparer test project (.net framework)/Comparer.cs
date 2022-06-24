@@ -140,7 +140,12 @@ namespace Image_comparer_test_project__.net_framework_
 
                     for (int b = 0; b < 20; b++)
                     {
-                        newMSG.content += totalDiff[b].Item2 + "-" + Convert.ToInt32(totalDiff[b].Item1) + "_";
+                        if (b == 19)
+                        {
+                            newMSG.content += totalDiff[b].Item2 + "-" + (100 - Convert.ToInt32(totalDiff[b].Item1));
+                            break;
+                        }
+                        newMSG.content += totalDiff[b].Item2 + "-" + (100 - Convert.ToInt32(totalDiff[b].Item1)) + "_";
 
                         //File.Copy(@"../../../../../Dataset/" + message.class_name + @"\" + fileName, Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\foto's\" + totalDiff[b].Item1 + " " + fileName);
                     }

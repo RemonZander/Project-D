@@ -1,3 +1,4 @@
+console.log("showing overlay")
 if (!document.querySelector("#bolOverlay")) {
 	const createOverlay = async () => {
 		// Function that create a html element from a string.
@@ -45,7 +46,7 @@ if (!document.querySelector("#bolOverlay")) {
 		};
 
 		let elementArray = await getBolItems("bolItems");
-
+		console.log(elementArray)
 		elementArray.sort((a, b) => {
 			return b.match - a.match;
 		});

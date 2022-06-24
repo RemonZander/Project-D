@@ -45,31 +45,13 @@ import os
 #USER DISCONNECTS
 
 #GLOBAL VARIABLES
+continue_user = False
 event_list = []
 tcp_result = ""
 
 event_list_lock = threading.Lock()
 tcp_result_lock = threading.Lock()
 tcp_client_lock = threading.Lock()
-
-def get_event_by_user_id(user_id:int):
-    """
-    Returns an event which from the tuple in global `event_list` which contains `user_id` as Item1 in the tuple
-
-    Parameters
-    ---------
-    - `user_id` (int): The number to search for in global `event_list`
-
-    Returns
-    ---------
-    - threading.event : Event found
-    - False : No event found
-    """
-    print(event_list)
-    for event in event_list:     
-        if event[0] == user_id:
-            return event
-    #return False
 
 class FlaskHTTPServer():
     def __init__(self):
@@ -206,18 +188,25 @@ class FlaskHTTPServer():
         global tcp_result
         global event_list
         user_event = []
-
-        print("FLASK SERVER: WAITING FOR EVENT...")
-        event_list_lock.acquire()
+        global continue_user
         
-        user_event = get_event_by_user_id(user_id)[1]
-        event_list_lock.release()
+        event_list_lock.acquire()       
+        for event in event_list:
+            if event[0] == user_id:
+                event_list_lock.release()
+                user_event = event[1]
+                print("FLASK SERVER: WAITING FOR EVENT...")
+                while not continue_user:
+                    sleep(10)
+                    print("waiting 10 seconds... " + str(continue_user))
+                    pass
+                #user_event.wait()
+                break
 
-        user_event.wait() #TODO: Time-out period?
         print("FLASK SERVER: EVENT PROCESSED...")
-        event_list_lock.acquire()
-        self.__remove_event_by_user_id(user_id)
-        event_list_lock.release()
+        #event_list_lock.acquire()
+        #self.__remove_event_by_user_id(user_id)
+        #event_list_lock.release()
 
         msg = tcp_result
         tcp_result = "" #Empty result for security
@@ -247,6 +236,7 @@ class FlaskHTTPServer():
         - `tuple`: Tuple containing a dict storing the return code and return msg (e.g {"Code": 200, "Message": "})
                 and the return code as int.
         """
+        global event_list
         print(f"FLASK SERVER: ACTIVE CONNECTIONS: {threading.activeCount() - 1}")
         user_id = self.__allocate_user_id()
 
@@ -258,34 +248,39 @@ class FlaskHTTPServer():
 
         print("FLASK SERVER: SENDING REQUEST TO TCP...")
         tcp_client_lock.acquire()
+        print("Compex_case: " + complex_case)
         tcp_client.send_request(user_id, resized_image_base_64, complex_case)
         tcp_client_lock.release()
         msg = self.__wait_for_event(user_id)
 
+        return_msg = []
+        if msg.complex_case == "true":
+            filenames_match_temp = msg.content.split("_")
+            filenames_match = []
+            for item in filenames_match_temp:
+                filenames_match.append(item.split("-"))
+            print(filenames_match)
 
-        filenames_match_temp = msg.content.split("_")
-        filenames_match = []
-        for item in filenames_match_temp:
-            filenames_match.append(item.split("-"))
-        print(filenames_match)
-        with open(f"request-{user_id}.png", "wb") as f:
-            f.write(msg.content)
+            for name_match in filenames_match:
+                with open("../../Dataset/" + msg.class_name + "/" + name_match[0], "rb") as image_file:
+                    print("opened file: " + "../../Dataset/" + msg.class_name + "/" + name_match[0])
+                    encoded_string = base64.b64encode(image_file.read()).decode("ascii")
 
-        exif = ExifData(f"request-{user_id}.png")
-        title, link, desc = ExifData.LoadData()
-        os.remove(f"request-{user_id}")
-        image_base64 = base64.b64encode(msg.content)
-        image_base64 = image_base64.decode("ascii")
+                print("loading exif data...")
+                exif = ExifData("../../Dataset/" + msg.class_name + "/" + name_match[0])
+                title, link, desc = exif.LoadData()
+                print("Exif data loaded")
+                return_msg.append([{
+                    "image": encoded_string,
+                    "title": title,
+                    "link": link,
+                    "match": name_match[1],
+                    "description": desc
+                }])
+        else:
+            return_msg = msg.class_name
 
-        return_msg = [
-            {
-                "image": image_base64,
-                "title": title,
-                "link": link,
-                "match": 4,
-                "description": desc
-            }
-        ]
+        print(return_msg)
         print(f"FLASK SERVER: USER {user_id} DONE.")
         return {"Code": 200, "Message": return_msg }, 200
 
@@ -311,6 +306,7 @@ class FlaskTCPClient:
         self.client: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         print("TCP CLIENT: STARTING...")
+        print(os. getcwd());
         print(socket.gethostbyname(socket.gethostname()))
         self.client.connect(self.ADDRESS_FLASK_TCP)
 
@@ -363,6 +359,7 @@ class FlaskTCPClient:
         """
         global tcp_result
         global event_list
+        global continue_user
         print("TCP CLIENT: LISTENING TO RESPONSE...")
         #WAIT FOR RESPONSE
         while self.client_amount > 0:
@@ -381,11 +378,18 @@ class FlaskTCPClient:
                 tcp_result = msg_object
 
                 event_list_lock.acquire()
-                user_event = get_event_by_user_id(user_id)[1]
-                user_event.set()
-                event_list_lock.release()
-                print("done event stuff")
+                user_event = []
+                for event in event_list:     
+                    if event[0] == user_id:
+                        event_list_lock.release()
+                        user_event = event[1]
+                        user_event.set()
+                        
+                        #event[1].set()
+                        break
 
+                continue_user = True
+                print("Done with event stuff")
                 self.lock.acquire()
                 self.client_amount -= 1
                 self.lock.release()
