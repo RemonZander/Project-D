@@ -351,5 +351,10 @@ namespace Image_comparer_test_project__.net_framework_
                 }
             }
         }
+
+        private void textBox18_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

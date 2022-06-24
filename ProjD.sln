@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Exif test project", "Server
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Webscraper", "Server\Webscraper\Webscraper.pyproj", "{B376FDFB-2F1B-40BB-AD68-2AFAA14DFAB4}"
 EndProject
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Python server", "Server\Python server\Python server.pyproj", "{DD820957-E76E-4218-86CB-FC0483A6FA8F}"
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Flask Service", "Server\Flask Service\Flask Service.pyproj", "{DD820957-E76E-4218-86CB-FC0483A6FA8F}"
 EndProject
 Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "WebExtension", "WebExtension\WebExtension.njsproj", "{BE350F21-40D7-49D7-B173-FA4456F084D2}"
 EndProject
@@ -16,6 +16,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageSegmentationTrainingsDataCreator", "ImageSegmentationTrainingsDataCreator\ImageSegmentationTrainingsDataCreator.csproj", "{DBD745E2-C486-43F6-8651-30D21745F4B8}"
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "NeuralNets", "Server\NeuralNets\NeuralNets.pyproj", "{CEB0CE3F-6990-4A92-8F2A-05DB5E03A4FE}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "TCP controller", "Server\TCP controller\TCP controller.pyproj", "{3A0796EB-C62F-4985-A7D4-45A78E608BFD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -93,6 +95,12 @@ Global
 		{CEB0CE3F-6990-4A92-8F2A-05DB5E03A4FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CEB0CE3F-6990-4A92-8F2A-05DB5E03A4FE}.Release|x64.ActiveCfg = Release|Any CPU
 		{CEB0CE3F-6990-4A92-8F2A-05DB5E03A4FE}.Release|x86.ActiveCfg = Release|Any CPU
+		{3A0796EB-C62F-4985-A7D4-45A78E608BFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A0796EB-C62F-4985-A7D4-45A78E608BFD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3A0796EB-C62F-4985-A7D4-45A78E608BFD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3A0796EB-C62F-4985-A7D4-45A78E608BFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A0796EB-C62F-4985-A7D4-45A78E608BFD}.Release|x64.ActiveCfg = Release|Any CPU
+		{3A0796EB-C62F-4985-A7D4-45A78E608BFD}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

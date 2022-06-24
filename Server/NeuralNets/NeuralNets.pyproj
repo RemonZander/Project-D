@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>ceb0ce3f-6990-4a92-8f2a-05db5e03a4fe</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>ImageSegmentation\run.py</StartupFile>
+    <StartupFile>TransferLearning\tcp_server.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -27,10 +27,15 @@
     <Compile Include="ImageClassifier\run.py" />
     <Compile Include="ImageSegmentation.py" />
     <Compile Include="ImageSegmentation\dataset.py" />
+    <Compile Include="ImageSegmentation\Message.py" />
     <Compile Include="ImageSegmentation\run.py" />
+    <Compile Include="ImageSegmentation\tcp_server.py" />
     <Compile Include="TransferLearning.py" />
     <Compile Include="TransferLearning\IC+Save.py" />
     <Compile Include="TransferLearning\ICTL.py" />
+    <Compile Include="TransferLearning\Message.py" />
+    <Compile Include="TransferLearning\run.py" />
+    <Compile Include="TransferLearning\tcp_server.py" />
     <Compile Include="TransferLearning\TLTEST.py" />
     <Compile Include="TransferLearning\TransferLearning.py" />
   </ItemGroup>

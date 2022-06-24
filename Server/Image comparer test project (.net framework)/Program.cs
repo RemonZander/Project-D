@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 namespace Image_comparer_test_project__.net_framework_
 {
-    internal static class Program
+/*    internal static class Program
     {
         /// <summary>
         /// The main entry point for the application.
@@ -14,9 +14,10 @@ namespace Image_comparer_test_project__.net_framework_
         [STAThread]
         static void Main()
         {
+            TCP_server.Main();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
         }
-    }
+    }*/
 }

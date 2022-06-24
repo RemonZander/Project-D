@@ -87,8 +87,8 @@ batches = [
 ]
 
 class_names = [
-    "broeken",
     "jassen",
+    "lange broeken",
     "korte broeken",
     "slippers",
     "sneakers",

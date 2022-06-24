@@ -1,22 +1,24 @@
-// Create context-menus
-chrome.contextMenus.create({
-	id: "bolParentSearch",
-	title: "Bol.com Extension",
-	contexts: ["image"],
-});
+chrome.runtime.onInstalled.addListener(() => {
+	// Create context-menus
+	chrome.contextMenus.create({
+		id: "bolParentSearch",
+		title: "Bol.com Extension",
+		contexts: ["image"],
+	});
 
-chrome.contextMenus.create({
-	id: "bolComplexSearch",
-	parentId: "bolParentSearch",
-	title: "Search picture on bol.com",
-	contexts: ["image"],
-});
+	chrome.contextMenus.create({
+		id: "bolComplexSearch",
+		parentId: "bolParentSearch",
+		title: "Search picture on bol.com",
+		contexts: ["image"],
+	});
 
-chrome.contextMenus.create({
-	id: "bolSimpleSearch",
-	parentId: "bolParentSearch",
-	title: "Search item type on bol.com",
-	contexts: ["image"],
+	chrome.contextMenus.create({
+		id: "bolSimpleSearch",
+		parentId: "bolParentSearch",
+		title: "Search item type on bol.com",
+		contexts: ["image"],
+	});
 });
 
 // Register a listener for the `onClicked` event
@@ -37,6 +39,8 @@ chrome.contextMenus.onClicked.addListener((clickedData, tab) => {
 		// Making the blob into an file object
 		const imgFile = new File([blob], "image.jpg", { contentType });
 
+		console.log("Inside first Post");
+
 		if (tab && clickedData.menuItemId === "bolComplexSearch") {
 			// Adding the imgFile to the formData with the key "image" for the post request
 			const data = new FormData();
@@ -49,35 +53,31 @@ chrome.contextMenus.onClicked.addListener((clickedData, tab) => {
 				body: data,
 			})
 				.then((res) => {
-					res.json()
-						.then((data) => ({
-							body: data,
-						}))
-						.then((obj) => {
-							let bolItems = [];
-							obj.body.Message.forEach((product) => {
-								bolItems.push({
-									image: product.image,
-									title: product.title,
-									link: product.link,
-									match: product.match,
-									description: product.description,
-								});
-							});
-
-							chrome.storage.local.set({
-								bolItems: bolItems,
+					console.log("Recieved response!");
+					res.json().then((obj) => {
+						let bolItems = [];
+						console.log(obj);
+						obj.Message.forEach((product) => {
+							bolItems.push({
+								image: product[0].image,
+								title: product[0].title,
+								link: product[0].link,
+								match: product[0].match,
+								description: product[0].description,
 							});
 						});
+
+						chrome.storage.local.set({ bolItems: bolItems });
+
+						chrome.scripting.executeScript({
+							target: { tabId: tab.id },
+							files: ["createOverlay.js"],
+						});
+					});
 				})
 				.catch((error) => {
 					console.log("Authorization failed : " + error.message);
 				});
-
-			chrome.scripting.executeScript({
-				target: { tabId: tab.id },
-				files: ["createOverlay.js"],
-			});
 		} else if (tab && clickedData.menuItemId === "bolSimpleSearch") {
 			// Adding the imgFile to the formData with the key "image" for the post request
 			const data = new FormData();
@@ -90,15 +90,12 @@ chrome.contextMenus.onClicked.addListener((clickedData, tab) => {
 				body: data,
 			})
 				.then((res) => {
-					res.json()
-						.then((data) => ({
-							body: data,
-						}))
-						.then((obj) => {
-							chrome.tabs.create({
-								url: `https://www.bol.com/nl/nl/s/?searchtext=${obj.body.Message}`,
-							});
+					res.json().then((obj) => {
+						console.log(obj);
+						chrome.tabs.create({
+							url: `https://www.bol.com/nl/nl/s/?searchtext=${obj.Message}`,
 						});
+					});
 				})
 				.catch((error) => {
 					console.log("Authorization failed : " + error.message);
