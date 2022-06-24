@@ -30,8 +30,6 @@ chrome.contextMenus.onClicked.addListener((clickedData, tab) => {
 	)
 		return;
 
-	console.log("Before first Post");
-
 	// Fetch request to get the image from the image src url
 	fetch(clickedData.srcUrl).then(async (res) => {
 		// Convert the image to a blob
@@ -49,8 +47,6 @@ chrome.contextMenus.onClicked.addListener((clickedData, tab) => {
 			data.append("image", imgFile);
 			data.append("complex_case", true);
 
-			console.log("Before Post");
-
 			// Post request to the server sending the formdata as the data.
 			fetch(`http://127.0.0.1:5000/image`, {
 				method: "POST",
@@ -58,50 +54,30 @@ chrome.contextMenus.onClicked.addListener((clickedData, tab) => {
 			})
 				.then((res) => {
 					console.log("Recieved response!");
-					res.json()
-						.then((obj) => {
-							let bolItems = [];
-							console.log(obj);
-							obj.Message.forEach((product) => {
-								bolItems.push({
-									image: product[0].image,
-									title: product[0].title,
-									link: product[0].link,
-									match: product[0].match,
-									description: product[0].description,
-								});
-							});
-
-/*							chrome.storage.local.set({
-								"bolItems": bolItems,
-							}, () => {
-								console.log(`localStorage set to key: ${bolItems}, value: ${bolItems}`);
-							});*/
-
-							console.log(bolItems)
-							chrome.storage.local.set({ bolItems: bolItems }, () => {
-								console.log("Data set.");
-
-								chrome.storage.local.get(["bolItems"], (res) => {
-									console.log(res);
-								});
-							});
-
-/*							chrome.storage.local.get("bolItems", (res) => {
-								console.log(`Stored data: ${res.key}`)
-							});*/
-
-							console.log("your mom")
-							chrome.scripting.executeScript({
-								target: { tabId: tab.id },
-								files: ["createOverlay.js"],
+					res.json().then((obj) => {
+						let bolItems = [];
+						console.log(obj);
+						obj.Message.forEach((product) => {
+							bolItems.push({
+								image: product[0].image,
+								title: product[0].title,
+								link: product[0].link,
+								match: product[0].match,
+								description: product[0].description,
 							});
 						});
+
+						chrome.storage.local.set({ bolItems: bolItems });
+
+						chrome.scripting.executeScript({
+							target: { tabId: tab.id },
+							files: ["createOverlay.js"],
+						});
+					});
 				})
 				.catch((error) => {
 					console.log("Authorization failed : " + error.message);
 				});
-			
 		} else if (tab && clickedData.menuItemId === "bolSimpleSearch") {
 			// Adding the imgFile to the formData with the key "image" for the post request
 			const data = new FormData();
@@ -114,13 +90,12 @@ chrome.contextMenus.onClicked.addListener((clickedData, tab) => {
 				body: data,
 			})
 				.then((res) => {
-					res.json()
-						.then((obj) => {
-							console.log(obj)
-							chrome.tabs.create({
-								url: `https://www.bol.com/nl/nl/s/?searchtext=${obj.Message}`,
-							});
+					res.json().then((obj) => {
+						console.log(obj);
+						chrome.tabs.create({
+							url: `https://www.bol.com/nl/nl/s/?searchtext=${obj.Message}`,
 						});
+					});
 				})
 				.catch((error) => {
 					console.log("Authorization failed : " + error.message);
