@@ -31,7 +31,7 @@ namespace Image_comparer_test_project__.net_framework_
         {
             System.Diagnostics.Process.GetCurrentProcess().PriorityClass = System.Diagnostics.ProcessPriorityClass.High;
             TcpClient client;
-            TcpListener server = new TcpListener(IPAddress.Parse("192.168.1.5"), 5053);
+            TcpListener server = new TcpListener(IPAddress.Parse("192.168.1.200"), 5053);
 
             server.Start();
             Byte[] bytes = new Byte[250000];
@@ -42,10 +42,8 @@ namespace Image_comparer_test_project__.net_framework_
             while (true)
             {
                 Console.Write("Waiting for a connection... ");
-
                 client = server.AcceptTcpClient();
                 Console.WriteLine("Connected!");
-
                 data = null;
                 NetworkStream stream = client.GetStream();
 
@@ -60,12 +58,6 @@ namespace Image_comparer_test_project__.net_framework_
                     bm.Save("temp.png", ImageFormat.Png);
                     Prepimage("temp.png", true, 0);
                     fileNames = Directory.GetFiles(@"../../../../../Dataset/" + message.class_name);
-                    /*                    bm.Save("test.png", ImageFormat.Png);
-                                        Console.WriteLine("Received: {0}", data);
-                                        data = data.ToUpper();
-                                        byte[] msg = Encoding.ASCII.GetBytes(data);
-                                        stream.Write(msg, 0, msg.Length);
-                                        Console.WriteLine("Sent: {0}", data);*/
 
                     SecondimgListSectors = new SectorData[fileNames.Length];
                     Thread[] threads = new Thread[30];
@@ -120,8 +112,6 @@ namespace Image_comparer_test_project__.net_framework_
                         lastThread.Join();
                     }
 
-                    Directory.Delete(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\foto's", true);
-                    Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\foto's");
                     List<Tuple<double, string>> totalDiff = new List<Tuple<double, string>>();
                     for (int a = 0; a < results.Count; a++)
                     {
@@ -146,8 +136,6 @@ namespace Image_comparer_test_project__.net_framework_
                             break;
                         }
                         newMSG.content += totalDiff[b].Item2 + "-" + (100 - Convert.ToInt32(totalDiff[b].Item1)) + "_";
-
-                        //File.Copy(@"../../../../../Dataset/" + message.class_name + @"\" + fileName, Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\resultaten\foto's\" + totalDiff[b].Item1 + " " + fileName);
                     }
 
                     string msgJSON = JsonConvert.SerializeObject(newMSG);

@@ -11,7 +11,7 @@ import numpy as np
 
 class ImageClassificationServer():
     def __init__(self, BUFFER_MAX=250000, PORT_FLASK_TCP=5052, SERVER=socket.gethostbyname(socket.gethostname()), FORMAT="utf-8"):
-        self.model = tf.keras.models.load_model('TransferLearning/TransferlearningModel.h5')
+        self.model = tf.keras.models.load_model('TransferlearningModel.h5')
         self.BUFFER_MAX = BUFFER_MAX
         self.FORMAT = FORMAT
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
