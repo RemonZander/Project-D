@@ -51,7 +51,6 @@ chrome.contextMenus.onClicked.addListener((clickedData, tab) => {
 				body: data,
 			})
 				.then((res) => {
-					console.log("Recieved response!");
 					res.json().then((obj) => {
 						let bolItems = [];
 						console.log(obj);
@@ -89,7 +88,6 @@ chrome.contextMenus.onClicked.addListener((clickedData, tab) => {
 			})
 				.then((res) => {
 					res.json().then((obj) => {
-						console.log(obj);
 						chrome.tabs.create({
 							url: `https://www.bol.com/nl/nl/s/?searchtext=${obj.Message}`,
 						});
