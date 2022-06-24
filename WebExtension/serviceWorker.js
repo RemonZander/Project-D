@@ -53,7 +53,6 @@ chrome.contextMenus.onClicked.addListener((clickedData, tab) => {
 				.then((res) => {
 					res.json().then((obj) => {
 						let bolItems = [];
-						console.log(obj);
 						obj.Message.forEach((product) => {
 							bolItems.push({
 								image: product[0].image,
