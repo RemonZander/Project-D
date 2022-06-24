@@ -5,12 +5,18 @@ channels:
 dependencies:
   - bidict=0.21.2=pyhd3eb1b0_0
   - ca-certificates=2022.4.26=haa95532_0
-  - certifi=2022.5.18.1=py37haa95532_0
+  - certifi=2022.6.15=py37haa95532_0
   - click=7.1.2=py_0
   - flask=1.1.2=py_0
   - flask-socketio=5.1.0=pyhd3eb1b0_0
+  - freetype=2.10.4=hd328e21_0
   - itsdangerous=1.1.0=py37_0
   - jinja2=2.11.2=py_0
+  - jpeg=9e=h2bbff1b_0
+  - libpng=1.6.37=h2a8f88b_0
+  - libtiff=4.2.0=hd0e1b90_0
+  - libwebp=1.2.2=h2bbff1b_0
+  - lz4-c=1.9.3=h2bbff1b_1
   - markupsafe=1.1.1=py37hfa6e2cd_1
   - openssl=1.1.1o=h2bbff1b_0
   - pip=20.2.4=py37_0
@@ -19,10 +25,16 @@ dependencies:
   - python-socketio=5.3.0=pyhd3eb1b0_0
   - setuptools=50.3.0=py37h9490d1a_1
   - sqlite=3.33.0=h2a8f88b_0
+  - tk=8.6.12=h2bbff1b_0
   - vc=14.1=h0510ff6_4
   - vs2015_runtime=14.16.27012=hf0eaf9b_3
   - werkzeug=1.0.1=py_0
   - wheel=0.35.1=py_0
   - wincertstore=0.2=py37_0
+  - xz=5.2.5=h8cc25b3_1
   - zlib=1.2.11=vc14h1cdd9ab_1
+  - zstd=1.4.9=h19a0ad4_0
+  - pip:
+    - numpy==1.21.6
+    - pillow==9.1.1
 prefix: C:\Users\miame\miniconda3\envs\PythonServer
