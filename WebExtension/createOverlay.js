@@ -78,7 +78,7 @@ if (!document.querySelector("#bolOverlay")) {
 		// Function that creates a bolItem element and adds it as a child element to the extension.
 		const createItem = (item) => {
 			const bolItem = elementFromHtml(`
-				<div class="bolItem">
+				<div class="bolItem" data-link="${item.link}">
 					<img class="bolItemImg" src="data:image/png;base64,${item.image}">
 					<div class="bolItemBody">
 						<div class="bolItemHeader">
