@@ -39,8 +39,6 @@ chrome.contextMenus.onClicked.addListener((clickedData, tab) => {
 		// Making the blob into an file object
 		const imgFile = new File([blob], "image.jpg", { contentType });
 
-		console.log("Inside first Post");
-
 		if (tab && clickedData.menuItemId === "bolComplexSearch") {
 			// Adding the imgFile to the formData with the key "image" for the post request
 			const data = new FormData();
